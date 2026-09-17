@@ -9,7 +9,7 @@ host's `go version -m -json` command.
 
 ## Requirements
 
-- Linux with `/proc` mounted
+- Linux with `/proc` mounted (host only, for safe file inspection)
 - Python 3.14 or newer
 - A Go toolchain that supports `go version -m -json`
 - An unpacked container root filesystem
