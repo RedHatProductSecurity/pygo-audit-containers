@@ -1,93 +1,167 @@
 # pygo-audit-containers
 
+`pygo-audit` scans an unpacked Linux container filesystem and reports the Go
+modules embedded in each Go binary.
 
+The scanner targets Python 3.14 and has no third-party runtime dependencies. It
+does not execute anything from the container. Build metadata is read by the
+host's `go version -m -json` command.
 
-## Getting started
+## Requirements
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- Linux with `/proc` mounted
+- Python 3.14 or newer
+- A Go toolchain that supports `go version -m -json`
+- An unpacked container root filesystem
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+The current development environment uses Python 3.14.7 and Go 1.26.8.
 
-## Add your files
+## Analyst quick start
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+Clone the repository and enter it:
 
+```console
+git clone <repository-url>
+cd pygo-audit-containers
 ```
-cd existing_repo
-git remote add origin https://gitlab.cee.redhat.com/prodsec-dev/pygo-audit-containers.git
-git branch -M main
-git push -uf origin main
+
+Use your preferred container tool to export or unpack one container root
+filesystem into `sandbox/`. The directory must contain the unpacked filesystem
+tree, not the image archive itself.
+
+Then run the repository-local utility without installing anything:
+
+```console
+./pygo-audit
 ```
 
-## Integrate with your tools
+The `sandbox/` directory is the default scan root, is retained in Git, and
+ignores all extracted contents. Use a clean `sandbox/` for each image so files
+from different containers are not mixed.
 
-* [Set up project integrations](https://gitlab.cee.redhat.com/prodsec-dev/pygo-audit-containers/-/settings/integrations)
+For machine-readable output:
 
-## Collaborate with your team
+```console
+./pygo-audit --format json
+```
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+An explicit root directory still works:
 
-## Test and Deploy
+```console
+./pygo-audit /path/to/another/rootfs
+```
 
-Use the built-in continuous integration in GitLab.
+### Example: OpenShift CLI (`oc`)
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+The demonstration script extracts the `linux/amd64` variant of a commonly
+available Prometheus image into `sandbox/` and runs the audit. Pass another
+image reference and optional `OS/ARCH` to override the defaults:
 
-***
+```console
+./scripts/demo-oc.sh
+./scripts/demo-oc.sh quay.io/example/project:tag
+./scripts/demo-oc.sh quay.io/example/project:tag linux/arm64
+```
 
-# Editing this README
+For safety, the script refuses to mix an image with files already present in
+`sandbox/`. Move or remove the previous extracted root filesystem before
+running it again.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### Example: Podman
 
-## Suggestions for a good README
+```console
+container_id="$(podman create IMAGE)"
+podman export "$container_id" | tar -C sandbox -xf -
+podman rm "$container_id"
+./pygo-audit
+```
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### Example: Docker
 
-## Name
-Choose a self-explaining name for your project.
+```console
+container_id="$(docker create IMAGE)"
+docker export "$container_id" | tar -C sandbox -xf -
+docker rm "$container_id"
+./pygo-audit
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+These are examples only; the scanner does not require or invoke either
+container engine.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Installation is optional. It provides a system or virtual-environment command
+that can scan any unpacked root:
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```console
+python3 -m pip install .
+pygo-audit /path/to/rootfs
+```
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Useful options:
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```text
+--go PATH           Go command to use (default: go on PATH)
+--jobs COUNT        Maximum concurrent Go inspections (default: 4)
+--timeout SECONDS   Per-binary Go inspection timeout (default: 30)
+--strict            Exit nonzero if a non-fatal scan issue occurs
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## How scanning works
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+The discovery path has three inexpensive filters:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+1. Walk the root with `os.scandir`, without following symlinks.
+2. Keep every regular file, regardless of its permissions, name, or extension.
+3. Read four bytes and keep files beginning with the ELF magic `\x7fELF`.
 
-## License
-For open source projects, say how it is licensed.
+Each ELF candidate is then passed to `go version -m -json`. Successful results
+are Go binaries and are included in the report; other ELF files are ignored.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+The file descriptor checked during discovery is reopened without following
+symlinks and passed to Go through `/proc/self/fd`. This guards against a path
+being replaced by a symlink between discovery and inspection. Hardlinks are
+inspected once and all observed container paths are retained.
+
+## Output
+
+Text output shows the main package/module and dependency modules for each Go
+binary, followed by a deduplicated dependency summary. JSON output uses schema
+version 1 and includes build settings, module replacements, scan statistics,
+and non-fatal issues.
+
+Go build information contains modules that contributed packages to a binary.
+It does not enumerate standard-library packages or unused requirements from the
+source module's `go.mod`. Binaries without recognizable Go build metadata,
+packed binaries, and binaries produced by unsupported toolchains cannot be
+reported.
+
+## Tests
+
+The test suite uses only the Python standard library. Integration tests compile
+a small local Go module and do not access the network.
+
+```console
+PYTHONPATH=src python3 -m unittest discover -s tests -v
+```
+
+## Attribution
+
+This project was created by [Codex](https://developers.openai.com/codex/),
+OpenAI's AI coding agent, using the
+[GPT-5.6 Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
+model snapshot (`gpt-5.6-sol`), with direction from Daniel Ojalvo.
+
+## ROBOT POEM
+
+```text
+In sandbox roots where quiet layers lie,
+Four magic bytes wake under an ELF sky.
+Go leaves its modules etched in binary light,
+While oc unfolds each image into sight.
+
+No borrowed package steers the Python way;
+We scan each file and hear what builds can say.
+Daniel gives direction; Codex charts the view—
+“Engage,” and hidden dependencies shine through.
+```

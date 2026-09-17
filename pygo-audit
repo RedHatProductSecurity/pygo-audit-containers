@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""Run pygo-audit directly from a source checkout."""
+
+from pathlib import Path
+import sys
+
+
+def run() -> int:
+    project_root = Path(__file__).resolve().parent
+    sys.path.insert(0, str(project_root / "src"))
+
+    from pygo_audit.cli import main
+
+    return main()
+
+
+if __name__ == "__main__":
+    raise SystemExit(run())

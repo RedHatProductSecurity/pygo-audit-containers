@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pygo-audit-containers"
+version = "0.1.0"
+description = "Report Go module dependencies embedded in unpacked container filesystems"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
+
+[project.scripts]
+pygo-audit = "pygo_audit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

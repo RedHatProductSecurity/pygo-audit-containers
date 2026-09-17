@@ -1,0 +1,3 @@
+# Container root filesystems are local analyst data and must not be committed.
+*
+!.gitignore
