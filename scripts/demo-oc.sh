@@ -32,6 +32,8 @@ readonly script_dir
 repository_root="$(cd -- "$script_dir/.." && pwd)"
 readonly repository_root
 readonly sandbox_dir="$repository_root/sandbox"
+readonly sandbox_gitignore="$sandbox_dir/.gitignore"
+readonly expected_sandbox_gitignore="# This tracked file keeps sandbox/ present in fresh clones."
 readonly auditor="$repository_root/pygo-audit"
 
 for required_command in oc go; do
@@ -47,6 +49,17 @@ if [[ ! -x "$auditor" ]]; then
 fi
 
 mkdir -p -- "$sandbox_dir"
+
+if [[ ! -e "$sandbox_gitignore" ]]; then
+    printf 'warning: %s is missing; continuing without it.\n' \
+        "$sandbox_gitignore" >&2
+elif [[ ! -f "$sandbox_gitignore" || ! -r "$sandbox_gitignore" ]]; then
+    printf 'warning: %s is not the expected readable file; keeping it in the audit scope.\n' \
+        "$sandbox_gitignore" >&2
+elif [[ "$(<"$sandbox_gitignore")" != "$expected_sandbox_gitignore" ]]; then
+    printf 'warning: %s differs from the expected content; keeping it in the audit scope.\n' \
+        "$sandbox_gitignore" >&2
+fi
 
 existing_path="$({
     find "$sandbox_dir" -mindepth 1 \
