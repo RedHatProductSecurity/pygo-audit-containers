@@ -92,6 +92,32 @@ oc image extract "$IMAGE" \
 The scanner does not invoke `oc`; it only analyzes the filesystem placed in
 `sandbox/`.
 
+## Manual extraction with Podman
+
+Given an existing container, unpack its root filesystem into `sandbox/` and run
+the audit:
+
+```console
+CONTAINER=my-container
+
+podman export "$CONTAINER" | tar -C sandbox -xf -
+
+./pygo-audit sandbox
+```
+
+## Manual extraction with Docker
+
+Given an existing container, unpack its root filesystem into `sandbox/` and run
+the audit:
+
+```console
+CONTAINER=my-container
+
+docker export "$CONTAINER" | tar -C sandbox -xf -
+
+./pygo-audit sandbox
+```
+
 ## Installation
 
 Installation is optional. It provides a system or virtual-environment command
