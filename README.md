@@ -25,14 +25,16 @@ git clone <repository-url>
 cd pygo-audit-containers
 ```
 
-Use your preferred container tool to export or unpack one container root
-filesystem into `sandbox/`. The directory must contain the unpacked filesystem
-tree, not the image archive itself.
+The workflow has two steps:
 
-Then run the repository-local utility without installing anything:
+1. Use your preferred container tool to unpack one container root filesystem
+   directly into `sandbox/`. The result should look like a Linux filesystem—for
+   example, `sandbox/bin/` and `sandbox/etc/`—not an image archive or a directory
+   of image layers.
+2. Run the repository-local utility against `sandbox/` without installing it:
 
 ```console
-./pygo-audit
+./pygo-audit sandbox
 ```
 
 The `sandbox/` directory is the default scan root, is retained in Git, and
@@ -42,7 +44,7 @@ from different containers are not mixed.
 For machine-readable output:
 
 ```console
-./pygo-audit --format json
+./pygo-audit sandbox --format json
 ```
 
 An explicit root directory still works:
@@ -51,11 +53,12 @@ An explicit root directory still works:
 ./pygo-audit /path/to/another/rootfs
 ```
 
-### Example: OpenShift CLI (`oc`)
+## Demonstration script
 
-The demonstration script extracts the `linux/amd64` variant of a commonly
-available Prometheus image into `sandbox/` and runs the audit. Pass another
-image reference and optional `OS/ARCH` to override the defaults:
+The demonstration script performs both workflow steps: it extracts the
+`linux/amd64` variant of a commonly available Prometheus image into `sandbox/`,
+then runs `pygo-audit` against that directory. Pass another image reference and
+optional `OS/ARCH` to override the defaults:
 
 ```console
 ./scripts/demo-oc.sh
@@ -67,26 +70,27 @@ For safety, the script refuses to mix an image with files already present in
 `sandbox/`. Move or remove the previous extracted root filesystem before
 running it again.
 
-### Example: Podman
+## Manual extraction with `oc`
+
+From the repository root, choose an image and platform, unpack its root
+filesystem into `sandbox/`, and run the audit:
 
 ```console
-container_id="$(podman create IMAGE)"
-podman export "$container_id" | tar -C sandbox -xf -
-podman rm "$container_id"
-./pygo-audit
+IMAGE=quay.io/prometheus/prometheus:latest
+PLATFORM=linux/amd64
+
+oc image info --filter-by-os="$PLATFORM" "$IMAGE"
+oc image extract "$IMAGE" \
+    --filter-by-os="$PLATFORM" \
+    --path='/:sandbox' \
+    --confirm \
+    --only-files
+
+./pygo-audit sandbox
 ```
 
-### Example: Docker
-
-```console
-container_id="$(docker create IMAGE)"
-docker export "$container_id" | tar -C sandbox -xf -
-docker rm "$container_id"
-./pygo-audit
-```
-
-These are examples only; the scanner does not require or invoke either
-container engine.
+The scanner does not invoke `oc`; it only analyzes the filesystem placed in
+`sandbox/`.
 
 ## Installation
 
