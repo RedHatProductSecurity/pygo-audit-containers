@@ -21,6 +21,20 @@ class ScannerIntegrationTests(unittest.TestCase):
             (root / "usr" / "bin").mkdir(parents=True)
             (root / "etc").mkdir()
 
+            fake_govulncheck = temporary / "govulncheck"
+            fake_govulncheck.write_text(
+                "#!/bin/sh\n"
+                "if [ \"$1\" = \"-version\" ]; then\n"
+                "  echo 'Scanner: govulncheck@test'\n"
+                "  exit 0\n"
+                "fi\n"
+                "echo '{\"config\":{\"protocol_version\":\"v1.0.0\","
+                "\"scanner_name\":\"govulncheck\",\"scanner_version\":\"test\","
+                "\"db\":\"https://vuln.example\",\"scan_level\":\"symbol\","
+                "\"scan_mode\":\"binary\"}}'\n"
+            )
+            fake_govulncheck.chmod(0o755)
+
             (source / "go.mod").write_text("module example.test/auditfixture\n\ngo 1.26\n")
             (source / "main.go").write_text(
                 'package main\n\nimport "fmt"\n\nfunc main() { fmt.Println("fixture") }\n'
@@ -51,7 +65,7 @@ class ScannerIntegrationTests(unittest.TestCase):
             os.symlink("/bin/fixture", root / "usr" / "bin" / "fixture-symlink")
             (root / "etc" / "not-a-binary").write_text("configuration")
 
-            report = scan_root(root)
+            report = scan_root(root, govulncheck_command=os.fspath(fake_govulncheck))
 
             self.assertEqual(report.stats.go_binaries, 1)
             self.assertEqual(report.stats.go_binary_paths, 2)
@@ -62,6 +76,9 @@ class ScannerIntegrationTests(unittest.TestCase):
                 ["/usr/bin/fixture", "/usr/bin/fixture-hardlink"],
             )
             self.assertEqual(report.binaries[0].main_package, "example.test/auditfixture")
+            self.assertFalse(report.binaries[0].cgo_enabled)
+            self.assertEqual(report.binaries[0].vulnerability_scan.status, "complete")
+            self.assertEqual(report.binaries[0].vulnerability_scan.vulnerabilities, [])
             self.assertEqual(report.issues, [])
 
     def test_non_go_elf_is_not_reported_as_an_issue(self) -> None:
@@ -71,7 +88,7 @@ class ScannerIntegrationTests(unittest.TestCase):
             fake.write_bytes(ELF_MAGIC + b"\x00" * 64)
             fake.chmod(0o755)
 
-            report = scan_root(root)
+            report = scan_root(root, govulncheck_command=None)
 
             self.assertEqual(report.stats.unique_elf_files, 1)
             self.assertEqual(report.stats.go_binaries, 0)

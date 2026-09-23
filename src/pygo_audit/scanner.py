@@ -12,7 +12,9 @@ import stat
 import subprocess
 from typing import Final
 
-from pygo_audit.models import BinaryReport, ScanIssue, ScanReport
+from pygo_audit.models import BinaryReport, ScanIssue, ScanReport, VulnerabilityScan
+from pygo_audit.reconciliation import reconcile_binary
+from pygo_audit.vulnerabilities import GovulncheckOutputError, parse_govulncheck_json
 
 
 ELF_MAGIC: Final = b"\x7fELF"
@@ -41,6 +43,7 @@ def scan_root(
     root: Path,
     *,
     go_command: str = "go",
+    govulncheck_command: str | None = "govulncheck",
     timeout: float = 30.0,
     jobs: int = 4,
 ) -> ScanReport:
@@ -60,6 +63,25 @@ def scan_root(
         go_command=resolved_go,
         go_tool_version=go_tool_version,
     )
+    resolved_govulncheck: str | None = None
+    govulncheck_unavailable = ""
+    if govulncheck_command is None:
+        report.govulncheck_status = "disabled"
+    else:
+        report.govulncheck_command = govulncheck_command
+        try:
+            resolved_govulncheck, govulncheck_version = _resolve_govulncheck_tool(
+                govulncheck_command, timeout
+            )
+        except ScanConfigurationError as error:
+            report.govulncheck_status = "unavailable"
+            govulncheck_unavailable = str(error)
+            report.issues.append(ScanIssue("/", "govulncheck", str(error)))
+        else:
+            report.govulncheck_status = "available"
+            report.govulncheck_command = resolved_govulncheck
+            report.govulncheck_tool_version = govulncheck_version
+
     discovery = _discover_elf_files(root, report)
     report.issues.extend(discovery.issues)
 
@@ -67,6 +89,9 @@ def scan_root(
         return _inspect_elf_file(
             elf_file,
             go_command=resolved_go,
+            govulncheck_command=resolved_govulncheck,
+            govulncheck_disabled=govulncheck_command is None,
+            govulncheck_unavailable=govulncheck_unavailable,
             timeout=timeout,
         )
 
@@ -181,6 +206,9 @@ def _inspect_elf_file(
     elf_file: _ElfFile,
     *,
     go_command: str,
+    govulncheck_command: str | None,
+    govulncheck_disabled: bool,
+    govulncheck_unavailable: str,
     timeout: float,
 ) -> tuple[BinaryReport | None, ScanIssue | None]:
     display_path = elf_file.paths[0]
@@ -225,11 +253,96 @@ def _inspect_elf_file(
                 size=elf_file.size,
             )
             binary.paths = elf_file.paths.copy()
-            return binary, None
         except (json.JSONDecodeError, ValueError) as error:
             return None, ScanIssue(display_path, "go-json", str(error))
+
+        if govulncheck_disabled:
+            binary.vulnerability_scan = VulnerabilityScan(status="disabled")
+            return binary, None
+        if govulncheck_command is None:
+            binary.vulnerability_scan = VulnerabilityScan(
+                status="not_run",
+                error=govulncheck_unavailable,
+            )
+            return binary, None
+
+        vulnerability_scan, issue = _inspect_vulnerabilities(
+            descriptor_path,
+            descriptor=descriptor,
+            display_path=display_path,
+            govulncheck_command=govulncheck_command,
+            timeout=timeout,
+        )
+        binary.vulnerability_scan = vulnerability_scan
+        reconciliation_messages = reconcile_binary(binary)
+        if reconciliation_messages:
+            stage = (
+                "reconciliation"
+                if binary.reconciliation.status == "mismatch"
+                else "reconciliation-difference"
+            )
+            issue = ScanIssue(
+                display_path,
+                stage,
+                _summarize_reconciliation(reconciliation_messages),
+            )
+        return binary, issue
     finally:
         os.close(descriptor)
+
+
+def _inspect_vulnerabilities(
+    descriptor_path: str,
+    *,
+    descriptor: int,
+    display_path: str,
+    govulncheck_command: str,
+    timeout: float,
+) -> tuple[VulnerabilityScan, ScanIssue | None]:
+    try:
+        completed = subprocess.run(
+            [
+                govulncheck_command,
+                "-mode",
+                "binary",
+                "-format",
+                "json",
+                descriptor_path,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env=_govulncheck_environment(),
+            pass_fds=(descriptor,),
+        )
+    except subprocess.TimeoutExpired:
+        message = f"timed out after {timeout:g} seconds"
+        return (
+            VulnerabilityScan(status="failed", error=message),
+            ScanIssue(display_path, "govulncheck", message),
+        )
+    except OSError as error:
+        message = _format_os_error(error)
+        return (
+            VulnerabilityScan(status="failed", error=message),
+            ScanIssue(display_path, "govulncheck", message),
+        )
+
+    try:
+        scan = parse_govulncheck_json(completed.stdout)
+    except GovulncheckOutputError as error:
+        detail = completed.stderr.strip() or str(error)
+        scan = VulnerabilityScan(status="failed", error=detail)
+        return scan, ScanIssue(display_path, "govulncheck", detail)
+
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or f"exit status {completed.returncode}"
+        scan.status = "failed"
+        scan.error = detail
+        return scan, ScanIssue(display_path, "govulncheck", detail)
+
+    return scan, None
 
 
 def _open_regular_file(
@@ -306,11 +419,43 @@ def _resolve_go_tool(command: str, timeout: float) -> tuple[str, str]:
     return resolved, version
 
 
+def _resolve_govulncheck_tool(command: str, timeout: float) -> tuple[str, str]:
+    resolved = shutil.which(command)
+    if resolved is None:
+        raise ScanConfigurationError(f"govulncheck command not found: {command}")
+    try:
+        completed = subprocess.run(
+            [resolved, "-version"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env=_govulncheck_environment(),
+        )
+    except (OSError, subprocess.SubprocessError) as error:
+        raise ScanConfigurationError(f"cannot run {resolved}: {error}") from error
+    version = completed.stdout.strip()
+    if not version:
+        detail = completed.stderr.strip() or f"exit status {completed.returncode}"
+        raise ScanConfigurationError(
+            f"cannot use govulncheck command {resolved}: {detail}"
+        )
+    return resolved, version
+
+
 def _go_environment() -> dict[str, str]:
     environment = os.environ.copy()
     environment.pop("GOFLAGS", None)
     environment["GOENV"] = "off"
     environment["GOTOOLCHAIN"] = "local"
+    return environment
+
+
+def _govulncheck_environment() -> dict[str, str]:
+    environment = os.environ.copy()
+    environment.pop("GOFLAGS", None)
+    environment.pop("GOENV", None)
+    environment.pop("GOTOOLCHAIN", None)
     return environment
 
 
@@ -322,3 +467,10 @@ def _container_path(root: Path, path: Path) -> str:
 
 def _format_os_error(error: OSError) -> str:
     return error.strerror or str(error)
+
+
+def _summarize_reconciliation(messages: list[str], *, limit: int = 5) -> str:
+    displayed = messages[:limit]
+    if len(messages) > limit:
+        displayed.append(f"and {len(messages) - limit} more difference(s)")
+    return "; ".join(displayed)
