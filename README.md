@@ -4,7 +4,7 @@
 modules and known vulnerabilities found in each Go binary.
 
 See the [proof-of-concept scope](docs/proof-of-concept-scope.md) for the planned
-analyst interface, report cache, and additional output formats.
+analyst interface, immutable scan snapshots, and generated artifacts.
 
 The scanner targets Python 3.14 and has no third-party runtime dependencies. It
 does not execute anything from the container. Build metadata is read by the
@@ -48,23 +48,29 @@ The workflow has two steps:
 2. Run the repository-local utility against `sandbox/` without installing it:
 
 ```console
-./pygo-audit sandbox
+./pygo-audit scan sandbox
 ```
 
 The `sandbox/` directory is the default scan root, is retained in Git, and
 ignores all extracted contents. Use a clean `sandbox/` for each image so files
 from different containers are not mixed.
 
-For machine-readable output:
+To retain a portable audit bundle from the scan:
 
 ```console
-./pygo-audit sandbox --format json
+./pygo-audit scan sandbox --output-dir audit-artifacts/demo
+```
+
+Render its complete machine-readable snapshot without rescanning:
+
+```console
+./pygo-audit report json audit-artifacts/demo/audit.json
 ```
 
 An explicit root directory still works:
 
 ```console
-./pygo-audit /path/to/another/rootfs
+./pygo-audit scan /path/to/another/rootfs
 ```
 
 ## Demonstration script
@@ -100,7 +106,7 @@ oc image extract "$IMAGE" \
     --confirm \
     --only-files
 
-./pygo-audit sandbox
+./pygo-audit scan sandbox
 ```
 
 The scanner does not invoke `oc`; it only analyzes the filesystem placed in
@@ -116,7 +122,7 @@ CONTAINER=my-container
 
 podman export "$CONTAINER" | tar -C sandbox -xf -
 
-./pygo-audit sandbox
+./pygo-audit scan sandbox
 ```
 
 ## Manual extraction with Docker
@@ -129,7 +135,7 @@ CONTAINER=my-container
 
 docker export "$CONTAINER" | tar -C sandbox -xf -
 
-./pygo-audit sandbox
+./pygo-audit scan sandbox
 ```
 
 ## Image extraction scope
@@ -149,21 +155,37 @@ that can scan any unpacked root:
 
 ```console
 python3 -m pip install .
-pygo-audit /path/to/rootfs
+pygo-audit scan /path/to/rootfs
 ```
 
-Useful options:
+The primary subcommands are:
 
 ```text
---format FORMAT       text, container, summary, or json (default: text)
---group-by GROUP      container, binary, package, or vulnerability
---check ID            Report a targeted CVE, GHSA, or GO ID (repeatable)
+scan ROOT                    Scan an unpacked rootfs and print its overview
+report overview SNAPSHOT     Show result, coverage, packages, and vulnerabilities
+report findings SNAPSHOT     Show container findings and supporting evidence
+report binaries SNAPSHOT     Show per-binary findings and dependencies
+report diagnostics SNAPSHOT  Show scan issues and reconciliation details
+report json SNAPSHOT         Show the complete machine-readable snapshot
+check SNAPSHOT ID [ID ...]   Show only the requested vulnerability results
+```
+
+Useful scan options:
+
+```text
 --go PATH             Go command to use (default: go on PATH)
 --govulncheck PATH    govulncheck command to use (default: govulncheck on PATH)
 --no-vulncheck        Skip vulnerability checks
 --jobs COUNT          Maximum concurrent inspections (default: 4)
 --timeout SECONDS     Per-command inspection timeout (default: 30)
 --strict              Exit nonzero if an actionable scan issue occurs
+--snapshot-dir PATH   Content-addressed store for immutable scan snapshots
+--output-dir PATH     Write audit.json and all current rendered reports
+--image-metadata PATH JSON sidecar containing explicit image identity
+--image-ref REFERENCE Original image reference
+--image-digest DIGEST Resolved OCI manifest digest
+--platform OS/ARCH    Selected image platform
+--extractor TOOL      Tool used to produce the unpacked root
 ```
 
 ## How scanning works
@@ -187,54 +209,176 @@ inspected once and all observed container paths are retained.
 
 ## Output
 
-Text output prints a compact package/version/vulnerability table for each Go
-binary. Container output uses the same table but aggregates duplicate findings
-across all Go binaries in the unpacked root. Both retain scan coverage, CGO,
-and database provenance.
+Human-readable output uses narrow, labeled sections rather than wide tables so
+long container paths and module names remain readable in a terminal. Values
+that must be shortened keep their useful end and begin with `...`; JSON always
+retains the full value.
 
-Each table prints one row for every package and vulnerability pair, along with
-the current module version:
-
-```console
-./pygo-audit sandbox --format container
-```
-
-Summary output prints only the complete deduplicated lists of packages with
-vulnerability findings and preferred vulnerability identifiers, except for
-warnings when scan coverage is incomplete:
+The binary report includes CGO status, vulnerability findings, and the declared
+dependency path, version, checksum, and replacement data preserved from
+`go version -m`:
 
 ```console
-./pygo-audit sandbox --format summary
+./pygo-audit report binaries audit-artifacts/demo/audit.json
 ```
 
-Use `--group-by` for an evidence-rich view that retains binary paths and symbol
-evidence, or repeat `--check` for an explicit result for each requested ID:
+The findings report aggregates affected packages across all Go binaries:
 
 ```console
-./pygo-audit sandbox --group-by package
-./pygo-audit sandbox --check CVE-2026-46595 --check CVE-2025-68121
+./pygo-audit report findings audit-artifacts/demo/audit.json
 ```
 
-A missing targeted finding is reported as such only when every recognized Go
-binary completed vulnerability scanning. Otherwise its result is
-`INDETERMINATE`. JSON accepts the same options and adds a machine-readable
-`query` object while retaining the complete canonical audit.
+Operational scan issues, unverifiable components, and informational differences
+between `go version -m` and `govulncheck` are kept in a dedicated diagnostics
+view:
 
-The default compact human-readable formats omit dependencies, symbols,
-references, and affected version ranges. JSON schema version 3 retains
+```console
+./pygo-audit report diagnostics audit-artifacts/demo/audit.json
+```
+
+Primary reports show concise diagnostic counts only when issues or differences
+exist. Coverage warnings remain prominent because incomplete binary scans can
+hide vulnerability findings.
+
+The overview prints complete deduplicated lists of packages and preferred
+vulnerability identifiers. Use `--group-by` with the findings view for a
+different evidence organization:
+
+```console
+./pygo-audit report overview audit-artifacts/demo/audit.json
+./pygo-audit report findings audit-artifacts/demo/audit.json --group-by package
+```
+
+The check subcommand prints only the requested vulnerability results. Each
+identifier is its result header, followed by status, coverage, affected
+packages, and binary paths; compact snapshot and database provenance follows
+under `SCAN CONTEXT`:
+
+```console
+./pygo-audit check audit-artifacts/demo/audit.json \
+  CVE-2026-46595 CVE-2025-68121
+```
+
+A missing targeted finding is reported as `NOT DETECTED IN THIS SNAPSHOT` only
+when every recognized Go binary completed vulnerability scanning. Otherwise
+its result is `INDETERMINATE`.
+
+The human-readable formats omit symbol names, references, fixed versions, and
+affected version ranges. Development schema version 6 retains
 scanner/database provenance, the minimal `govulncheck` SBOM, dependencies,
 full affected-version and package information, fixed versions, evidence levels,
-references, scan statistics, and non-fatal issues. It also reconciles the
-effective `go version -m` module
+references, scan timestamps, per-binary SHA-256 digests, scan statistics, and
+non-fatal issues. It also reconciles the effective `go version -m` module
 inventory—including replacements and the standard library—with govulncheck's
 SBOM and each vulnerability finding. Matches are classified as `exact`,
 `replacement`, `stdlib`, or `unverifiable`; disagreements are retained as
-`mismatch` results and scan issues rather than silently discarded. Equivalent
-standard-library representations such as `go1.24.6` and `v1.24.6` are reported
-as informational reconciliation differences and do not make coverage
-incomplete or trigger `--strict`. Advisory summaries are deliberately omitted.
-Incomplete-scan warnings remain visible so a partial audit is not presented as
-clean.
+`mismatch` results and scan issues rather than silently discarded. All
+differences between `go version -m` and `govulncheck`—including equivalent
+standard-library representations such as `go1.24.6` and `v1.24.6`—are surfaced
+as informational reconciliation differences. They do not make coverage
+incomplete, raise an error, or trigger `--strict`. Advisory summaries are
+deliberately omitted. Incomplete-scan warnings remain visible so a partial
+audit is not presented as clean.
+
+Reconciliation also reports unverifiable components, such as local module
+replacements recorded with a `(devel)` version. These make reconciliation
+partial without making vulnerability coverage incomplete. Diagnostics groups
+each unique limitation across its affected binaries.
+
+### Snapshots and generated artifacts
+
+Write an immutable, content-addressed development snapshot while scanning:
+
+```console
+./pygo-audit scan sandbox --snapshot-dir audit-snapshots
+```
+
+Snapshots are named by a SHA-256 digest of their JSON content. The content
+includes scan timestamps, binary hashes, the `pygo-audit`, Go, and
+`govulncheck` versions, plus every vulnerability database URL and last-modified
+time observed during the scan. Consequently, a new scan or changed provenance
+produces a distinct snapshot; the snapshot digest is not a database digest.
+When a snapshot filename is a SHA-256 content address, every read automatically
+recomputes and validates that address. Portable `audit.json` files retain a
+recomputed snapshot identity but have no digest-bearing filename to compare.
+
+Generate the current portable artifact bundle from the same in-memory scan:
+
+```console
+./pygo-audit scan sandbox \
+  --snapshot-dir audit-snapshots \
+  --output-dir audit-artifacts/demo
+```
+
+The scan output directory contains:
+
+```text
+audit.json       Complete versioned scan snapshot
+overview.txt     Result, coverage, package list, and vulnerability list
+findings.txt     Container-level findings organized by affected package
+binaries.txt     Per-binary findings and declared dependency inventory
+diagnostics.txt  Operational issues, reconciliation limitations, and differences
+```
+
+Running `check --output-dir` adds `checks/ID.txt` for each requested identifier;
+it does not regenerate the five base artifacts.
+
+The JSON file is the complete snapshot IR; every text file is a derived view.
+Existing identical artifacts are reused, which permits adding saved checks to
+an existing bundle. Differing generated content is never overwritten. No
+renderer reruns `go` or `govulncheck`.
+
+Rerender a stored snapshot or portable `audit.json` without rescanning:
+
+```console
+./pygo-audit report overview audit-snapshots/DIGEST.json
+./pygo-audit report findings audit-snapshots/DIGEST.json --group-by package
+./pygo-audit report binaries audit-artifacts/demo/audit.json
+./pygo-audit report diagnostics audit-artifacts/demo/audit.json
+```
+
+Persist focused checks without regenerating the base reports:
+
+```console
+./pygo-audit check audit-artifacts/demo/audit.json \
+  CVE-2026-46595 CVE-2025-68121 \
+  --output-dir audit-artifacts/demo
+```
+
+A snapshot directory may be supplied directly when it contains exactly one
+JSON snapshot. When it contains multiple snapshots, select the desired file.
+Snapshot reads never refresh findings against the current vulnerability
+database. Development schema-v3 through schema-v5 reports remain readable but
+naturally lack newer provenance fields. The schema selected when the proof of
+concept is complete will be frozen and designated as canonical.
+
+### Image identity
+
+An extracted root filesystem has no standardized record of its originating OCI
+manifest. Supply identity explicitly when it is known:
+
+```console
+./pygo-audit scan sandbox \
+  --image-ref registry.example.test/team/app:v1 \
+  --image-digest sha256:MANIFEST_DIGEST \
+  --platform linux/amd64 \
+  --extractor "oc image extract"
+```
+
+The same values can be placed in `sandbox/.pygo-audit-image.json`; command-line
+values override sidecar values:
+
+```json
+{
+  "reference": "registry.example.test/team/app:v1",
+  "digest": "sha256:MANIFEST_DIGEST",
+  "platform": "linux/amd64",
+  "extractor": "oc image extract"
+}
+```
+
+`pygo-audit` retains this metadata in snapshots and rendered reports but never
+infers a digest from extracted files.
 
 Go build information contains modules that contributed packages to a binary.
 It does not enumerate standard-library packages or unused requirements from the

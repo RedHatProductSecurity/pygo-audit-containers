@@ -248,6 +248,7 @@ class FindingOccurrence:
     aliases: tuple[str, ...]
     advisory_url: str
     binary_paths: tuple[str, ...]
+    binary_sha256: str
     module: str
     current_version: str
     fixed_version: str
@@ -270,6 +271,7 @@ class FindingOccurrence:
             "aliases": list(self.aliases),
             "advisory_url": self.advisory_url,
             "binary_paths": list(self.binary_paths),
+            "binary_sha256": self.binary_sha256,
             "module": self.module,
             "current_version": self.current_version,
             "fixed_version": self.fixed_version,
@@ -289,6 +291,7 @@ class BinaryReport:
     main_module: Module | None
     dependencies: list[Module]
     build_settings: list[BuildSetting]
+    sha256: str = ""
     vulnerability_scan: VulnerabilityScan = field(default_factory=VulnerabilityScan)
     reconciliation: BinaryReconciliation = field(default_factory=BinaryReconciliation)
 
@@ -339,6 +342,7 @@ class BinaryReport:
         return {
             "paths": sorted(self.paths),
             "size": self.size,
+            "sha256": self.sha256,
             "go_version": self.go_version,
             "cgo_enabled": self.cgo_enabled,
             "main_package": self.main_package,
@@ -358,6 +362,7 @@ class BinaryReport:
                 aliases=tuple(dict.fromkeys(vulnerability.aliases)),
                 advisory_url=vulnerability.advisory_url,
                 binary_paths=tuple(sorted(self.paths)),
+                binary_sha256=self.sha256,
                 module=finding.module,
                 current_version=finding.found_version,
                 fixed_version=finding.fixed_version,
@@ -423,14 +428,39 @@ class ScanStats:
         }
 
 
+@dataclass(slots=True, frozen=True)
+class ImageIdentity:
+    reference: str = ""
+    digest: str = ""
+    platform: str = ""
+    extractor: str = ""
+
+    @property
+    def is_present(self) -> bool:
+        return any((self.reference, self.digest, self.platform, self.extractor))
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            "reference": self.reference,
+            "digest": self.digest,
+            "platform": self.platform,
+            "extractor": self.extractor,
+        }
+
+
 @dataclass(slots=True)
 class ScanReport:
     root: str
     go_command: str
     go_tool_version: str
+    producer_name: str = ""
+    producer_version: str = ""
     govulncheck_status: str = "disabled"
     govulncheck_command: str = ""
     govulncheck_tool_version: str = ""
+    scan_started_at: str = ""
+    scan_completed_at: str = ""
+    image_identity: ImageIdentity = field(default_factory=ImageIdentity)
     binaries: list[BinaryReport] = field(default_factory=list)
     issues: list[ScanIssue] = field(default_factory=list)
     stats: ScanStats = field(default_factory=ScanStats)
@@ -477,6 +507,20 @@ class ScanReport:
             )
         )
 
+    def vulnerability_databases(self) -> list[dict[str, str]]:
+        observations = {
+            (
+                binary.vulnerability_scan.database,
+                binary.vulnerability_scan.database_last_modified,
+            )
+            for binary in self.binaries
+            if binary.vulnerability_scan.database
+        }
+        return [
+            {"url": url, "last_modified": last_modified}
+            for url, last_modified in sorted(observations)
+        ]
+
     @property
     def complete_vulnerability_scans(self) -> int:
         return sum(
@@ -516,8 +560,28 @@ class ScanReport:
         binaries = sorted(self.binaries, key=lambda binary: min(binary.paths))
         issues = sorted(self.issues, key=lambda issue: (issue.path, issue.stage))
         return {
-            "schema_version": 3,
+            "schema_version": 6,
             "root": self.root,
+            "producer": {
+                "name": self.producer_name,
+                "version": self.producer_version,
+            },
+            "subject": {
+                "type": (
+                    "container_image"
+                    if self.image_identity.is_present
+                    else "unpacked_rootfs"
+                ),
+                "image": (
+                    self.image_identity.to_dict()
+                    if self.image_identity.is_present
+                    else None
+                ),
+            },
+            "scan": {
+                "started_at": self.scan_started_at,
+                "completed_at": self.scan_completed_at,
+            },
             "toolchain": {
                 "command": self.go_command,
                 "version": self.go_tool_version,
@@ -527,6 +591,7 @@ class ScanReport:
                 "command": self.govulncheck_command,
                 "version": self.govulncheck_tool_version,
             },
+            "vulnerability_databases": self.vulnerability_databases(),
             "binaries": [binary.to_dict() for binary in binaries],
             "dependency_summary": self.dependency_summary(),
             "issues": [issue.to_dict() for issue in issues],

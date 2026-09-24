@@ -1,13 +1,43 @@
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
-from pygo_audit.scanner import ELF_MAGIC, scan_root
+from pygo_audit.models import BinaryReport
+from pygo_audit.scanner import ELF_MAGIC, _reconciliation_issue, scan_root
+
+
+class ScannerReconciliationTests(unittest.TestCase):
+    def test_reconciliation_mismatch_is_visible_but_informational(self) -> None:
+        binary = BinaryReport(
+            paths=["/bin/app"],
+            size=1,
+            go_version="go1.26.8",
+            main_package="example.test/app",
+            main_module=None,
+            dependencies=[],
+            build_settings=[],
+        )
+
+        with patch(
+            "pygo_audit.scanner.reconcile_binary",
+            return_value=[
+                "SBOM example.test/library@v2.0.0 does not match "
+                "go version -m example.test/library@v1.0.0"
+            ],
+        ):
+            issue = _reconciliation_issue(binary, "/bin/app")
+
+        self.assertIsNotNone(issue)
+        self.assertEqual(issue.stage, "reconciliation-difference")
+        self.assertTrue(issue.is_informational)
+        self.assertIn("does not match", issue.message)
 
 
 @unittest.skipUnless(shutil.which("go"), "Go toolchain is required")
@@ -35,9 +65,12 @@ class ScannerIntegrationTests(unittest.TestCase):
             )
             fake_govulncheck.chmod(0o755)
 
-            (source / "go.mod").write_text("module example.test/auditfixture\n\ngo 1.26\n")
+            (source / "go.mod").write_text(
+                "module example.test/auditfixture\n\ngo 1.26\n"
+            )
             (source / "main.go").write_text(
-                'package main\n\nimport "fmt"\n\nfunc main() { fmt.Println("fixture") }\n'
+                'package main\n\nimport "fmt"\n\n'
+                'func main() { fmt.Println("fixture") }\n'
             )
             binary = root / "usr" / "bin" / "fixture"
             environment = os.environ.copy()
@@ -64,6 +97,7 @@ class ScannerIntegrationTests(unittest.TestCase):
             binary.chmod(0o644)
             os.symlink("/bin/fixture", root / "usr" / "bin" / "fixture-symlink")
             (root / "etc" / "not-a-binary").write_text("configuration")
+            expected_sha256 = hashlib.sha256(binary.read_bytes()).hexdigest()
 
             report = scan_root(root, govulncheck_command=os.fspath(fake_govulncheck))
 
@@ -75,10 +109,23 @@ class ScannerIntegrationTests(unittest.TestCase):
                 report.binaries[0].paths,
                 ["/usr/bin/fixture", "/usr/bin/fixture-hardlink"],
             )
-            self.assertEqual(report.binaries[0].main_package, "example.test/auditfixture")
+            self.assertEqual(
+                report.binaries[0].main_package,
+                "example.test/auditfixture",
+            )
+            self.assertEqual(report.binaries[0].sha256, expected_sha256)
             self.assertFalse(report.binaries[0].cgo_enabled)
             self.assertEqual(report.binaries[0].vulnerability_scan.status, "complete")
             self.assertEqual(report.binaries[0].vulnerability_scan.vulnerabilities, [])
+            self.assertTrue(report.scan_started_at.endswith("Z"))
+            self.assertTrue(report.scan_completed_at.endswith("Z"))
+            self.assertLessEqual(report.scan_started_at, report.scan_completed_at)
+            self.assertEqual(report.producer_name, "pygo-audit")
+            self.assertTrue(report.producer_version)
+            self.assertEqual(
+                report.vulnerability_databases(),
+                [{"url": "https://vuln.example", "last_modified": ""}],
+            )
             self.assertEqual(report.issues, [])
 
     def test_non_go_elf_is_not_reported_as_an_issue(self) -> None:

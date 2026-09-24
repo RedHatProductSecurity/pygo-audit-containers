@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -12,6 +14,7 @@ import stat
 import subprocess
 from typing import Final
 
+from pygo_audit import __version__
 from pygo_audit.models import BinaryReport, ScanIssue, ScanReport, VulnerabilityScan
 from pygo_audit.reconciliation import reconcile_binary
 from pygo_audit.vulnerabilities import GovulncheckOutputError, parse_govulncheck_json
@@ -54,14 +57,20 @@ def scan_root(
 
     root = Path(os.path.abspath(root))
     _validate_root(root)
+    scan_started_at = _utc_timestamp()
     resolved_go, go_tool_version = _resolve_go_tool(go_command, timeout)
     if not os.path.isdir("/proc/self/fd"):
-        raise ScanConfigurationError("/proc/self/fd is required for safe file inspection")
+        raise ScanConfigurationError(
+            "/proc/self/fd is required for safe file inspection"
+        )
 
     report = ScanReport(
         root=os.fspath(root),
         go_command=resolved_go,
         go_tool_version=go_tool_version,
+        producer_name="pygo-audit",
+        producer_version=__version__,
+        scan_started_at=scan_started_at,
     )
     resolved_govulncheck: str | None = None
     govulncheck_unavailable = ""
@@ -85,7 +94,7 @@ def scan_root(
     discovery = _discover_elf_files(root, report)
     report.issues.extend(discovery.issues)
 
-    def inspect(elf_file: _ElfFile) -> tuple[BinaryReport | None, ScanIssue | None]:
+    def inspect(elf_file: _ElfFile) -> tuple[BinaryReport | None, list[ScanIssue]]:
         return _inspect_elf_file(
             elf_file,
             go_command=resolved_go,
@@ -95,16 +104,19 @@ def scan_root(
             timeout=timeout,
         )
 
-    with ThreadPoolExecutor(max_workers=jobs, thread_name_prefix="pygo-audit") as executor:
-        for binary, issue in executor.map(inspect, discovery.elf_files):
+    with ThreadPoolExecutor(
+        max_workers=jobs,
+        thread_name_prefix="pygo-audit",
+    ) as executor:
+        for binary, issues in executor.map(inspect, discovery.elf_files):
             if binary is not None:
                 report.binaries.append(binary)
-            if issue is not None:
-                report.issues.append(issue)
+            report.issues.extend(issues)
 
     report.binaries.sort(key=lambda binary: binary.paths[0])
     report.stats.go_binaries = len(report.binaries)
     report.stats.go_binary_paths = sum(len(binary.paths) for binary in report.binaries)
+    report.scan_completed_at = _utc_timestamp()
     return report
 
 
@@ -193,7 +205,11 @@ def _discover_elf_files(root: Path, report: ScanReport) -> _Discovery:
                     report.stats.unique_elf_files += 1
         except OSError as error:
             discovery.issues.append(
-                ScanIssue(_container_path(root, directory), "walk", _format_os_error(error))
+                ScanIssue(
+                    _container_path(root, directory),
+                    "walk",
+                    _format_os_error(error),
+                )
             )
 
     for elf_file in discovery.elf_files:
@@ -210,7 +226,7 @@ def _inspect_elf_file(
     govulncheck_disabled: bool,
     govulncheck_unavailable: str,
     timeout: float,
-) -> tuple[BinaryReport | None, ScanIssue | None]:
+) -> tuple[BinaryReport | None, list[ScanIssue]]:
     display_path = elf_file.paths[0]
     try:
         descriptor = _open_regular_file(
@@ -219,7 +235,7 @@ def _inspect_elf_file(
             expected_inode=elf_file.inode,
         )
     except OSError as error:
-        return None, ScanIssue(display_path, "open", _format_os_error(error))
+        return None, [ScanIssue(display_path, "open", _format_os_error(error))]
 
     descriptor_path = f"/proc/self/fd/{descriptor}"
     try:
@@ -234,16 +250,20 @@ def _inspect_elf_file(
                 pass_fds=(descriptor,),
             )
         except subprocess.TimeoutExpired:
-            return None, ScanIssue(
-                display_path,
-                "go-version",
-                f"timed out after {timeout:g} seconds",
-            )
+            return None, [
+                ScanIssue(
+                    display_path,
+                    "go-version",
+                    f"timed out after {timeout:g} seconds",
+                )
+            ]
         except OSError as error:
-            return None, ScanIssue(display_path, "go-version", _format_os_error(error))
+            return None, [
+                ScanIssue(display_path, "go-version", _format_os_error(error))
+            ]
 
         if completed.returncode != 0:
-            return None, None
+            return None, []
 
         try:
             value = json.loads(completed.stdout)
@@ -254,17 +274,25 @@ def _inspect_elf_file(
             )
             binary.paths = elf_file.paths.copy()
         except (json.JSONDecodeError, ValueError) as error:
-            return None, ScanIssue(display_path, "go-json", str(error))
+            return None, [ScanIssue(display_path, "go-json", str(error))]
+
+        issues: list[ScanIssue] = []
+        try:
+            binary.sha256 = _sha256_descriptor(descriptor)
+        except OSError as error:
+            issues.append(
+                ScanIssue(display_path, "hash", _format_os_error(error))
+            )
 
         if govulncheck_disabled:
             binary.vulnerability_scan = VulnerabilityScan(status="disabled")
-            return binary, None
+            return binary, issues
         if govulncheck_command is None:
             binary.vulnerability_scan = VulnerabilityScan(
                 status="not_run",
                 error=govulncheck_unavailable,
             )
-            return binary, None
+            return binary, issues
 
         vulnerability_scan, issue = _inspect_vulnerabilities(
             descriptor_path,
@@ -274,19 +302,12 @@ def _inspect_elf_file(
             timeout=timeout,
         )
         binary.vulnerability_scan = vulnerability_scan
-        reconciliation_messages = reconcile_binary(binary)
-        if reconciliation_messages:
-            stage = (
-                "reconciliation"
-                if binary.reconciliation.status == "mismatch"
-                else "reconciliation-difference"
-            )
-            issue = ScanIssue(
-                display_path,
-                stage,
-                _summarize_reconciliation(reconciliation_messages),
-            )
-        return binary, issue
+        if issue is not None:
+            issues.append(issue)
+        reconciliation_issue = _reconciliation_issue(binary, display_path)
+        if reconciliation_issue is not None:
+            issues.append(reconciliation_issue)
+        return binary, issues
     finally:
         os.close(descriptor)
 
@@ -411,7 +432,9 @@ def _resolve_go_tool(command: str, timeout: float) -> tuple[str, str]:
             env=_go_environment(),
         )
     except (OSError, subprocess.SubprocessError) as error:
-        raise ScanConfigurationError(f"cannot inspect {resolved} capabilities: {error}") from error
+        raise ScanConfigurationError(
+            f"cannot inspect {resolved} capabilities: {error}"
+        ) from error
     if help_result.returncode != 0 or "-json" not in help_result.stdout:
         raise ScanConfigurationError(
             f"Go command does not support 'version -m -json': {resolved}"
@@ -469,8 +492,35 @@ def _format_os_error(error: OSError) -> str:
     return error.strerror or str(error)
 
 
+def _sha256_descriptor(descriptor: int, *, chunk_size: int = 1024 * 1024) -> str:
+    digest = hashlib.sha256()
+    offset = 0
+    while chunk := os.pread(descriptor, chunk_size, offset):
+        digest.update(chunk)
+        offset += len(chunk)
+    return digest.hexdigest()
+
+
+def _utc_timestamp() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
 def _summarize_reconciliation(messages: list[str], *, limit: int = 5) -> str:
     displayed = messages[:limit]
     if len(messages) > limit:
         displayed.append(f"and {len(messages) - limit} more difference(s)")
     return "; ".join(displayed)
+
+
+def _reconciliation_issue(
+    binary: BinaryReport,
+    display_path: str,
+) -> ScanIssue | None:
+    messages = reconcile_binary(binary)
+    if not messages:
+        return None
+    return ScanIssue(
+        display_path,
+        "reconciliation-difference",
+        _summarize_reconciliation(messages),
+    )

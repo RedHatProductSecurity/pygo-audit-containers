@@ -83,4 +83,4 @@ oc image extract "$image" \
     --only-files
 
 printf '\nAuditing extracted Go binaries...\n'
-"$auditor" "$sandbox_dir"
+"$auditor" scan "$sandbox_dir"
