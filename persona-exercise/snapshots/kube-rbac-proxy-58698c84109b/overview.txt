@@ -1,0 +1,127 @@
+PYGO-AUDIT OVERVIEW
+===================
+
+RESULT
+----------------------------------------------------------------------------------------------------
+Status:                 VULNERABILITIES DETECTED
+Coverage:               COMPLETE (1 of 1 binaries)
+Vulnerability scans:    COMPLETE=1
+Go binaries:            1
+CGO enabled:            1
+Affected packages:      21
+Vulnerabilities:        55
+Reconciliation:         PARTIAL (1 of 1 binaries)
+Unverifiable:           1 component
+Recon. differences:     1 difference
+
+VULNERABILITIES (55)
+----------------------------------------------------------------------------------------------------
+  - CVE-2023-45288
+  - CVE-2023-45289
+  - CVE-2023-45290
+  - CVE-2024-24783
+  - CVE-2024-24785
+  - CVE-2024-24790
+  - CVE-2024-24791
+  - CVE-2024-45336
+  - CVE-2024-45341
+  - CVE-2025-22870
+  - CVE-2025-22871
+  - CVE-2025-4673
+  - CVE-2025-47906
+  - CVE-2025-47912
+  - CVE-2025-58185
+  - CVE-2025-58186
+  - CVE-2025-58187
+  - CVE-2025-58188
+  - CVE-2025-58189
+  - CVE-2025-61723
+  - CVE-2025-61724
+  - CVE-2025-61726
+  - CVE-2025-61727
+  - CVE-2025-61729
+  - CVE-2025-61730
+  - CVE-2025-68121
+  - CVE-2026-25679
+  - CVE-2026-27139
+  - CVE-2026-27142
+  - CVE-2026-27145
+  - CVE-2026-32280
+  - CVE-2026-32281
+  - CVE-2026-32283
+  - CVE-2026-32289
+  - CVE-2026-33186
+  - CVE-2026-33811
+  - CVE-2026-33814
+  - CVE-2026-33818
+  - CVE-2026-39821
+  - CVE-2026-39823
+  - CVE-2026-39825
+  - CVE-2026-39826
+  - CVE-2026-39836
+  - CVE-2026-42504
+  - CVE-2026-42505
+  - CVE-2026-42507
+  - CVE-2026-56853
+  - CVE-2026-56858
+  - CVE-2026-56859
+  - CVE-2026-56860
+  - CVE-2026-56862
+  - CVE-2026-84304
+  - CVE-2026-84445
+  - GHSA-hrxh-6v49-42gf
+  - GHSA-m425-mq94-257g
+
+AFFECTED PACKAGES (21)
+----------------------------------------------------------------------------------------------------
+  - (unknown package)
+  - crypto/tls
+  - crypto/x509
+  - encoding/asn1
+  - encoding/pem
+  - encoding/xml
+  - golang.org/x/net/http2
+  - golang.org/x/net/idna
+  - google.golang.org/grpc
+  - google.golang.org/grpc/internal/transport
+  - html/template
+  - mime
+  - net
+  - net/http
+  - net/http/httputil
+  - net/http/internal
+  - net/netip
+  - net/textproto
+  - net/url
+  - os
+  - os/exec
+
+NATIVE CODE COVERAGE
+----------------------------------------------------------------------------------------------------
+  CGO is enabled in one or more binaries. Native libraries are outside
+  the scope of this Go dependency audit.
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/kube-rbac-proxy-58698c84109b
+Image reference:        ...y@sha256:58698c84109b0833060ab86ef36c0092418c87aba61ba271bef60a18e6b5a6af
+Image digest:           sha256:a083d6d53630f47a8503a45b639ae5c567d1f724096d1f729082bfdb9d760585
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:54:20.255044Z
+Scan completed:         2026-09-24T01:54:22.118869Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

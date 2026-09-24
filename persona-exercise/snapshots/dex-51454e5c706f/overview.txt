@@ -1,0 +1,74 @@
+PYGO-AUDIT OVERVIEW
+===================
+
+RESULT
+----------------------------------------------------------------------------------------------------
+Status:                 VULNERABILITIES DETECTED
+Coverage:               COMPLETE (1 of 1 binaries)
+Vulnerability scans:    COMPLETE=1
+Go binaries:            1
+CGO enabled:            1
+Affected packages:      11
+Vulnerabilities:        12
+Reconciliation:         PARTIAL (1 of 1 binaries)
+Unverifiable:           2 components
+Recon. differences:     1 difference
+
+VULNERABILITIES (12)
+----------------------------------------------------------------------------------------------------
+  - CVE-2026-33818
+  - CVE-2026-39821
+  - CVE-2026-46600
+  - CVE-2026-56852
+  - CVE-2026-56853
+  - CVE-2026-56858
+  - CVE-2026-56859
+  - CVE-2026-56860
+  - CVE-2026-56862
+  - CVE-2026-84304
+  - CVE-2026-84445
+  - GHSA-hrxh-6v49-42gf
+
+AFFECTED PACKAGES (11)
+----------------------------------------------------------------------------------------------------
+  - (unknown package)
+  - crypto/tls
+  - encoding/asn1
+  - encoding/xml
+  - golang.org/x/text/unicode/norm
+  - google.golang.org/grpc/internal/transport
+  - google.golang.org/grpc/mem
+  - html/template
+  - net
+  - net/http
+  - net/url
+
+NATIVE CODE COVERAGE
+----------------------------------------------------------------------------------------------------
+  CGO is enabled in one or more binaries. Native libraries are outside
+  the scope of this Go dependency audit.
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/dex-51454e5c706f
+Image reference:        ...9@sha256:51454e5c706fd913503980d29a11ab233e3d0b82d319b23d46394612dd81d3ff
+Image digest:           sha256:4f114a65d6d588722821ddc5bf0510829574c2428400d84260558a1b703969d4
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:52:29.883165Z
+Scan completed:         2026-09-24T01:52:31.519812Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

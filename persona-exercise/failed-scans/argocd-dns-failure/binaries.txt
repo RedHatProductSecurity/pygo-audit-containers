@@ -1,0 +1,1912 @@
+PYGO-AUDIT BINARIES
+===================
+
+INVENTORY
+----------------------------------------------------------------------------------------------------
+Go binaries:            4
+CGO enabled:            4
+Coverage:               INCOMPLETE (0 of 4 binaries)
+Operational issues:     4
+
+COVERAGE WARNING
+----------------------------------------------------------------------------------------------------
+  Vulnerability scanning did not complete for 4 of 4 binaries.
+  Missing findings must not be interpreted as a clean result.
+
+BINARY
+----------------------------------------------------------------------------------------------------
+Path:                   /usr/local/bin/argocd
+SHA-256 suffix:         36dc3e73cf67b9aa
+Main package:           github.com/argoproj/argo-cd/v3/cmd
+Compiled with:          go1.26.5 (Red Hat 1.26.5-1.el9_8) X:strictfipsruntime
+CGO:                    ENABLED
+Scan status:            FAILED
+Dependencies:           278
+Affected packages:      0
+Vulnerabilities:        0
+Scan error:             ...n.gz": dial tcp: lookup vuln.go.dev: Temporary failure in name resolution
+
+DECLARED DEPENDENCIES (278)
+---------------------------
+
+Dependency 1:           cloud.google.com/go/auth
+Declared version:       v0.15.0
+Checksum:               h1:Ly0u4aA5vG/fsSsxu98qCQBemXtAtJf+95z9HK+cxps=
+
+Dependency 2:           cloud.google.com/go/auth/oauth2adapt
+Declared version:       v0.2.7
+Checksum:               h1:/Lc7xODdqcEw8IrZ9SvwnlLX6j9FHQM74z6cBk9Rw6M=
+
+Dependency 3:           cloud.google.com/go/compute/metadata
+Declared version:       v0.9.0
+Checksum:               h1:pDUj4QMoPejqq20dK0Pg2N4yG9zIkYGdBtwLoEkH9Zs=
+
+Dependency 4:           code.gitea.io/sdk/gitea
+Declared version:       v0.23.2
+Checksum:               h1:iJB1FDmLegwfwjX8gotBDHdPSbk/ZR8V9VmEJaVsJYg=
+
+Dependency 5:           dario.cat/mergo
+Declared version:       v1.0.2
+Checksum:               h1:85+piFYR1tMbRrLcDwR18y4UKJ3aH1Tbzi24VRW1TK8=
+
+Dependency 6:           github.com/42wim/httpsig
+Declared version:       v1.2.3
+Checksum:               h1:xb0YyWhkYj57SPtfSttIobJUPJZB9as1nsfo7KWVcEs=
+
+Dependency 7:           github.com/Azure/azure-sdk-for-go/sdk/azcore
+Declared version:       v1.21.0
+Checksum:               h1:fou+2+WFTib47nS+nz/ozhEBnvU96bKHy6LjRsY4E28=
+
+Dependency 8:           github.com/Azure/azure-sdk-for-go/sdk/azidentity
+Declared version:       v1.13.1
+Checksum:               h1:Hk5QBxZQC1jb2Fwj6mpzme37xbCDdNTxU7O9eb5+LB4=
+
+Dependency 9:           github.com/Azure/azure-sdk-for-go/sdk/azidentity/cache
+Declared version:       v0.3.2
+Checksum:               h1:yz1bePFlP5Vws5+8ez6T3HWXPmwOK7Yvq8QxDBD3SKY=
+
+Dependency 10:          github.com/Azure/azure-sdk-for-go/sdk/internal
+Declared version:       v1.11.2
+Checksum:               h1:9iefClla7iYpfYWdzPCRDozdmndjTm8DXdpCzPajMgA=
+
+Dependency 11:          github.com/Azure/go-autorest/autorest
+Declared version:       v0.11.29
+Checksum:               h1:I4+HL/JDvErx2LjyzaVxllw2lRDB5/BT2Bm4g20iqYw=
+
+Dependency 12:          github.com/Azure/go-autorest/autorest/adal
+Declared version:       v0.9.23
+Checksum:               h1:Yepx8CvFxwNKpH6ja7RZ+sKX+DWYNldbLiALMC3BTz8=
+
+Dependency 13:          github.com/Azure/go-autorest/autorest/date
+Declared version:       v0.3.0
+Checksum:               h1:7gUk1U5M/CQbp9WoqinNzJar+8KY+LPI6wiWrP/myHw=
+
+Dependency 14:          github.com/Azure/go-autorest/logger
+Declared version:       v0.2.1
+Checksum:               h1:IG7i4p/mDa2Ce4TRyAO8IHnVhAVF3RFU+ZtXWSmf4Tg=
+
+Dependency 15:          github.com/Azure/go-autorest/tracing
+Declared version:       v0.6.0
+Checksum:               h1:TYi4+3m5t6K48TGI9AUdb+IzbnSxvnvUMfuitfgcfuo=
+
+Dependency 16:          github.com/Azure/kubelogin
+Declared version:       v0.2.16
+Checksum:               h1:z0jwNQ9A7LvIqS0Go+6CPZv0TuQQRL2mc+zY9wjBuF8=
+
+Dependency 17:          github.com/AzureAD/microsoft-authentication-extensions-for-go/cache
+Declared version:       v0.1.1
+Checksum:               h1:WJTmL004Abzc5wDB5VtZG2PJk5ndYDgVacGqfirKxjM=
+
+Dependency 18:          github.com/AzureAD/microsoft-authentication-library-for-go
+Declared version:       v1.6.0
+Checksum:               h1:XRzhVemXdgvJqCH0sFfrBUTnUJSBrBf7++ypk+twtRs=
+
+Dependency 19:          github.com/MakeNowJust/heredoc
+Declared version:       v1.0.0
+Checksum:               h1:cXCdzVdstXyiTqTvfqk9SDHpKNjxuom+DOlyEeQ4pzQ=
+
+Dependency 20:          github.com/Masterminds/goutils
+Declared version:       v1.1.1
+Checksum:               h1:5nUrii3FMTL5diU80unEVvNevw1nH4+ZV4DSLVJLSYI=
+
+Dependency 21:          github.com/Masterminds/semver/v3
+Declared version:       v3.4.0
+Checksum:               h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=
+
+Dependency 22:          github.com/Masterminds/sprig/v3
+Declared version:       v3.3.0
+Checksum:               h1:mQh0Yrg1XPo6vjYXgtf5OtijNAKJRNcTdOOGZe3tPhs=
+
+Dependency 23:          github.com/OvyFlash/telegram-bot-api
+Declared version:       v0.0.0-20241219171906-3f2ca0c14ada
+Checksum:               h1:5ZtieioZyyfiJsGvjpj3d5Eso/3YjJJhNQ1M8at5U5k=
+
+Dependency 24:          github.com/PagerDuty/go-pagerduty
+Declared version:       v1.8.0
+Checksum:               h1:MTFqTffIcAervB83U7Bx6HERzLbyaSPL/+oxH3zyluI=
+
+Dependency 25:          github.com/ProtonMail/go-crypto
+Declared version:       v1.1.6
+Checksum:               h1:ZcV+Ropw6Qn0AX9brlQLAUXfqLBc7Bl+f/DmNxpLfdw=
+
+Dependency 26:          github.com/RocketChat/Rocket.Chat.Go.SDK
+Declared version:       v0.0.0-20240116134246-a8cbe886bab0
+Checksum:               h1:ztLQGVQsey3BjCoh0TvHc/iKTQmkio2OmsIxhuu+EeY=
+
+Dependency 27:          github.com/TomOnTime/utfutil
+Declared version:       v1.0.0
+Checksum:               h1:/0Ivgo2OjXJxo8i7zgvs7ewSFZMLwCRGm3P5Umowb90=
+
+Dependency 28:          github.com/alicebob/miniredis/v2
+Declared version:       v2.37.0
+Checksum:               h1:RheObYW32G1aiJIj81XVt78ZHJpHonHLHW7OLIshq68=
+
+Dependency 29:          github.com/argoproj/argo-cd/gitops-engine
+Declared version:       v0.7.1-0.20250908182407-97ad5b59a627
+Replacement path:       ./gitops-engine
+Replacement version:    (devel)
+
+Dependency 30:          github.com/argoproj/notifications-engine
+Declared version:       v0.5.1-0.20260213231747-1dbe3de712f8
+Checksum:               h1:OGoe2RFv1wuhxHrFcdAC/VW+5HUkRI+1/zf3RGR5LnY=
+
+Dependency 31:          github.com/argoproj/pkg
+Declared version:       v0.13.6
+Checksum:               h1:36WPD9MNYECHcO1/R1pj6teYspiK7uMQLCgLGft2abM=
+
+Dependency 32:          github.com/argoproj/pkg/v2
+Declared version:       v2.0.1
+Checksum:               h1:O/gCETzB/3+/hyFL/7d/VM/6pSOIRWIiBOTb2xqAHvc=
+
+Dependency 33:          github.com/aws/aws-sdk-go-v2
+Declared version:       v1.41.4
+Checksum:               h1:10f50G7WyU02T56ox1wWXq+zTX9I1zxG46HYuG1hH/k=
+
+Dependency 34:          github.com/aws/aws-sdk-go-v2/config
+Declared version:       v1.32.11
+Checksum:               h1:ftxI5sgz8jZkckuUHXfC/wMUc8u3fG1vQS0plr2F2Zs=
+
+Dependency 35:          github.com/aws/aws-sdk-go-v2/credentials
+Declared version:       v1.19.11
+Checksum:               h1:NdV8cwCcAXrCWyxArt58BrvZJ9pZ9Fhf9w6Uh5W3Uyc=
+
+Dependency 36:          github.com/aws/aws-sdk-go-v2/feature/ec2/imds
+Declared version:       v1.18.19
+Checksum:               h1:INUvJxmhdEbVulJYHI061k4TVuS3jzzthNvjqvVvTKM=
+
+Dependency 37:          github.com/aws/aws-sdk-go-v2/internal/configsources
+Declared version:       v1.4.20
+Checksum:               h1:CNXO7mvgThFGqOFgbNAP2nol2qAWBOGfqR/7tQlvLmc=
+
+Dependency 38:          github.com/aws/aws-sdk-go-v2/internal/endpoints/v2
+Declared version:       v2.7.20
+Checksum:               h1:tN6W/hg+pkM+tf9XDkWUbDEjGLb+raoBMFsTodcoYKw=
+
+Dependency 39:          github.com/aws/aws-sdk-go-v2/internal/ini
+Declared version:       v1.8.5
+Checksum:               h1:clHU5fm//kWS1C2HgtgWxfQbFbx4b6rx+5jzhgX9HrI=
+
+Dependency 40:          github.com/aws/aws-sdk-go-v2/service/codecommit
+Declared version:       v1.33.11
+Checksum:               h1:R3S5odXTsflG7xUp9S2AsewSXtQi1LBd+stJ5OpCIog=
+
+Dependency 41:          github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding
+Declared version:       v1.13.6
+Checksum:               h1:XAq62tBTJP/85lFD5oqOOe7YYgWxY9LvWq8plyDvDVg=
+
+Dependency 42:          github.com/aws/aws-sdk-go-v2/service/internal/presigned-url
+Declared version:       v1.13.19
+Checksum:               h1:X1Tow7suZk9UCJHE1Iw9GMZJJl0dAnKXXP1NaSDHwmw=
+
+Dependency 43:          github.com/aws/aws-sdk-go-v2/service/resourcegroupstaggingapi
+Declared version:       v1.31.8
+Checksum:               h1:mGgiunl7ZwOwhpJwJNF4JfsZFYJp08wjyS3NqFQe3ws=
+
+Dependency 44:          github.com/aws/aws-sdk-go-v2/service/signin
+Declared version:       v1.0.7
+Checksum:               h1:Y2cAXlClHsXkkOvWZFXATr34b0hxxloeQu/pAZz2row=
+
+Dependency 45:          github.com/aws/aws-sdk-go-v2/service/sqs
+Declared version:       v1.38.1
+Checksum:               h1:ZtgZeMPJH8+/vNs9vJFFLI0QEzYbcN0p7x1/FFwyROc=
+
+Dependency 46:          github.com/aws/aws-sdk-go-v2/service/sso
+Declared version:       v1.30.12
+Checksum:               h1:iSsvB9EtQ09YrsmIc44Heqlx5ByGErqhPK1ZQLppias=
+
+Dependency 47:          github.com/aws/aws-sdk-go-v2/service/ssooidc
+Declared version:       v1.35.16
+Checksum:               h1:EnUdUqRP1CNzt2DkV67tJx6XDN4xlfBFm+bzeNOQVb0=
+
+Dependency 48:          github.com/aws/aws-sdk-go-v2/service/sts
+Declared version:       v1.41.8
+Checksum:               h1:XQTQTF75vnug2TXS8m7CVJfC2nniYPZnO1D4Np761Oo=
+
+Dependency 49:          github.com/aws/smithy-go
+Declared version:       v1.24.2
+Checksum:               h1:FzA3bu/nt/vDvmnkg+R8Xl46gmzEDam6mZ1hzmwXFng=
+
+Dependency 50:          github.com/beorn7/perks
+Declared version:       v1.0.1
+Checksum:               h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
+
+Dependency 51:          github.com/blang/semver/v4
+Declared version:       v4.0.0
+Checksum:               h1:1PFHFE6yCCTv8C1TeyNNarDzntLi7wMI5i/pzqYIsAM=
+
+Dependency 52:          github.com/bmatcuk/doublestar/v4
+Declared version:       v4.10.0
+Checksum:               h1:zU9WiOla1YA122oLM6i4EXvGW62DvKZVxIe6TYWexEs=
+
+Dependency 53:          github.com/bombsimon/logrusr/v4
+Declared version:       v4.1.0
+Checksum:               h1:uZNPbwusB0eUXlO8hIUwStE6Lr5bLN6IgYgG+75kuh4=
+
+Dependency 54:          github.com/bradleyfalzon/ghinstallation/v2
+Declared version:       v2.18.0
+Checksum:               h1:WPqnN6NS9XvYlOgZQAIseN7Z1uAiE+UxgDKlW7FvFuU=
+
+Dependency 55:          github.com/casbin/casbin/v2
+Declared version:       v2.135.0
+Checksum:               h1:6BLkMQiGotYyS5yYeWgW19vxqugUlvHFkFiLnLR/bxk=
+
+Dependency 56:          github.com/casbin/govaluate
+Declared version:       v1.10.0
+Checksum:               h1:ffGw51/hYH3w3rZcxO/KcaUIDOLP84w7nsidMVgaDG0=
+
+Dependency 57:          github.com/cenkalti/backoff/v4
+Declared version:       v4.3.0
+Checksum:               h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
+
+Dependency 58:          github.com/cenkalti/backoff/v5
+Declared version:       v5.0.3
+Checksum:               h1:ZN+IMa753KfX5hd8vVaMixjnqRZ3y8CuJKRKj1xcsSM=
+
+Dependency 59:          github.com/cespare/xxhash/v2
+Declared version:       v2.3.0
+Checksum:               h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
+
+Dependency 60:          github.com/chai2010/gettext-go
+Declared version:       v1.0.3
+Checksum:               h1:9liNh8t+u26xl5ddmWLmsOsdNLwkdRTg5AG+JnTiM80=
+
+Dependency 61:          github.com/chainguard-dev/git-urls
+Declared version:       v1.0.2
+Checksum:               h1:pSpT7ifrpc5X55n4aTTm7FFUE+ZQHKiqpiwNkJrVcKQ=
+
+Dependency 62:          github.com/cloudflare/circl
+Declared version:       v1.6.3
+Checksum:               h1:9GPOhQGF9MCYUeXyMYlqTR6a5gTrgR/fBLXvUgtVcg8=
+
+Dependency 63:          github.com/coreos/go-oidc/v3
+Declared version:       v3.17.0
+Checksum:               h1:hWBGaQfbi0iVviX4ibC7bk8OKT5qNr4klBaCHVNvehc=
+
+Dependency 64:          github.com/cyphar/filepath-securejoin
+Declared version:       v0.6.1
+Checksum:               h1:5CeZ1jPXEiYt3+Z6zqprSAgSWiggmpVyciv8syjIpVE=
+
+Dependency 65:          github.com/davecgh/go-spew
+Declared version:       v1.1.2-0.20180830191138-d8f796af33cc
+Checksum:               h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
+
+Dependency 66:          github.com/desertbit/timer
+Declared version:       v1.0.1
+Checksum:               h1:yRpYNn5Vaaj6QXecdLMPMJsW81JLiI1eokUft5nBmeo=
+
+Dependency 67:          github.com/dgryski/go-rendezvous
+Declared version:       v0.0.0-20200823014737-9f7001d12a5f
+Checksum:               h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=
+
+Dependency 68:          github.com/distribution/reference
+Declared version:       v0.6.0
+Checksum:               h1:0IXCQ5g4/QMHHkarYzh5l+u8T3t73zM5QvfrDyIgxBk=
+
+Dependency 69:          github.com/dlclark/regexp2
+Declared version:       v1.11.5
+Checksum:               h1:Q/sSnsKerHeCkc/jSTNq1oCm7KiVgUMZRDUoRu0JQZQ=
+
+Dependency 70:          github.com/dustin/go-humanize
+Declared version:       v1.0.1
+Checksum:               h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
+
+Dependency 71:          github.com/emicklei/go-restful/v3
+Declared version:       v3.12.2
+Checksum:               h1:DhwDP0vY3k8ZzE0RunuJy8GhNpPL6zqLkDf9B/a0/xU=
+
+Dependency 72:          github.com/emirpasic/gods
+Declared version:       v1.18.1
+Checksum:               h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
+
+Dependency 73:          github.com/evanphx/json-patch
+Declared version:       v5.9.11+incompatible
+Checksum:               h1:ixHHqfcGvxhWkniF1tWxBHA0yb4Z+d1UQi45df52xW8=
+
+Dependency 74:          github.com/evanphx/json-patch/v5
+Declared version:       v5.9.11
+Checksum:               h1:/8HVnzMq13/3x9TPvjG08wUGqBTmZBsCWzjTM0wiaDU=
+
+Dependency 75:          github.com/exponent-io/jsonpath
+Declared version:       v0.0.0-20210407135951-1de76d718b3f
+Checksum:               h1:Wl78ApPPB2Wvf/TIe2xdyJxTlb6obmF18d8QdkxNDu4=
+
+Dependency 76:          github.com/expr-lang/expr
+Declared version:       v1.17.8
+Checksum:               h1:W1loDTT+0PQf5YteHSTpju2qfUfNoBt4yw9+wOEU9VM=
+
+Dependency 77:          github.com/fatih/camelcase
+Declared version:       v1.0.0
+Checksum:               h1:hxNvNX/xYBp0ovncs8WyWZrOrpBNub/JfaMvbURyft8=
+
+Dependency 78:          github.com/felixge/httpsnoop
+Declared version:       v1.0.4
+Checksum:               h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=
+
+Dependency 79:          github.com/fsnotify/fsnotify
+Declared version:       v1.9.0
+Checksum:               h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=
+
+Dependency 80:          github.com/fxamacker/cbor/v2
+Declared version:       v2.9.0
+Checksum:               h1:NpKPmjDBgUfBms6tr6JZkTHtfFGcMKsw3eGcmD/sapM=
+
+Dependency 81:          github.com/gfleury/go-bitbucket-v1
+Declared version:       v0.0.0-20240917142304-df385efaac68
+Checksum:               h1:iJXWkoIPk3e8RVHhQE/gXfP2TP3OLQ9vVPNSJ+oL6mM=
+
+Dependency 82:          github.com/go-errors/errors
+Declared version:       v1.5.1
+Checksum:               h1:ZwEMSLRCapFLflTpT7NKaAc7ukJ8ZPEjzlxt8rPN8bk=
+
+Dependency 83:          github.com/go-fed/httpsig
+Declared version:       v1.1.0
+Checksum:               h1:9M+hb0jkEICD8/cAiNqEB66R87tTINszBRTjwjQzWcI=
+
+Dependency 84:          github.com/go-git/gcfg
+Declared version:       v1.5.1-0.20230307220236-3a3c6141e376
+Checksum:               h1:+zs/tPmkDkHx3U66DAb0lQFJrpS6731Oaa12ikc+DiI=
+
+Dependency 85:          github.com/go-git/go-billy/v5
+Declared version:       v5.6.2
+Checksum:               h1:6Q86EsPXMa7c3YZ3aLAQsMA0VlWmy43r6FHqa/UNbRM=
+
+Dependency 86:          github.com/go-git/go-git/v5
+Declared version:       v5.14.0
+Checksum:               h1:/MD3lCrGjCen5WfEAzKg00MJJffKhC8gzS80ycmCi60=
+
+Dependency 87:          github.com/go-jose/go-jose/v4
+Declared version:       v4.1.4
+Checksum:               h1:moDMcTHmvE6Groj34emNPLs/qtYXRVcd6S7NHbHz3kA=
+
+Dependency 88:          github.com/go-logr/logr
+Declared version:       v1.4.3
+Checksum:               h1:CjnDlHq8ikf6E492q6eKboGOC0T8CDaOvkHCIg8idEI=
+
+Dependency 89:          github.com/go-logr/stdr
+Declared version:       v1.2.2
+Checksum:               h1:hSWxHoqTgW2S2qGc0LTAI563KZ5YKYRhT3MFKZMbjag=
+
+Dependency 90:          github.com/go-openapi/analysis
+Declared version:       v0.24.3
+Checksum:               h1:a1hrvMr8X0Xt69KP5uVTu5jH62DscmDifrLzNglAayk=
+
+Dependency 91:          github.com/go-openapi/errors
+Declared version:       v0.22.7
+Checksum:               h1:JLFBGC0Apwdzw3484MmBqspjPbwa2SHvpDm0u5aGhUA=
+
+Dependency 92:          github.com/go-openapi/jsonpointer
+Declared version:       v0.22.5
+Checksum:               h1:8on/0Yp4uTb9f4XvTrM2+1CPrV05QPZXu+rvu2o9jcA=
+
+Dependency 93:          github.com/go-openapi/jsonreference
+Declared version:       v0.21.5
+Checksum:               h1:6uCGVXU/aNF13AQNggxfysJ+5ZcU4nEAe+pJyVWRdiE=
+
+Dependency 94:          github.com/go-openapi/loads
+Declared version:       v0.23.3
+Checksum:               h1:g5Xap1JfwKkUnZdn+S0L3SzBDpcTIYzZ5Qaag0YDkKQ=
+
+Dependency 95:          github.com/go-openapi/runtime
+Declared version:       v0.29.3
+Checksum:               h1:h5twGaEqxtQg40ePiYm9vFFH1q06Czd7Ot6ufdK0w/Y=
+
+Dependency 96:          github.com/go-openapi/spec
+Declared version:       v0.22.4
+Checksum:               h1:4pxGjipMKu0FzFiu/DPwN3CTBRlVM2yLf/YTWorYfDQ=
+
+Dependency 97:          github.com/go-openapi/strfmt
+Declared version:       v0.26.0
+Checksum:               h1:SDdQLyOEqu8W96rO1FRG1fuCtVyzmukky0zcD6gMGLU=
+
+Dependency 98:          github.com/go-openapi/swag
+Declared version:       v0.23.1
+Checksum:               h1:lpsStH0n2ittzTnbaSloVZLuB5+fvSY/+hnagBjSNZU=
+
+Dependency 99:          github.com/go-openapi/swag/conv
+Declared version:       v0.25.5
+Checksum:               h1:wAXBYEXJjoKwE5+vc9YHhpQOFj2JYBMF2DUi+tGu97g=
+
+Dependency 100:         github.com/go-openapi/swag/fileutils
+Declared version:       v0.25.5
+Checksum:               h1:B6JTdOcs2c0dBIs9HnkyTW+5gC+8NIhVBUwERkFhMWk=
+
+Dependency 101:         github.com/go-openapi/swag/jsonname
+Declared version:       v0.25.5
+Checksum:               h1:8p150i44rv/Drip4vWI3kGi9+4W9TdI3US3uUYSFhSo=
+
+Dependency 102:         github.com/go-openapi/swag/jsonutils
+Declared version:       v0.25.5
+Checksum:               h1:XUZF8awQr75MXeC+/iaw5usY/iM7nXPDwdG3Jbl9vYo=
+
+Dependency 103:         github.com/go-openapi/swag/loading
+Declared version:       v0.25.5
+Checksum:               h1:odQ/umlIZ1ZVRteI6ckSrvP6e2w9UTF5qgNdemJHjuU=
+
+Dependency 104:         github.com/go-openapi/swag/mangling
+Declared version:       v0.25.5
+Checksum:               h1:hyrnvbQRS7vKePQPHHDso+k6CGn5ZBs5232UqWZmJZw=
+
+Dependency 105:         github.com/go-openapi/swag/stringutils
+Declared version:       v0.25.5
+Checksum:               h1:NVkoDOA8YBgtAR/zvCx5rhJKtZF3IzXcDdwOsYzrB6M=
+
+Dependency 106:         github.com/go-openapi/swag/typeutils
+Declared version:       v0.25.5
+Checksum:               h1:EFJ+PCga2HfHGdo8s8VJXEVbeXRCYwzzr9u4rJk7L7E=
+
+Dependency 107:         github.com/go-openapi/swag/yamlutils
+Declared version:       v0.25.5
+Checksum:               h1:kASCIS+oIeoc55j28T4o8KwlV2S4ZLPT6G0iq2SSbVQ=
+
+Dependency 108:         github.com/go-openapi/validate
+Declared version:       v0.25.2
+Checksum:               h1:12NsfLAwGegqbGWr2CnvT65X/Q2USJipmJ9b7xDJZz0=
+
+Dependency 109:         github.com/go-playground/webhooks/v6
+Declared version:       v6.4.0
+Checksum:               h1:KLa6y7bD19N48rxJDHM0DpE3T4grV7GxMy1b/aHMWPY=
+
+Dependency 110:         github.com/go-redis/cache/v9
+Declared version:       v9.0.0
+Checksum:               h1:0thdtFo0xJi0/WXbRVu8B066z8OvVymXTJGaXrVWnN0=
+
+Dependency 111:         github.com/go-viper/mapstructure/v2
+Declared version:       v2.5.0
+Checksum:               h1:vM5IJoUAy3d7zRSVtIwQgBj7BiWtMPfmPEgAXnvj1Ro=
+
+Dependency 112:         github.com/gobwas/glob
+Declared version:       v0.2.3
+Checksum:               h1:A4xDbljILXROh+kObIiy5kIaPYD8e96x1tgBhUI5J+Y=
+
+Dependency 113:         github.com/gogits/go-gogs-client
+Declared version:       v0.0.0-20210131175652-1d7215cd8d85
+Checksum:               h1:04sojTxgYxu1L4Hn7Tgf7UVtIosVa6CuHtvNY+7T1K4=
+
+Dependency 114:         github.com/gogo/protobuf
+Declared version:       v1.3.2
+Checksum:               h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=
+
+Dependency 115:         github.com/golang-jwt/jwt/v4
+Declared version:       v4.5.2
+Checksum:               h1:YtQM7lnr8iZ+j5q71MGKkNw9Mn7AjHM68uc9g5fXeUI=
+
+Dependency 116:         github.com/golang-jwt/jwt/v5
+Declared version:       v5.3.1
+Checksum:               h1:kYf81DTWFe7t+1VvL7eS+jKFVWaUnK9cB1qbwn63YCY=
+
+Dependency 117:         github.com/golang/groupcache
+Declared version:       v0.0.0-20241129210726-2c02b8208cf8
+Checksum:               h1:f+oWsMOmNPc8JmEHVZIycC7hBoQxHH9pNKQORJNozsQ=
+
+Dependency 118:         github.com/golang/protobuf
+Declared version:       v1.5.4
+Replacement path:       github.com/golang/protobuf
+Replacement version:    v1.5.4
+Replacement checksum:   h1:i7eJL8qZTpSEXOPTxNKhASYpMn+8e5Q6AdndVa1dWek=
+
+Dependency 119:         github.com/google/btree
+Declared version:       v1.1.3
+Checksum:               h1:CVpQJjYgC4VbzxeGVHfvZrv1ctoYCAI8vbl07Fcxlyg=
+
+Dependency 120:         github.com/google/gnostic-models
+Declared version:       v0.7.0
+Checksum:               h1:qwTtogB15McXDaNqTZdzPJRHvaVJlAl+HVQnLmJEJxo=
+
+Dependency 121:         github.com/google/go-cmp
+Declared version:       v0.7.0
+Checksum:               h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
+
+Dependency 122:         github.com/google/go-github/v69
+Declared version:       v69.2.0
+Checksum:               h1:wR+Wi/fN2zdUx9YxSmYE0ktiX9IAR/BeePzeaUUbEHE=
+
+Dependency 123:         github.com/google/go-github/v84
+Declared version:       v84.0.0
+Checksum:               h1:I/0Xn5IuChMe8TdmI2bbim5nyhaRFJ7DEdzmD2w+yVA=
+
+Dependency 124:         github.com/google/go-jsonnet
+Declared version:       v0.21.0
+Checksum:               h1:43Bk3K4zMRP/aAZm9Po2uSEjY6ALCkYUVIcz9HLGMvA=
+
+Dependency 125:         github.com/google/go-querystring
+Declared version:       v1.2.0
+Checksum:               h1:yhqkPbu2/OH+V9BfpCVPZkNmUXhb2gBxJArfhIxNtP0=
+
+Dependency 126:         github.com/google/s2a-go
+Declared version:       v0.1.9
+Checksum:               h1:LGD7gtMgezd8a/Xak7mEWL0PjoTQFvpRudN895yqKW0=
+
+Dependency 127:         github.com/google/shlex
+Declared version:       v0.0.0-20191202100458-e7afc7fbc510
+Checksum:               h1:El6M4kTTCOh6aBiKaUGG7oYTSPP8MxqL4YI3kZKwcP4=
+
+Dependency 128:         github.com/google/uuid
+Declared version:       v1.6.1-0.20241114170450-2d3c2a9cc518
+Checksum:               h1:UBg1xk+oAsIVbFuGg6hdfAm7EvCv3EL80vFxJNsslqw=
+
+Dependency 129:         github.com/googleapis/enterprise-certificate-proxy
+Declared version:       v0.3.4
+Checksum:               h1:XYIDZApgAnrN1c855gTgghdIA6Stxb52D5RnLI1SLyw=
+
+Dependency 130:         github.com/googleapis/gax-go/v2
+Declared version:       v2.14.1
+Checksum:               h1:hb0FFeiPaQskmvakKu5EbCbpntQn48jyHuvrkurSS/Q=
+
+Dependency 131:         github.com/gorilla/handlers
+Declared version:       v1.5.2
+Checksum:               h1:cLTUSsNkgcwhgRqvCNmdbRWG0A3N4F+M2nWKdScwyEE=
+
+Dependency 132:         github.com/gorilla/websocket
+Declared version:       v1.5.4-0.20250319132907-e064f32e3674
+Checksum:               h1:JeSE6pjso5THxAzdVpqr6/geYxZytqFMBCOtn/ujyeo=
+
+Dependency 133:         github.com/gosimple/slug
+Declared version:       v1.15.0
+Checksum:               h1:wRZHsRrRcs6b0XnxMUBM6WK1U1Vg5B0R7VkIf1Xzobo=
+
+Dependency 134:         github.com/gosimple/unidecode
+Declared version:       v1.0.1
+Checksum:               h1:hZzFTMMqSswvf0LBJZCZgThIZrpDHFXux9KeGmn6T/o=
+
+Dependency 135:         github.com/gregdel/pushover
+Declared version:       v1.3.1
+Checksum:               h1:4bMLITOZ15+Zpi6qqoGqOPuVHCwSUvMCgVnN5Xhilfo=
+
+Dependency 136:         github.com/gregjones/httpcache
+Declared version:       v0.0.0-20190611155906-901d90724c79
+Checksum:               h1:+ngKgrYPPJrOjhax5N+uePQ0Fh1Z7PheYoUI/0nzkPA=
+
+Dependency 137:         github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus
+Declared version:       v1.1.0
+Checksum:               h1:QGLs/O40yoNK9vmy4rhUGBVyMf1lISBGtXRpsu/Qu/o=
+
+Dependency 138:         github.com/grpc-ecosystem/go-grpc-middleware/v2
+Declared version:       v2.3.3
+Checksum:               h1:B+8ClL/kCQkRiU82d9xajRPKYMrB7E0MbtzWVi1K4ns=
+
+Dependency 139:         github.com/grpc-ecosystem/grpc-gateway
+Declared version:       v1.16.0
+Replacement path:       github.com/grpc-ecosystem/grpc-gateway
+Replacement version:    v1.16.0
+Replacement checksum:   h1:gmcG1KaJ57LophUzW0Hy8NmPhnMZb4M0+kPpLofRdBo=
+
+Dependency 140:         github.com/grpc-ecosystem/grpc-gateway/v2
+Declared version:       v2.28.0
+Checksum:               h1:HWRh5R2+9EifMyIHV7ZV+MIZqgz+PMpZ14Jynv3O2Zs=
+
+Dependency 141:         github.com/hashicorp/go-cleanhttp
+Declared version:       v0.5.2
+Checksum:               h1:035FKYIWjmULyFRBKPs8TBQoi0x6d9G4xc9neXJWAZQ=
+
+Dependency 142:         github.com/hashicorp/go-retryablehttp
+Declared version:       v0.7.8
+Checksum:               h1:ylXZWnqa7Lhqpk0L1P1LzDtGcCR0rPVUrx/c8Unxc48=
+
+Dependency 143:         github.com/hashicorp/go-version
+Declared version:       v1.7.0
+Checksum:               h1:5tqGy27NaOTB8yJKUZELlFAS/LTKJkrmONwQKeRZfjY=
+
+Dependency 144:         github.com/huandu/xstrings
+Declared version:       v1.5.0
+Checksum:               h1:2ag3IFq9ZDANvthTwTiqSSZLjDc+BedvHPAp5tJy2TI=
+
+Dependency 145:         github.com/improbable-eng/grpc-web
+Declared version:       v0.15.1-0.20230209220825-1d9bbb09a099
+Checksum:               h1:k07oXM8RqIaaSEF09Frr/iRMlwx2qvx6vRo2XuPIeW8=
+
+Dependency 146:         github.com/itchyny/gojq
+Declared version:       v0.12.18
+Checksum:               h1:gFGHyt/MLbG9n6dqnvlliiya2TaMMh6FFaR2b1H6Drc=
+
+Dependency 147:         github.com/itchyny/timefmt-go
+Declared version:       v0.1.7
+Checksum:               h1:xyftit9Tbw+Dc/huSSPJaEmX1TVL8lw5vxjJLK4GMMA=
+
+Dependency 148:         github.com/jbenet/go-context
+Declared version:       v0.0.0-20150711004518-d14ea06fba99
+Checksum:               h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
+
+Dependency 149:         github.com/jeremywohl/flatten
+Declared version:       v1.0.2-0.20211013061545-07e4a09fb8e4
+Checksum:               h1:4mRgApcowAtxNLwOQ93jhHMLFgkX2D5yM53mtZSk6Nw=
+
+Dependency 150:         github.com/jonboulle/clockwork
+Declared version:       v0.5.0
+Checksum:               h1:Hyh9A8u51kptdkR+cqRpT1EebBwTn1oK9YfGYbdFz6I=
+
+Dependency 151:         github.com/josharian/intern
+Declared version:       v1.0.0
+Checksum:               h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
+
+Dependency 152:         github.com/json-iterator/go
+Declared version:       v1.1.12
+Checksum:               h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
+
+Dependency 153:         github.com/kballard/go-shellquote
+Declared version:       v0.0.0-20180428030007-95032a82bc51
+Checksum:               h1:Z9n2FFNUXsshfwJMBgNA0RU6/i7WVaAegv3PtuIHPMs=
+
+Dependency 154:         github.com/kevinburke/ssh_config
+Declared version:       v1.2.0
+Checksum:               h1:x584FjTGwHzMwvHx18PXxbBVzfnxogHaAReU4gf13a4=
+
+Dependency 155:         github.com/klauspost/compress
+Declared version:       v1.18.0
+Checksum:               h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
+
+Dependency 156:         github.com/ktrysmt/go-bitbucket
+Declared version:       v0.9.94
+Checksum:               h1:KcWXTISxE/x2UI//HHXwlhoXemTyP2H9Qd7HsHXqqL4=
+
+Dependency 157:         github.com/kylelemons/godebug
+Declared version:       v1.1.0
+Checksum:               h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0SNc=
+
+Dependency 158:         github.com/liggitt/tabwriter
+Declared version:       v0.0.0-20181228230101-89fcab3d43de
+Checksum:               h1:9TO3cAIGXtEhnIaL+V+BEER86oLrvS+kWobKpbJuye0=
+
+Dependency 159:         github.com/mailru/easyjson
+Declared version:       v0.9.0
+Checksum:               h1:PrnmzHw7262yW8sTBwxi1PdJA3Iw/EKBa8psRf7d9a4=
+
+Dependency 160:         github.com/mattn/go-isatty
+Declared version:       v0.0.20
+Checksum:               h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
+
+Dependency 161:         github.com/mattn/go-zglob
+Declared version:       v0.0.6
+Checksum:               h1:mP8RnmCgho4oaUYDIDn6GNxYk+qJGUs8fJLn+twYj2A=
+
+Dependency 162:         github.com/microsoft/azure-devops-go-api/azuredevops/v7
+Declared version:       v7.1.1-0.20241014080628-3045bdf43455
+Checksum:               h1:7rDE4oHmFDgf+4fqnT5vztz7Bmcos1tr17VisCXgs/o=
+
+Dependency 163:         github.com/minio/blake2b-simd
+Declared version:       v0.0.0-20160723061019-3f5f724cb5b1
+Checksum:               h1:lYpkrQH5ajf0OXOcUbGjvZxxijuBwbbmlSxLiuofa+g=
+
+Dependency 164:         github.com/mitchellh/copystructure
+Declared version:       v1.2.0
+Checksum:               h1:vpKXTN4ewci03Vljg/q9QvCGUDttBOGBIa15WveJJGw=
+
+Dependency 165:         github.com/mitchellh/go-wordwrap
+Declared version:       v1.0.1
+Checksum:               h1:TLuKupo69TCn6TQSyGxwI1EblZZEsQ0vMlAFQflz0v0=
+
+Dependency 166:         github.com/mitchellh/mapstructure
+Declared version:       v1.5.0
+Checksum:               h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
+
+Dependency 167:         github.com/mitchellh/reflectwalk
+Declared version:       v1.0.2
+Checksum:               h1:G2LzWKi524PWgd3mLHV8Y5k7s6XUvT0Gef6zxSIeXaQ=
+
+Dependency 168:         github.com/moby/spdystream
+Declared version:       v0.5.1
+Checksum:               h1:9sNYeYZUcci9R6/w7KDaFWEWeV4LStVG78Mpyq/Zm/Y=
+
+Dependency 169:         github.com/moby/term
+Declared version:       v0.5.2
+Checksum:               h1:6qk3FJAFDs6i/q3W/pQ97SX192qKfZgGjCQqfCJkgzQ=
+
+Dependency 170:         github.com/modern-go/concurrent
+Declared version:       v0.0.0-20180306012644-bacd9c7ef1dd
+Checksum:               h1:TRLaZ9cD/w8PVh93nsPXa1VrQ6jlwL5oN8l14QlcNfg=
+
+Dependency 171:         github.com/modern-go/reflect2
+Declared version:       v1.0.3-0.20250322232337-35a7c28c31ee
+Checksum:               h1:W5t00kpgFdJifH4BDsTlE89Zl93FEloxaWZfGcifgq8=
+
+Dependency 172:         github.com/monochromegane/go-gitignore
+Declared version:       v0.0.0-20200626010858-205db1a8cc00
+Checksum:               h1:n6/2gBQ3RWajuToeY6ZtZTIKv2v7ThUy5KKusIT0yc0=
+
+Dependency 173:         github.com/munnerz/goautoneg
+Declared version:       v0.0.0-20191010083416-a7dc8b61c822
+Checksum:               h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=
+
+Dependency 174:         github.com/mxk/go-flowrate
+Declared version:       v0.0.0-20140419014527-cca7078d478f
+Checksum:               h1:y5//uYreIhSUg3J1GEMiLbxo1LJaP8RfCpH6pymGZus=
+
+Dependency 175:         github.com/nats-io/nats.go
+Declared version:       v1.43.0
+Checksum:               h1:uRFZ2FEoRvP64+UUhaTokyS18XBCR/xM2vQZKO4i8ug=
+
+Dependency 176:         github.com/nats-io/nkeys
+Declared version:       v0.4.11
+Checksum:               h1:q44qGV008kYd9W1b1nEBkNzvnWxtRSQ7A8BoqRrcfa0=
+
+Dependency 177:         github.com/nats-io/nuid
+Declared version:       v1.0.1
+Checksum:               h1:5iA8DT8V7q8WK2EScv2padNa/rTESc1KdnPw4TC2paw=
+
+Dependency 178:         github.com/oklog/ulid/v2
+Declared version:       v2.1.1
+Checksum:               h1:suPZ4ARWLOJLegGFiZZ1dFAkqzhMjL3J1TzI+5wHz8s=
+
+Dependency 179:         github.com/opencontainers/go-digest
+Declared version:       v1.0.0
+Checksum:               h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
+
+Dependency 180:         github.com/opencontainers/image-spec
+Declared version:       v1.1.1
+Checksum:               h1:y0fUlFfIZhPF1W537XOLg0/fcx6zcHCJwooC2xJA040=
+
+Dependency 181:         github.com/opsgenie/opsgenie-go-sdk-v2
+Declared version:       v1.2.23
+Checksum:               h1:EFOD/cRfMeq+PCibHddoRTXu8CTN1m8Oj1Tk6eoz8Dw=
+
+Dependency 182:         github.com/patrickmn/go-cache
+Declared version:       v2.1.1-0.20191004192108-46f407853014+incompatible
+Checksum:               h1:IWzUvJ72xMjmrjR9q3H1PF+jwdN0uNQiR2t1BLNalyo=
+
+Dependency 183:         github.com/peterbourgon/diskv
+Declared version:       v2.0.1+incompatible
+Checksum:               h1:UBdAOUP5p4RWqPBg048CAvpKN+vxiaj6gdUUzhl4XmI=
+
+Dependency 184:         github.com/pjbgf/sha1cd
+Declared version:       v0.3.2
+Checksum:               h1:a9wb0bp1oC2TGwStyn0Umc/IGKQnEgF0vVaZ8QF8eo4=
+
+Dependency 185:         github.com/pkg/browser
+Declared version:       v0.0.0-20240102092130-5ac0b6a4141c
+Checksum:               h1:+mdjkGKdHQG3305AYmdv1U2eRNDiU2ErMBj1gwrq8eQ=
+
+Dependency 186:         github.com/pkg/errors
+Declared version:       v0.9.1
+Checksum:               h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+
+Dependency 187:         github.com/pmezard/go-difflib
+Declared version:       v1.0.1-0.20181226105442-5d4384ee4fb2
+Checksum:               h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
+
+Dependency 188:         github.com/prometheus/client_golang
+Declared version:       v1.23.2
+Checksum:               h1:Je96obch5RDVy3FDMndoUsjAhG5Edi49h0RJWRi/o0o=
+
+Dependency 189:         github.com/prometheus/client_model
+Declared version:       v0.6.2
+Checksum:               h1:oBsgwpGs7iVziMvrGhE53c/GrLUsZdHnqNwqPLxwZyk=
+
+Dependency 190:         github.com/prometheus/common
+Declared version:       v0.66.1
+Checksum:               h1:h5E0h5/Y8niHc5DlaLlWLArTQI7tMrsfQjHV+d9ZoGs=
+
+Dependency 191:         github.com/prometheus/procfs
+Declared version:       v0.16.1
+Checksum:               h1:hZ15bTNuirocR6u0JZ6BAHHmwS1p8B4P6MRqxtzMyRg=
+
+Dependency 192:         github.com/r3labs/diff/v3
+Declared version:       v3.0.2
+Checksum:               h1:yVuxAY1V6MeM4+HNur92xkS39kB/N+cFi2hMkY06BbA=
+
+Dependency 193:         github.com/redis/go-redis/v9
+Declared version:       v9.18.0
+Checksum:               h1:pMkxYPkEbMPwRdenAzUNyFNrDgHx9U+DrBabWNfSRQs=
+
+Dependency 194:         github.com/robfig/cron/v3
+Declared version:       v3.0.2-0.20210106135023-bc59245fe10e
+Checksum:               h1:0xChnl3lhHiXbgSJKgChye0D+DvoItkOdkGcwelDXH0=
+
+Dependency 195:         github.com/rs/cors
+Declared version:       v1.11.1
+Checksum:               h1:eU3gRzXLRK57F5rKMGMZURNdIG4EoAmX8k94r9wXWHA=
+
+Dependency 196:         github.com/russross/blackfriday/v2
+Declared version:       v2.1.0
+Checksum:               h1:JIOH55/0cWyOuilr9/qlrm0BSXldqnqwMsf35Ld67mk=
+
+Dependency 197:         github.com/sergi/go-diff
+Declared version:       v1.3.2-0.20230802210424-5b0b94c5c0d3
+Checksum:               h1:n661drycOFuPLCN3Uc8sB6B/s6Z4t2xvBgU1htSHuq8=
+
+Dependency 198:         github.com/shopspring/decimal
+Declared version:       v1.4.0
+Checksum:               h1:bxl37RwXBklmTi0C79JfXCEBD1cqqHt0bbgBAGFp81k=
+
+Dependency 199:         github.com/sirupsen/logrus
+Declared version:       v1.9.4
+Checksum:               h1:TsZE7l11zFCLZnZ+teH4Umoq5BhEIfIzfRDZ1Uzql2w=
+
+Dependency 200:         github.com/skeema/knownhosts
+Declared version:       v1.3.1
+Checksum:               h1:X2osQ+RAjK76shCbvhHHHVl3ZlgDm8apHEHFqRjnBY8=
+
+Dependency 201:         github.com/skratchdot/open-golang
+Declared version:       v0.0.0-20200116055534-eef842397966
+Checksum:               h1:JIAuq3EEf9cgbU6AtGPK4CTG3Zf6CKMNqf0MHTggAUA=
+
+Dependency 202:         github.com/slack-go/slack
+Declared version:       v0.16.0
+Checksum:               h1:khp/WCFv+Hb/B/AJaAwvcxKun0hM6grN0bUZ8xG60P8=
+
+Dependency 203:         github.com/soheilhy/cmux
+Declared version:       v0.1.5
+Checksum:               h1:jjzc5WVemNEDTLwv9tlmemhC73tI08BNOIGwBOo10Js=
+
+Dependency 204:         github.com/spf13/cast
+Declared version:       v1.7.1
+Checksum:               h1:cuNEagBQEHWN1FnbGEjCXL2szYEXqfJPbP2HNUaca9Y=
+
+Dependency 205:         github.com/spf13/cobra
+Declared version:       v1.10.2
+Checksum:               h1:DMTTonx5m65Ic0GOoRY2c16WCbHxOOw6xxezuLaBpcU=
+
+Dependency 206:         github.com/spf13/pflag
+Declared version:       v1.0.10
+Checksum:               h1:4EBh2KAYBwaONj6b2Ye1GiHfwjqyROoF4RwYO+vPwFk=
+
+Dependency 207:         github.com/stretchr/testify
+Declared version:       v1.11.1
+Checksum:               h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
+
+Dependency 208:         github.com/valyala/bytebufferpool
+Declared version:       v1.0.0
+Checksum:               h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
+
+Dependency 209:         github.com/valyala/fasttemplate
+Declared version:       v1.2.2
+Checksum:               h1:lxLXG0uE3Qnshl9QyaK6XJxMXlQZELvChBOCmQD0Loo=
+
+Dependency 210:         github.com/vmihailenco/go-tinylfu
+Declared version:       v0.2.2
+Checksum:               h1:H1eiG6HM36iniK6+21n9LLpzx1G9R3DJa2UjUjbynsI=
+
+Dependency 211:         github.com/vmihailenco/msgpack/v5
+Declared version:       v5.4.1
+Checksum:               h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
+
+Dependency 212:         github.com/vmihailenco/tagparser/v2
+Declared version:       v2.0.0
+Checksum:               h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=
+
+Dependency 213:         github.com/x448/float16
+Declared version:       v0.8.4
+Checksum:               h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
+
+Dependency 214:         github.com/xanzy/ssh-agent
+Declared version:       v0.3.3
+Checksum:               h1:+/15pJfg/RsTxqYcX6fHqOXZwwMP+2VyYWJeWM2qQFM=
+
+Dependency 215:         github.com/xlab/treeprint
+Declared version:       v1.2.0
+Checksum:               h1:HzHnuAF1plUN2zGlAFHbSQP2qJ0ZAD3XF5XD7OesXRQ=
+
+Dependency 216:         github.com/yuin/gopher-lua
+Declared version:       v1.1.1
+Checksum:               h1:kYKnWBjvbNP4XLT3+bPEwAXJx262OhaHDWDVOPjL46M=
+
+Dependency 217:         gitlab.com/gitlab-org/api/client-go
+Declared version:       v1.46.0
+Checksum:               h1:YxBWFZIFYKcGESCb9fpkwzouo+apyB9pr/XTWzNoL24=
+
+Dependency 218:         go.opentelemetry.io/auto/sdk
+Declared version:       v1.2.1
+Checksum:               h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=
+
+Dependency 219:         go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc
+Declared version:       v0.67.0
+Checksum:               h1:yI1/OhfEPy7J9eoa6Sj051C7n5dvpj0QX8g4sRchg04=
+
+Dependency 220:         go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp
+Declared version:       v0.67.0
+Checksum:               h1:OyrsyzuttWTSur2qN/Lm0m2a8yqyIjUVBZcxFPuXq2o=
+
+Dependency 221:         go.opentelemetry.io/otel
+Declared version:       v1.43.0
+Checksum:               h1:mYIM03dnh5zfN7HautFE4ieIig9amkNANT+xcVxAj9I=
+
+Dependency 222:         go.opentelemetry.io/otel/exporters/otlp/otlptrace
+Declared version:       v1.42.0
+Checksum:               h1:THuZiwpQZuHPul65w4WcwEnkX2QIuMT+UFoOrygtoJw=
+
+Dependency 223:         go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc
+Declared version:       v1.42.0
+Checksum:               h1:zWWrB1U6nqhS/k6zYB74CjRpuiitRtLLi68VcgmOEto=
+
+Dependency 224:         go.opentelemetry.io/otel/metric
+Declared version:       v1.43.0
+Checksum:               h1:d7638QeInOnuwOONPp4JAOGfbCEpYb+K6DVWvdxGzgM=
+
+Dependency 225:         go.opentelemetry.io/otel/sdk
+Declared version:       v1.43.0
+Checksum:               h1:pi5mE86i5rTeLXqoF/hhiBtUNcrAGHLKQdhg4h4V9Dg=
+
+Dependency 226:         go.opentelemetry.io/otel/trace
+Declared version:       v1.43.0
+Checksum:               h1:BkNrHpup+4k4w+ZZ86CZoHHEkohws8AY+WTX09nk+3A=
+
+Dependency 227:         go.opentelemetry.io/proto/otlp
+Declared version:       v1.9.0
+Checksum:               h1:l706jCMITVouPOqEnii2fIAuO3IVGBRPV5ICjceRb/A=
+
+Dependency 228:         go.uber.org/atomic
+Declared version:       v1.11.0
+Checksum:               h1:ZvwS0R+56ePWxUNi+Atn9dWONBPp/AUETXlHW0DxSjE=
+
+Dependency 229:         go.yaml.in/yaml/v2
+Declared version:       v2.4.2
+Checksum:               h1:DzmwEr2rDGHl7lsFgAHxmNz/1NlQ7xLIrlN2h5d1eGI=
+
+Dependency 230:         go.yaml.in/yaml/v3
+Declared version:       v3.0.4
+Checksum:               h1:tfq32ie2Jv2UxXFdLJdh3jXuOzWiL1fo0bu/FbuKpbc=
+
+Dependency 231:         golang.org/x/crypto
+Declared version:       v0.53.0
+Checksum:               h1:QZ4Muo8THX6CizN2vPPd5fBGHyogrdK9fG4wLPFUsto=
+
+Dependency 232:         golang.org/x/net
+Declared version:       v0.56.0
+Checksum:               h1:Rw8j/hFzGvJUZwNBXnAtf5sVDVt+65SK2C7IxCxZt5o=
+
+Dependency 233:         golang.org/x/oauth2
+Declared version:       v0.36.0
+Checksum:               h1:peZ/1z27fi9hUOFCAZaHyrpWG5lwe0RJEEEeH0ThlIs=
+
+Dependency 234:         golang.org/x/sync
+Declared version:       v0.21.0
+Checksum:               h1:HLII4xRRTtCRkxYp4HNFF0Js/Og6q2i++KXbg0gHCwM=
+
+Dependency 235:         golang.org/x/sys
+Declared version:       v0.46.0
+Checksum:               h1:noSf2Fq6F8DBgS+LysIkx7rIExoNHJsxOAtPp4rthXw=
+
+Dependency 236:         golang.org/x/term
+Declared version:       v0.44.0
+Checksum:               h1:0rLvDRCtNj0gZkyIXhCyOb2OAzEhLVqc4B+hrsBhrmc=
+
+Dependency 237:         golang.org/x/text
+Declared version:       v0.38.0
+Checksum:               h1:sXmwo9DwP3OK9EZ7PqAdaooSGozfl/3a6/xJcbzPRhE=
+
+Dependency 238:         golang.org/x/time
+Declared version:       v0.15.0
+Checksum:               h1:bbrp8t3bGUeFOx08pvsMYRTCVSMk89u4tKbNOZbp88U=
+
+Dependency 239:         gomodules.xyz/envconfig
+Declared version:       v1.3.1-0.20190308184047-426f31af0d45
+Checksum:               h1:juzzlx91nWAOsHuOVfXZPMXHtJEKouZvY9bBbwlOeYs=
+
+Dependency 240:         gomodules.xyz/jsonpatch/v2
+Declared version:       v2.4.0
+Checksum:               h1:Ci3iUJyx9UeRx7CeFN8ARgGbkESwJK+KB9lLcWxY/Zw=
+
+Dependency 241:         gomodules.xyz/notify
+Declared version:       v0.1.1
+Checksum:               h1:1tTuoyswmPvzqPCTEDQK8SZ3ukCxLsonAAwst2+y1a0=
+
+Dependency 242:         google.golang.org/api
+Declared version:       v0.223.0
+Checksum:               h1:JUTaWEriXmEy5AhvdMgksGGPEFsYfUKaPEYXd4c3Wvc=
+
+Dependency 243:         google.golang.org/genproto
+Declared version:       v0.0.0-20240213162025-012b6fc9bca9
+Checksum:               h1:9+tzLLstTlPTRyJTh+ah5wIMsBW5c4tQwGTN3thOW9Y=
+
+Dependency 244:         google.golang.org/genproto/googleapis/api
+Declared version:       v0.0.0-20260209200024-4cfbd4190f57
+Checksum:               h1:JLQynH/LBHfCTSbDWl+py8C+Rg/k1OVH3xfcaiANuF0=
+
+Dependency 245:         google.golang.org/genproto/googleapis/rpc
+Declared version:       v0.0.0-20260226221140-a57be14db171
+Checksum:               h1:ggcbiqK8WWh6l1dnltU4BgWGIGo+EVYxCaAPih/zQXQ=
+
+Dependency 246:         google.golang.org/grpc
+Declared version:       v1.79.3
+Checksum:               h1:sybAEdRIEtvcD68Gx7dmnwjZKlyfuc61Dyo9pGXXkKE=
+
+Dependency 247:         google.golang.org/protobuf
+Declared version:       v1.36.11
+Checksum:               h1:fV6ZwhNocDyBLK0dj+fg8ektcVegBBuEolpbTQyBNVE=
+
+Dependency 248:         gopkg.in/evanphx/json-patch.v4
+Declared version:       v4.12.0
+Checksum:               h1:n6jtcsulIzXPJaxegRbvFNNrZDjbij7ny3gmSPG+6V4=
+
+Dependency 249:         gopkg.in/gomail.v2
+Declared version:       v2.0.0-20160411212932-81ebce5c23df
+Checksum:               h1:n7WqCuqOuCbNr617RXOY0AWRXxgwEyPp2z+p0+hgMuE=
+
+Dependency 250:         gopkg.in/inf.v0
+Declared version:       v0.9.1
+Checksum:               h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
+
+Dependency 251:         gopkg.in/warnings.v0
+Declared version:       v0.1.2
+Checksum:               h1:wFXVbFY8DY5/xOe1ECiWdKCzZlxgshcYVNkBHstARME=
+
+Dependency 252:         gopkg.in/yaml.v2
+Declared version:       v2.4.0
+Replacement path:       gopkg.in/yaml.v2
+Replacement version:    v2.4.0
+Replacement checksum:   h1:D8xgwECY7CYvx+Y2n4sBz93Jn9JRvxdiyyo8CTfuKaY=
+
+Dependency 253:         gopkg.in/yaml.v3
+Declared version:       v3.0.1
+Replacement path:       gopkg.in/yaml.v3
+Replacement version:    v3.0.1
+Replacement checksum:   h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+
+Dependency 254:         k8s.io/api
+Declared version:       v0.34.0
+Replacement path:       k8s.io/api
+Replacement version:    v0.34.0
+Replacement checksum:   h1:L+JtP2wDbEYPUeNGbeSa/5GwFtIA662EmT2YSLOkAVE=
+
+Dependency 255:         k8s.io/apiextensions-apiserver
+Declared version:       v0.34.0
+Replacement path:       k8s.io/apiextensions-apiserver
+Replacement version:    v0.34.0
+Replacement checksum:   h1:B3hiB32jV7BcyKcMU5fDaDxk882YrJ1KU+ZSkA9Qxoc=
+
+Dependency 256:         k8s.io/apimachinery
+Declared version:       v0.34.0
+Replacement path:       k8s.io/apimachinery
+Replacement version:    v0.34.0
+Replacement checksum:   h1:eR1WO5fo0HyoQZt1wdISpFDffnWOvFLOOeJ7MgIv4z0=
+
+Dependency 257:         k8s.io/apiserver
+Declared version:       v0.34.0
+Replacement path:       k8s.io/apiserver
+Replacement version:    v0.34.0
+Replacement checksum:   h1:Z51fw1iGMqN7uJ1kEaynf2Aec1Y774PqU+FVWCFV3Jg=
+
+Dependency 258:         k8s.io/cli-runtime
+Declared version:       v0.34.0
+Replacement path:       k8s.io/cli-runtime
+Replacement version:    v0.34.0
+Replacement checksum:   h1:N2/rUlJg6TMEBgtQ3SDRJwa8XyKUizwjlOknT1mB2Cw=
+
+Dependency 259:         k8s.io/client-go
+Declared version:       v0.34.0
+Replacement path:       k8s.io/client-go
+Replacement version:    v0.34.0
+Replacement checksum:   h1:YoWv5r7bsBfb0Hs2jh8SOvFbKzzxyNo0nSb0zC19KZo=
+
+Dependency 260:         k8s.io/component-base
+Declared version:       v0.34.0
+Replacement path:       k8s.io/component-base
+Replacement version:    v0.34.0
+Replacement checksum:   h1:bS8Ua3zlJzapklsB1dZgjEJuJEeHjj8yTu1gxE2zQX8=
+
+Dependency 261:         k8s.io/component-helpers
+Declared version:       v0.34.0
+Replacement path:       k8s.io/component-helpers
+Replacement version:    v0.34.0
+Replacement checksum:   h1:5T7P9XGMoUy1JDNKzHf0p/upYbeUf8ZaSf9jbx0QlIo=
+
+Dependency 262:         k8s.io/controller-manager
+Declared version:       v0.34.0
+Replacement path:       k8s.io/controller-manager
+Replacement version:    v0.34.0
+Replacement checksum:   h1:oCHoqS8dcFp7zDSu7HUvTpakq3isSxil3GprGGlJMsE=
+
+Dependency 263:         k8s.io/klog/v2
+Declared version:       v2.130.1
+Checksum:               h1:n9Xl7H1Xvksem4KFG4PYbdQCQxqc/tTUyrgXaOhHSzk=
+
+Dependency 264:         k8s.io/kube-aggregator
+Declared version:       v0.34.0
+Replacement path:       k8s.io/kube-aggregator
+Replacement version:    v0.34.0
+Replacement checksum:   h1:XE4u+HOYkj0g44sblhTtPv+QyIIK7sJxrIlia0731kE=
+
+Dependency 265:         k8s.io/kube-openapi
+Declared version:       v0.0.0-20250710124328-f3f2b991d03b
+Checksum:               h1:MloQ9/bdJyIu9lb1PzujOPolHyvO06MXG5TUIj2mNAA=
+
+Dependency 266:         k8s.io/kubectl
+Declared version:       v0.34.0
+Replacement path:       k8s.io/kubectl
+Replacement version:    v0.34.0
+Replacement checksum:   h1:NcXz4TPTaUwhiX4LU+6r6udrlm0NsVnSkP3R9t0dmxs=
+
+Dependency 267:         k8s.io/kubernetes
+Declared version:       v1.34.2
+Checksum:               h1:WQdDvYJazkmkwSncgNwGvVtaCt4TYXIU3wSMRgvp3MI=
+
+Dependency 268:         k8s.io/utils
+Declared version:       v0.0.0-20250604170112-4c0f3b243397
+Checksum:               h1:hwvWFiBzdWw1FhfY1FooPn3kzWuJ8tmbZBHi4zVsl1Y=
+
+Dependency 269:         layeh.com/gopher-json
+Declared version:       v0.0.0-20190114024228-97fed8db8427
+Checksum:               h1:RZkKxMR3jbQxdCEcglq3j7wY3PRJIopAwBlx1RE71X0=
+
+Dependency 270:         nhooyr.io/websocket
+Declared version:       v1.8.7
+Checksum:               h1:usjR2uOr/zjjkVMy0lW+PPohFok7PCow5sDjLgX4P4g=
+
+Dependency 271:         oras.land/oras-go/v2
+Declared version:       v2.6.0
+Checksum:               h1:X4ELRsiGkrbeox69+9tzTu492FMUu7zJQW6eJU+I2oc=
+
+Dependency 272:         sigs.k8s.io/controller-runtime
+Declared version:       v0.21.0
+Checksum:               h1:CYfjpEuicjUecRk+KAeyYh+ouUBn4llGyDYytIGcJS8=
+
+Dependency 273:         sigs.k8s.io/json
+Declared version:       v0.0.0-20241014173422-cfa47c3a1cc8
+Checksum:               h1:gBQPwqORJ8d8/YNZWEjoZs7npUVDpVXUUOFfW6CgAqE=
+
+Dependency 274:         sigs.k8s.io/kustomize/api
+Declared version:       v0.20.1
+Checksum:               h1:iWP1Ydh3/lmldBnH/S5RXgT98vWYMaTUL1ADcr+Sv7I=
+
+Dependency 275:         sigs.k8s.io/kustomize/kyaml
+Declared version:       v0.20.1
+Checksum:               h1:PCMnA2mrVbRP3NIB6v9kYCAc38uvFLVs8j/CD567A78=
+
+Dependency 276:         sigs.k8s.io/randfill
+Declared version:       v1.0.0
+Checksum:               h1:JfjMILfT8A6RbawdsK2JXGBR5AQVfd+9TbzrlneTyrU=
+
+Dependency 277:         sigs.k8s.io/structured-merge-diff/v6
+Declared version:       v6.3.2
+Checksum:               h1:kwVWMx5yS1CrnFWA/2QHyRVJ8jM6dBA80uLmm0wJkk8=
+
+Dependency 278:         sigs.k8s.io/yaml
+Declared version:       v1.6.0
+Checksum:               h1:G8fkbMSAFqgEFgh4b1wmtzDnioxFCUgTZhlbj5P9QYs=
+
+  No vulnerability findings for this binary.
+
+BINARY
+----------------------------------------------------------------------------------------------------
+Path:                   /usr/local/bin/git-lfs
+SHA-256 suffix:         cba8cef786407bb1
+Main package:           command-line-arguments
+Compiled with:          go1.26.5 (Red Hat 1.26.5-1.el9_8) X:strictfipsruntime
+CGO:                    ENABLED
+Scan status:            FAILED
+Dependencies:           28
+Affected packages:      0
+Vulnerabilities:        0
+Scan error:             ...n.gz": dial tcp: lookup vuln.go.dev: Temporary failure in name resolution
+
+DECLARED DEPENDENCIES (28)
+--------------------------
+
+Dependency 1:           github.com/dpotapov/go-spnego
+Declared version:       v0.0.0-20210315154721-298b63a54430
+Checksum:               h1:oempk9HjNt6rVKyKmpdnoN7XABQv3SXLWu3pxUI7Vlk=
+
+Dependency 2:           github.com/git-lfs/git-lfs/v3
+Declared version:       (devel)
+
+Dependency 3:           github.com/git-lfs/gitobj/v2
+Declared version:       v2.1.1
+Checksum:               h1:tf/VU6zL1kxa3he+nf6FO/syX+LGkm6WGDsMpfuXV7Q=
+
+Dependency 4:           github.com/git-lfs/go-netrc
+Declared version:       v0.0.0-20250218165306-ba0029b43d11
+Checksum:               h1:LotqdxyBRc7u2fxoBrzW6Mn3ZBvv7FlcBPlAa10DKAg=
+
+Dependency 5:           github.com/git-lfs/pktline
+Declared version:       v0.0.0-20210330133718-06e9096e2825
+Checksum:               h1:riQhgheTL7tMF4d5raz9t3+IzoR1i1wqxE1kZC6dY+U=
+
+Dependency 6:           github.com/git-lfs/wildmatch/v2
+Declared version:       v2.0.1
+Checksum:               h1:Ds+aobrV5bK0wStILUOn9irllPyf9qrFETbKzwzoER8=
+
+Dependency 7:           github.com/golang/groupcache
+Declared version:       v0.0.0-20241129210726-2c02b8208cf8
+Checksum:               h1:f+oWsMOmNPc8JmEHVZIycC7hBoQxHH9pNKQORJNozsQ=
+
+Dependency 8:           github.com/hashicorp/go-uuid
+Declared version:       v1.0.2
+Checksum:               h1:cfejS+Tpcp13yd5nYHWDI6qVCny6wyX2Mt5SGur2IGE=
+
+Dependency 9:           github.com/jcmturner/aescts/v2
+Declared version:       v2.0.0
+Checksum:               h1:9YKLH6ey7H4eDBXW8khjYslgyqG2xZikXP0EQFKrle8=
+
+Dependency 10:          github.com/jcmturner/dnsutils/v2
+Declared version:       v2.0.0
+Checksum:               h1:lltnkeZGL0wILNvrNiVCR6Ro5PGU/SeBvVO/8c/iPbo=
+
+Dependency 11:          github.com/jcmturner/gofork
+Declared version:       v1.0.0
+Checksum:               h1:J7uCkflzTEhUZ64xqKnkDxq3kzc96ajM1Gli5ktUem8=
+
+Dependency 12:          github.com/jcmturner/goidentity/v6
+Declared version:       v6.0.1
+Checksum:               h1:VKnZd2oEIMorCTsFBnJWbExfNN7yZr3EhJAxwOkZg6o=
+
+Dependency 13:          github.com/jcmturner/gokrb5/v8
+Declared version:       v8.4.2
+Checksum:               h1:6ZIM6b/JJN0X8UM43ZOM6Z4SJzla+a/u7scXFJzodkA=
+
+Dependency 14:          github.com/jcmturner/rpc/v2
+Declared version:       v2.0.3
+Checksum:               h1:7FXXj8Ti1IaVFpSAziCZWNzbNuZmnvw/i6CqLNdWfZY=
+
+Dependency 15:          github.com/jmhodges/clock
+Declared version:       v1.2.0
+Checksum:               h1:eq4kys+NI0PLngzaHEe7AmPT90XMGIEySD1JfV1PDIs=
+
+Dependency 16:          github.com/leonelquinteros/gotext
+Declared version:       v1.5.0
+Checksum:               h1:ODY7LzLpZWWSJdAHnzhreOr6cwLXTAmc914FOauSkBM=
+
+Dependency 17:          github.com/mattn/go-isatty
+Declared version:       v0.0.4
+Checksum:               h1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs=
+
+Dependency 18:          github.com/olekukonko/ts
+Declared version:       v0.0.0-20171002115256-78ecb04241c0
+Checksum:               h1:LiZB1h0GIcudcDci2bxbqI6DXV8bF8POAnArqvRrIyw=
+
+Dependency 19:          github.com/pkg/errors
+Declared version:       v0.0.0-20170505043639-c605e284fe17
+Checksum:               h1:chPfVn+gpAM5CTpTyVU9j8J+xgRGwmoDlNDLjKnJiYo=
+
+Dependency 20:          github.com/rubyist/tracerx
+Declared version:       v0.0.0-20170927163412-787959303086
+Checksum:               h1:mncRSDOqYCng7jOD+Y6+IivdRI6Kzv2BLWYkWkdQfu0=
+
+Dependency 21:          github.com/spf13/cobra
+Declared version:       v1.7.0
+Checksum:               h1:hyqWnYt1ZQShIddO5kBpj3vu05/++x6tJ6dg8EC572I=
+
+Dependency 22:          github.com/spf13/pflag
+Declared version:       v1.0.5
+Checksum:               h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
+
+Dependency 23:          github.com/ssgelm/cookiejarparser
+Declared version:       v1.0.1
+Checksum:               h1:cRdXauUbOTFzTPJFaeiWbHnQ+tRGlpKKzvIK9PUekE4=
+
+Dependency 24:          golang.org/x/crypto
+Declared version:       v0.36.0
+Checksum:               h1:AnAEvhDddvBdpY+uR+MyHmuZzzNqXSe/GvuDeob5L34=
+
+Dependency 25:          golang.org/x/net
+Declared version:       v0.38.0
+Checksum:               h1:vRMAPTMaeGqVhG5QyLJHqNDwecKTomGeqbnfZyKlBI8=
+
+Dependency 26:          golang.org/x/sync
+Declared version:       v0.12.0
+Checksum:               h1:MHc5BpPuC30uJk597Ri8TV3CNZcTLu6B6z4lJy+g6Jw=
+
+Dependency 27:          golang.org/x/sys
+Declared version:       v0.31.0
+Checksum:               h1:ioabZlmFYtWhL+TRYpcnNlLwhyxaM9kWTDEmfnprqik=
+
+Dependency 28:          golang.org/x/text
+Declared version:       v0.23.0
+Checksum:               h1:D71I7dUrlY+VX0gQShAThNGHFxZ13dGLBHQLVl1mJlY=
+
+  No vulnerability findings for this binary.
+
+BINARY
+----------------------------------------------------------------------------------------------------
+Path:                   /usr/local/bin/helm
+SHA-256 suffix:         8a7755d1658d10b8
+Main package:           helm.sh/helm/v3/cmd/helm
+Compiled with:          go1.26.5 (Red Hat 1.26.5-1.el9_8) X:strictfipsruntime
+CGO:                    ENABLED
+Scan status:            FAILED
+Dependencies:           112
+Affected packages:      0
+Vulnerabilities:        0
+Scan error:             ...n.gz": dial tcp: lookup vuln.go.dev: Temporary failure in name resolution
+
+DECLARED DEPENDENCIES (112)
+---------------------------
+
+Dependency 1:           dario.cat/mergo
+Declared version:       v1.0.1
+Checksum:               h1:Ra4+bf83h2ztPIQYNP99R6m+Y7KfnARDfID+a+vLl4s=
+
+Dependency 2:           github.com/BurntSushi/toml
+Declared version:       v1.5.0
+Checksum:               h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
+
+Dependency 3:           github.com/MakeNowJust/heredoc
+Declared version:       v1.0.0
+Checksum:               h1:cXCdzVdstXyiTqTvfqk9SDHpKNjxuom+DOlyEeQ4pzQ=
+
+Dependency 4:           github.com/Masterminds/goutils
+Declared version:       v1.1.1
+Checksum:               h1:5nUrii3FMTL5diU80unEVvNevw1nH4+ZV4DSLVJLSYI=
+
+Dependency 5:           github.com/Masterminds/semver/v3
+Declared version:       v3.4.0
+Checksum:               h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=
+
+Dependency 6:           github.com/Masterminds/sprig/v3
+Declared version:       v3.3.0
+Checksum:               h1:mQh0Yrg1XPo6vjYXgtf5OtijNAKJRNcTdOOGZe3tPhs=
+
+Dependency 7:           github.com/Masterminds/squirrel
+Declared version:       v1.5.4
+Checksum:               h1:uUcX/aBc8O7Fg9kaISIUsHXdKuqehiXAMQTYX8afzqM=
+
+Dependency 8:           github.com/Masterminds/vcs
+Declared version:       v1.13.3
+Checksum:               h1:IIA2aBdXvfbIM+yl/eTnL4hb1XwdpvuQLglAix1gweE=
+
+Dependency 9:           github.com/asaskevich/govalidator
+Declared version:       v0.0.0-20230301143203-a9d515a09cc2
+Checksum:               h1:DklsrG3dyBCFEj5IhUbnKptjxatkF07cF2ak3yi77so=
+
+Dependency 10:          github.com/blang/semver/v4
+Declared version:       v4.0.0
+Checksum:               h1:1PFHFE6yCCTv8C1TeyNNarDzntLi7wMI5i/pzqYIsAM=
+
+Dependency 11:          github.com/chai2010/gettext-go
+Declared version:       v1.0.2
+Checksum:               h1:1Lwwip6Q2QGsAdl/ZKPCwTe9fe0CjlUbqj5bFNSjIRk=
+
+Dependency 12:          github.com/containerd/containerd
+Declared version:       v1.7.29
+Checksum:               h1:90fWABQsaN9mJhGkoVnuzEY+o1XDPbg9BTC9QTAHnuE=
+
+Dependency 13:          github.com/containerd/errdefs
+Declared version:       v0.3.0
+Checksum:               h1:FSZgGOeK4yuT/+DnF07/Olde/q4KBoMsaamhXxIMDp4=
+
+Dependency 14:          github.com/containerd/log
+Declared version:       v0.1.0
+Checksum:               h1:TCJt7ioM2cr/tfR8GPbGf9/VRAX8D2B4PjzCpfX540I=
+
+Dependency 15:          github.com/containerd/platforms
+Declared version:       v0.2.1
+Checksum:               h1:zvwtM3rz2YHPQsF2CHYM8+KtB5dvhISiXh5ZpSBQv6A=
+
+Dependency 16:          github.com/cpuguy83/go-md2man/v2
+Declared version:       v2.0.6
+Checksum:               h1:XJtiaUW6dEEqVuZiMTn1ldk455QWwEIsMIJlo5vtkx0=
+
+Dependency 17:          github.com/cyphar/filepath-securejoin
+Declared version:       v0.6.1
+Checksum:               h1:5CeZ1jPXEiYt3+Z6zqprSAgSWiggmpVyciv8syjIpVE=
+
+Dependency 18:          github.com/davecgh/go-spew
+Declared version:       v1.1.2-0.20180830191138-d8f796af33cc
+Checksum:               h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
+
+Dependency 19:          github.com/emicklei/go-restful/v3
+Declared version:       v3.12.2
+Checksum:               h1:DhwDP0vY3k8ZzE0RunuJy8GhNpPL6zqLkDf9B/a0/xU=
+
+Dependency 20:          github.com/evanphx/json-patch
+Declared version:       v5.9.11+incompatible
+Checksum:               h1:ixHHqfcGvxhWkniF1tWxBHA0yb4Z+d1UQi45df52xW8=
+
+Dependency 21:          github.com/exponent-io/jsonpath
+Declared version:       v0.0.0-20210407135951-1de76d718b3f
+Checksum:               h1:Wl78ApPPB2Wvf/TIe2xdyJxTlb6obmF18d8QdkxNDu4=
+
+Dependency 22:          github.com/fatih/color
+Declared version:       v1.13.0
+Checksum:               h1:8LOYc1KYPPmyKMuN8QV2DNRWNbLo6LZ0iLs8+mlH53w=
+
+Dependency 23:          github.com/fxamacker/cbor/v2
+Declared version:       v2.9.0
+Checksum:               h1:NpKPmjDBgUfBms6tr6JZkTHtfFGcMKsw3eGcmD/sapM=
+
+Dependency 24:          github.com/go-errors/errors
+Declared version:       v1.4.2
+Checksum:               h1:J6MZopCL4uSllY1OfXM374weqZFFItUbrImctkmUxIA=
+
+Dependency 25:          github.com/go-gorp/gorp/v3
+Declared version:       v3.1.0
+Checksum:               h1:ItKF/Vbuj31dmV4jxA1qblpSwkl9g1typ24xoe70IGs=
+
+Dependency 26:          github.com/go-logr/logr
+Declared version:       v1.4.2
+Checksum:               h1:6pFjapn8bFcIbiKo3XT4j/BhANplGihG6tvd+8rYgrY=
+
+Dependency 27:          github.com/go-openapi/jsonpointer
+Declared version:       v0.21.0
+Checksum:               h1:YgdVicSA9vH5RiHs9TZW5oyafXZFc6+2Vc1rr/O9oNQ=
+
+Dependency 28:          github.com/go-openapi/jsonreference
+Declared version:       v0.20.2
+Checksum:               h1:3sVjiK66+uXK/6oQ8xgcRKcFgQ5KXa2KvnJRumpMGbE=
+
+Dependency 29:          github.com/go-openapi/swag
+Declared version:       v0.23.0
+Checksum:               h1:vsEVJDUo2hPJ2tu0/Xc+4noaxyEffXNIs3cOULZ+GrE=
+
+Dependency 30:          github.com/gobwas/glob
+Declared version:       v0.2.3
+Checksum:               h1:A4xDbljILXROh+kObIiy5kIaPYD8e96x1tgBhUI5J+Y=
+
+Dependency 31:          github.com/gofrs/flock
+Declared version:       v0.13.0
+Checksum:               h1:95JolYOvGMqeH31+FC7D2+uULf6mG61mEZ/A8dRYMzw=
+
+Dependency 32:          github.com/gogo/protobuf
+Declared version:       v1.3.2
+Checksum:               h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=
+
+Dependency 33:          github.com/google/btree
+Declared version:       v1.1.3
+Checksum:               h1:CVpQJjYgC4VbzxeGVHfvZrv1ctoYCAI8vbl07Fcxlyg=
+
+Dependency 34:          github.com/google/gnostic-models
+Declared version:       v0.7.0
+Checksum:               h1:qwTtogB15McXDaNqTZdzPJRHvaVJlAl+HVQnLmJEJxo=
+
+Dependency 35:          github.com/google/uuid
+Declared version:       v1.6.0
+Checksum:               h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+
+Dependency 36:          github.com/gorilla/websocket
+Declared version:       v1.5.4-0.20250319132907-e064f32e3674
+Checksum:               h1:JeSE6pjso5THxAzdVpqr6/geYxZytqFMBCOtn/ujyeo=
+
+Dependency 37:          github.com/gosuri/uitable
+Declared version:       v0.0.4
+Checksum:               h1:IG2xLKRvErL3uhY6e1BylFzG+aJiwQviDDTfOKeKTpY=
+
+Dependency 38:          github.com/gregjones/httpcache
+Declared version:       v0.0.0-20190611155906-901d90724c79
+Checksum:               h1:+ngKgrYPPJrOjhax5N+uePQ0Fh1Z7PheYoUI/0nzkPA=
+
+Dependency 39:          github.com/hashicorp/errwrap
+Declared version:       v1.1.0
+Checksum:               h1:OxrOeh75EUXMY8TBjag2fzXGZ40LB6IKw45YeGUDY2I=
+
+Dependency 40:          github.com/hashicorp/go-multierror
+Declared version:       v1.1.1
+Checksum:               h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+lD48awMYo=
+
+Dependency 41:          github.com/huandu/xstrings
+Declared version:       v1.5.0
+Checksum:               h1:2ag3IFq9ZDANvthTwTiqSSZLjDc+BedvHPAp5tJy2TI=
+
+Dependency 42:          github.com/jmoiron/sqlx
+Declared version:       v1.4.0
+Checksum:               h1:1PLqN7S1UYp5t4SrVVnt4nUVNemrDAtxlulVe+Qgm3o=
+
+Dependency 43:          github.com/josharian/intern
+Declared version:       v1.0.0
+Checksum:               h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
+
+Dependency 44:          github.com/json-iterator/go
+Declared version:       v1.1.12
+Checksum:               h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
+
+Dependency 45:          github.com/klauspost/compress
+Declared version:       v1.18.0
+Checksum:               h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
+
+Dependency 46:          github.com/lann/builder
+Declared version:       v0.0.0-20180802200727-47ae307949d0
+Checksum:               h1:SOEGU9fKiNWd/HOJuq6+3iTQz8KNCLtVX6idSoTLdUw=
+
+Dependency 47:          github.com/lann/ps
+Declared version:       v0.0.0-20150810152359-62de8c46ede0
+Checksum:               h1:P6pPBnrTSX3DEVR4fDembhRWSsG5rVo6hYhAB/ADZrk=
+
+Dependency 48:          github.com/lib/pq
+Declared version:       v1.10.9
+Checksum:               h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=
+
+Dependency 49:          github.com/liggitt/tabwriter
+Declared version:       v0.0.0-20181228230101-89fcab3d43de
+Checksum:               h1:9TO3cAIGXtEhnIaL+V+BEER86oLrvS+kWobKpbJuye0=
+
+Dependency 50:          github.com/mailru/easyjson
+Declared version:       v0.7.7
+Checksum:               h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=
+
+Dependency 51:          github.com/mattn/go-colorable
+Declared version:       v0.1.13
+Checksum:               h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
+
+Dependency 52:          github.com/mattn/go-isatty
+Declared version:       v0.0.17
+Checksum:               h1:BTarxUcIeDqL27Mc+vyvdWYSL28zpIhv3RoTdsLMPng=
+
+Dependency 53:          github.com/mattn/go-runewidth
+Declared version:       v0.0.9
+Checksum:               h1:Lm995f3rfxdpd6TSmuVCHVb/QhupuXlYr8sCI/QdE+0=
+
+Dependency 54:          github.com/mitchellh/copystructure
+Declared version:       v1.2.0
+Checksum:               h1:vpKXTN4ewci03Vljg/q9QvCGUDttBOGBIa15WveJJGw=
+
+Dependency 55:          github.com/mitchellh/go-wordwrap
+Declared version:       v1.0.1
+Checksum:               h1:TLuKupo69TCn6TQSyGxwI1EblZZEsQ0vMlAFQflz0v0=
+
+Dependency 56:          github.com/mitchellh/reflectwalk
+Declared version:       v1.0.2
+Checksum:               h1:G2LzWKi524PWgd3mLHV8Y5k7s6XUvT0Gef6zxSIeXaQ=
+
+Dependency 57:          github.com/moby/spdystream
+Declared version:       v0.5.0
+Checksum:               h1:7r0J1Si3QO/kjRitvSLVVFUjxMEb/YLj6S9FF62JBCU=
+
+Dependency 58:          github.com/moby/term
+Declared version:       v0.5.2
+Checksum:               h1:6qk3FJAFDs6i/q3W/pQ97SX192qKfZgGjCQqfCJkgzQ=
+
+Dependency 59:          github.com/modern-go/concurrent
+Declared version:       v0.0.0-20180306012644-bacd9c7ef1dd
+Checksum:               h1:TRLaZ9cD/w8PVh93nsPXa1VrQ6jlwL5oN8l14QlcNfg=
+
+Dependency 60:          github.com/modern-go/reflect2
+Declared version:       v1.0.3-0.20250322232337-35a7c28c31ee
+Checksum:               h1:W5t00kpgFdJifH4BDsTlE89Zl93FEloxaWZfGcifgq8=
+
+Dependency 61:          github.com/monochromegane/go-gitignore
+Declared version:       v0.0.0-20200626010858-205db1a8cc00
+Checksum:               h1:n6/2gBQ3RWajuToeY6ZtZTIKv2v7ThUy5KKusIT0yc0=
+
+Dependency 62:          github.com/munnerz/goautoneg
+Declared version:       v0.0.0-20191010083416-a7dc8b61c822
+Checksum:               h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=
+
+Dependency 63:          github.com/mxk/go-flowrate
+Declared version:       v0.0.0-20140419014527-cca7078d478f
+Checksum:               h1:y5//uYreIhSUg3J1GEMiLbxo1LJaP8RfCpH6pymGZus=
+
+Dependency 64:          github.com/opencontainers/go-digest
+Declared version:       v1.0.0
+Checksum:               h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
+
+Dependency 65:          github.com/opencontainers/image-spec
+Declared version:       v1.1.1
+Checksum:               h1:y0fUlFfIZhPF1W537XOLg0/fcx6zcHCJwooC2xJA040=
+
+Dependency 66:          github.com/peterbourgon/diskv
+Declared version:       v2.0.1+incompatible
+Checksum:               h1:UBdAOUP5p4RWqPBg048CAvpKN+vxiaj6gdUUzhl4XmI=
+
+Dependency 67:          github.com/pkg/errors
+Declared version:       v0.9.1
+Checksum:               h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+
+Dependency 68:          github.com/pmezard/go-difflib
+Declared version:       v1.0.1-0.20181226105442-5d4384ee4fb2
+Checksum:               h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
+
+Dependency 69:          github.com/rubenv/sql-migrate
+Declared version:       v1.8.0
+Checksum:               h1:dXnYiJk9k3wetp7GfQbKJcPHjVJL6YK19tKj8t2Ns0o=
+
+Dependency 70:          github.com/russross/blackfriday/v2
+Declared version:       v2.1.0
+Checksum:               h1:JIOH55/0cWyOuilr9/qlrm0BSXldqnqwMsf35Ld67mk=
+
+Dependency 71:          github.com/santhosh-tekuri/jsonschema/v6
+Declared version:       v6.0.2
+Checksum:               h1:KRzFb2m7YtdldCEkzs6KqmJw4nqEVZGK7IN2kJkjTuQ=
+
+Dependency 72:          github.com/shopspring/decimal
+Declared version:       v1.4.0
+Checksum:               h1:bxl37RwXBklmTi0C79JfXCEBD1cqqHt0bbgBAGFp81k=
+
+Dependency 73:          github.com/sirupsen/logrus
+Declared version:       v1.9.3
+Checksum:               h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ=
+
+Dependency 74:          github.com/spf13/cast
+Declared version:       v1.7.0
+Checksum:               h1:ntdiHjuueXFgm5nzDRdOS4yfT43P5Fnud6DH50rz/7w=
+
+Dependency 75:          github.com/spf13/cobra
+Declared version:       v1.10.1
+Checksum:               h1:lJeBwCfmrnXthfAupyUTzJ/J4Nc1RsHC/mSRU2dll/s=
+
+Dependency 76:          github.com/spf13/pflag
+Declared version:       v1.0.10
+Checksum:               h1:4EBh2KAYBwaONj6b2Ye1GiHfwjqyROoF4RwYO+vPwFk=
+
+Dependency 77:          github.com/x448/float16
+Declared version:       v0.8.4
+Checksum:               h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
+
+Dependency 78:          github.com/xlab/treeprint
+Declared version:       v1.2.0
+Checksum:               h1:HzHnuAF1plUN2zGlAFHbSQP2qJ0ZAD3XF5XD7OesXRQ=
+
+Dependency 79:          go.yaml.in/yaml/v2
+Declared version:       v2.4.2
+Checksum:               h1:DzmwEr2rDGHl7lsFgAHxmNz/1NlQ7xLIrlN2h5d1eGI=
+
+Dependency 80:          go.yaml.in/yaml/v3
+Declared version:       v3.0.4
+Checksum:               h1:tfq32ie2Jv2UxXFdLJdh3jXuOzWiL1fo0bu/FbuKpbc=
+
+Dependency 81:          golang.org/x/crypto
+Declared version:       v0.45.0
+Checksum:               h1:jMBrvKuj23MTlT0bQEOBcAE0mjg8mK9RXFhRH6nyF3Q=
+
+Dependency 82:          golang.org/x/net
+Declared version:       v0.47.0
+Checksum:               h1:Mx+4dIFzqraBXUugkia1OOvlD6LemFo1ALMHjrXDOhY=
+
+Dependency 83:          golang.org/x/oauth2
+Declared version:       v0.30.0
+Checksum:               h1:dnDm7JmhM45NNpd8FDDeLhK6FwqbOf4MLCM9zb1BOHI=
+
+Dependency 84:          golang.org/x/sync
+Declared version:       v0.18.0
+Checksum:               h1:kr88TuHDroi+UVf+0hZnirlk8o8T+4MrK6mr60WkH/I=
+
+Dependency 85:          golang.org/x/sys
+Declared version:       v0.38.0
+Checksum:               h1:3yZWxaJjBmCWXqhN1qh02AkOnCQ1poK6oF+a7xWL6Gc=
+
+Dependency 86:          golang.org/x/term
+Declared version:       v0.37.0
+Checksum:               h1:8EGAD0qCmHYZg6J17DvsMy9/wJ7/D/4pV/wfnld5lTU=
+
+Dependency 87:          golang.org/x/text
+Declared version:       v0.31.0
+Checksum:               h1:aC8ghyu4JhP8VojJ2lEHBnochRno1sgL6nEi9WGFGMM=
+
+Dependency 88:          golang.org/x/time
+Declared version:       v0.12.0
+Checksum:               h1:ScB/8o8olJvc+CQPWrK3fPZNfh7qgwCrY0zJmoEQLSE=
+
+Dependency 89:          google.golang.org/genproto/googleapis/rpc
+Declared version:       v0.0.0-20250303144028-a0af3efb3deb
+Checksum:               h1:TLPQVbx1GJ8VKZxz52VAxl1EBgKXXbTiU9Fc5fZeLn4=
+
+Dependency 90:          google.golang.org/grpc
+Declared version:       v1.72.1
+Checksum:               h1:HR03wO6eyZ7lknl75XlxABNVLLFc2PAb6mHlYh756mA=
+
+Dependency 91:          google.golang.org/protobuf
+Declared version:       v1.36.5
+Checksum:               h1:tPhr+woSbjfYvY6/GPufUoYizxw1cF/yFoxJ2fmpwlM=
+
+Dependency 92:          gopkg.in/evanphx/json-patch.v4
+Declared version:       v4.12.0
+Checksum:               h1:n6jtcsulIzXPJaxegRbvFNNrZDjbij7ny3gmSPG+6V4=
+
+Dependency 93:          gopkg.in/inf.v0
+Declared version:       v0.9.1
+Checksum:               h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
+
+Dependency 94:          gopkg.in/yaml.v3
+Declared version:       v3.0.1
+Checksum:               h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+
+Dependency 95:          k8s.io/api
+Declared version:       v0.34.2
+Checksum:               h1:fsSUNZhV+bnL6Aqrp6O7lMTy6o5x2C4XLjnh//8SLYY=
+
+Dependency 96:          k8s.io/apiextensions-apiserver
+Declared version:       v0.34.2
+Checksum:               h1:WStKftnGeoKP4AZRz/BaAAEJvYp4mlZGN0UCv+uvsqo=
+
+Dependency 97:          k8s.io/apimachinery
+Declared version:       v0.34.2
+Checksum:               h1:zQ12Uk3eMHPxrsbUJgNF8bTauTVR2WgqJsTmwTE/NW4=
+
+Dependency 98:          k8s.io/apiserver
+Declared version:       v0.34.2
+Checksum:               h1:2/yu8suwkmES7IzwlehAovo8dDE07cFRC7KMDb1+MAE=
+
+Dependency 99:          k8s.io/cli-runtime
+Declared version:       v0.34.2
+Checksum:               h1:cct1GEuWc3IyVT8MSCoIWzRGw9HJ/C5rgP32H60H6aE=
+
+Dependency 100:         k8s.io/client-go
+Declared version:       v0.34.2
+Checksum:               h1:Co6XiknN+uUZqiddlfAjT68184/37PS4QAzYvQvDR8M=
+
+Dependency 101:         k8s.io/component-base
+Declared version:       v0.34.2
+Checksum:               h1:HQRqK9x2sSAsd8+R4xxRirlTjowsg6fWCPwWYeSvogQ=
+
+Dependency 102:         k8s.io/klog/v2
+Declared version:       v2.130.1
+Checksum:               h1:n9Xl7H1Xvksem4KFG4PYbdQCQxqc/tTUyrgXaOhHSzk=
+
+Dependency 103:         k8s.io/kube-openapi
+Declared version:       v0.0.0-20250710124328-f3f2b991d03b
+Checksum:               h1:MloQ9/bdJyIu9lb1PzujOPolHyvO06MXG5TUIj2mNAA=
+
+Dependency 104:         k8s.io/kubectl
+Declared version:       v0.34.2
+Checksum:               h1:+fWGrVlDONMUmmQLDaGkQ9i91oszjjRAa94cr37hzqA=
+
+Dependency 105:         k8s.io/utils
+Declared version:       v0.0.0-20250604170112-4c0f3b243397
+Checksum:               h1:hwvWFiBzdWw1FhfY1FooPn3kzWuJ8tmbZBHi4zVsl1Y=
+
+Dependency 106:         oras.land/oras-go/v2
+Declared version:       v2.6.0
+Checksum:               h1:X4ELRsiGkrbeox69+9tzTu492FMUu7zJQW6eJU+I2oc=
+
+Dependency 107:         sigs.k8s.io/json
+Declared version:       v0.0.0-20241014173422-cfa47c3a1cc8
+Checksum:               h1:gBQPwqORJ8d8/YNZWEjoZs7npUVDpVXUUOFfW6CgAqE=
+
+Dependency 108:         sigs.k8s.io/kustomize/api
+Declared version:       v0.20.1
+Checksum:               h1:iWP1Ydh3/lmldBnH/S5RXgT98vWYMaTUL1ADcr+Sv7I=
+
+Dependency 109:         sigs.k8s.io/kustomize/kyaml
+Declared version:       v0.20.1
+Checksum:               h1:PCMnA2mrVbRP3NIB6v9kYCAc38uvFLVs8j/CD567A78=
+
+Dependency 110:         sigs.k8s.io/randfill
+Declared version:       v1.0.0
+Checksum:               h1:JfjMILfT8A6RbawdsK2JXGBR5AQVfd+9TbzrlneTyrU=
+
+Dependency 111:         sigs.k8s.io/structured-merge-diff/v6
+Declared version:       v6.3.0
+Checksum:               h1:jTijUJbW353oVOd9oTlifJqOGEkUw2jB/fXCbTiQEco=
+
+Dependency 112:         sigs.k8s.io/yaml
+Declared version:       v1.6.0
+Checksum:               h1:G8fkbMSAFqgEFgh4b1wmtzDnioxFCUgTZhlbj5P9QYs=
+
+  No vulnerability findings for this binary.
+
+BINARY
+----------------------------------------------------------------------------------------------------
+Path:                   /usr/local/bin/kustomize
+SHA-256 suffix:         604bb6b323abb067
+Main package:           sigs.k8s.io/kustomize/kustomize/v5
+Compiled with:          go1.26.5 (Red Hat 1.26.5-1.el9_8) X:strictfipsruntime
+CGO:                    ENABLED
+Scan status:            FAILED
+Dependencies:           26
+Affected packages:      0
+Vulnerabilities:        0
+Scan error:             ...n.gz": dial tcp: lookup vuln.go.dev: Temporary failure in name resolution
+
+DECLARED DEPENDENCIES (26)
+--------------------------
+
+Dependency 1:           github.com/blang/semver/v4
+Declared version:       v4.0.0
+Checksum:               h1:1PFHFE6yCCTv8C1TeyNNarDzntLi7wMI5i/pzqYIsAM=
+
+Dependency 2:           github.com/davecgh/go-spew
+Declared version:       v1.1.1
+Checksum:               h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
+
+Dependency 3:           github.com/go-errors/errors
+Declared version:       v1.4.2
+Checksum:               h1:J6MZopCL4uSllY1OfXM374weqZFFItUbrImctkmUxIA=
+
+Dependency 4:           github.com/go-openapi/jsonpointer
+Declared version:       v0.21.0
+Checksum:               h1:YgdVicSA9vH5RiHs9TZW5oyafXZFc6+2Vc1rr/O9oNQ=
+
+Dependency 5:           github.com/go-openapi/jsonreference
+Declared version:       v0.20.2
+Checksum:               h1:3sVjiK66+uXK/6oQ8xgcRKcFgQ5KXa2KvnJRumpMGbE=
+
+Dependency 6:           github.com/go-openapi/swag
+Declared version:       v0.23.0
+Checksum:               h1:vsEVJDUo2hPJ2tu0/Xc+4noaxyEffXNIs3cOULZ+GrE=
+
+Dependency 7:           github.com/google/gnostic-models
+Declared version:       v0.6.9
+Checksum:               h1:MU/8wDLif2qCXZmzncUQ/BOfxWfthHi63KqpoNbWqVw=
+
+Dependency 8:           github.com/josharian/intern
+Declared version:       v1.0.0
+Checksum:               h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
+
+Dependency 9:           github.com/mailru/easyjson
+Declared version:       v0.7.7
+Checksum:               h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=
+
+Dependency 10:          github.com/monochromegane/go-gitignore
+Declared version:       v0.0.0-20200626010858-205db1a8cc00
+Checksum:               h1:n6/2gBQ3RWajuToeY6ZtZTIKv2v7ThUy5KKusIT0yc0=
+
+Dependency 11:          github.com/sergi/go-diff
+Declared version:       v1.4.0
+Checksum:               h1:n/SP9D5ad1fORl+llWyN+D6qoUETXNZARKjyY2/KVCw=
+
+Dependency 12:          github.com/spf13/cobra
+Declared version:       v1.9.1
+Checksum:               h1:CXSaggrXdbHK9CF+8ywj8Amf7PBRmPCOJugH954Nnlo=
+
+Dependency 13:          github.com/spf13/pflag
+Declared version:       v1.0.6
+Checksum:               h1:jFzHGLGAlb3ruxLB8MhbI6A8+AQX/2eW4qeyNZXNp2o=
+
+Dependency 14:          github.com/xlab/treeprint
+Declared version:       v1.2.0
+Checksum:               h1:HzHnuAF1plUN2zGlAFHbSQP2qJ0ZAD3XF5XD7OesXRQ=
+
+Dependency 15:          go.yaml.in/yaml/v2
+Declared version:       v2.4.2
+Checksum:               h1:DzmwEr2rDGHl7lsFgAHxmNz/1NlQ7xLIrlN2h5d1eGI=
+
+Dependency 16:          go.yaml.in/yaml/v3
+Declared version:       v3.0.3
+Checksum:               h1:bXOww4E/J3f66rav3pX3m8w6jDE4knZjGOw8b5Y6iNE=
+
+Dependency 17:          golang.org/x/text
+Declared version:       v0.28.0
+Checksum:               h1:rhazDwis8INMIwQ4tpjLDzUhx6RlXqZNPEM0huQojng=
+
+Dependency 18:          google.golang.org/protobuf
+Declared version:       v1.36.5
+Checksum:               h1:tPhr+woSbjfYvY6/GPufUoYizxw1cF/yFoxJ2fmpwlM=
+
+Dependency 19:          gopkg.in/evanphx/json-patch.v4
+Declared version:       v4.13.0
+Checksum:               h1:czT3CmqEaQ1aanPc5SdlgQrrEIb8w/wwCvWWnfEbYzo=
+
+Dependency 20:          gopkg.in/inf.v0
+Declared version:       v0.9.1
+Checksum:               h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
+
+Dependency 21:          gopkg.in/yaml.v3
+Declared version:       v3.0.1
+Checksum:               h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+
+Dependency 22:          k8s.io/kube-openapi
+Declared version:       v0.0.0-20241212222426-2c72e554b1e7
+Checksum:               h1:hcha5B1kVACrLujCKLbr8XWMxCxzQx42DY8QKYJrDLg=
+
+Dependency 23:          sigs.k8s.io/kustomize/api
+Declared version:       (devel)
+
+Dependency 24:          sigs.k8s.io/kustomize/cmd/config
+Declared version:       (devel)
+
+Dependency 25:          sigs.k8s.io/kustomize/kyaml
+Declared version:       (devel)
+
+Dependency 26:          sigs.k8s.io/yaml
+Declared version:       v1.5.0
+Checksum:               h1:M10b2U7aEUY6hRtU870n2VTPgR5RZiL/I6Lcc2F4NUQ=
+
+  No vulnerability findings for this binary.
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/argocd-deda478bd4d8
+Image reference:        ...9@sha256:deda478bd4d845e08dd25fb839e1c15d7d4507a397c7184c90b4f78d19410e05
+Image digest:           sha256:a64530771531e94cc35f750738a55e74f59acabb451b65ed29e6b41bd4da5de8
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:46:27.766632Z
+Scan completed:         2026-09-24T01:46:29.346020Z
+Database:               https://vuln.go.dev

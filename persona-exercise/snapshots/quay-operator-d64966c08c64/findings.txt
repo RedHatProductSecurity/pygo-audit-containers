@@ -1,0 +1,207 @@
+PYGO-AUDIT FINDINGS
+===================
+
+RESULT
+----------------------------------------------------------------------------------------------------
+Status:                 VULNERABILITIES DETECTED
+Coverage:               COMPLETE (1 of 1 binaries)
+Vulnerability scans:    COMPLETE=1
+Affected packages:      13
+Vulnerabilities:        14
+Finding records:        16
+Reconciliation:         PARTIAL (1 of 1 binaries)
+Unverifiable:           1 component
+Recon. differences:     1 difference
+
+PACKAGE
+-------
+Name:                   (unknown package)
+Module:                 golang.org/x/net
+Current version:        v0.43.0
+
+Vulnerabilities (1)
+  CVE-2026-46600
+    Evidence: module
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   crypto/tls
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (2)
+  CVE-2026-42505
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+  CVE-2026-56862
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   encoding/asn1
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (1)
+  CVE-2026-33818
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   encoding/xml
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (1)
+  CVE-2026-56859
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-jose/go-jose/v4
+Module:                 github.com/go-jose/go-jose/v4
+Current version:        v4.0.5
+
+Vulnerabilities (1)
+  CVE-2026-34986
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   github.com/jackc/pgx/v5/internal/sanitize
+Module:                 github.com/jackc/pgx/v5
+Current version:        v5.7.4
+
+Vulnerabilities (1)
+  CVE-2026-41889
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   github.com/jackc/pgx/v5/pgproto3
+Module:                 github.com/jackc/pgx/v5
+Current version:        v5.7.4
+
+Vulnerabilities (2)
+  CVE-2026-33815
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+  CVE-2026-33816
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/http2
+Module:                 golang.org/x/net
+Current version:        v0.43.0
+
+Vulnerabilities (1)
+  CVE-2026-33814
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/idna
+Module:                 golang.org/x/net
+Current version:        v0.43.0
+
+Vulnerabilities (1)
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/text/unicode/norm
+Module:                 golang.org/x/text
+Current version:        v0.29.0
+
+Vulnerabilities (1)
+  CVE-2026-56852
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   net
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (1)
+  CVE-2026-46600
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   net/http
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (2)
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+  CVE-2026-56853
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   net/url
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (1)
+  CVE-2026-56860
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/quay-operator-d64966c08c64
+Image reference:        ...9@sha256:d64966c08c644f4843d9ff0281f7c9357802c4769d09389c18b62389ab019692
+Image digest:           sha256:b17a240fd3c7032b9f098c9a3369a52ee4afaa23aa97a35936bf3fd44243681c
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:53:23.024218Z
+Scan completed:         2026-09-24T01:53:24.838352Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

@@ -1,0 +1,64 @@
+PYGO-AUDIT DIAGNOSTICS
+======================
+
+DIAGNOSTIC SUMMARY
+----------------------------------------------------------------------------------------------------
+Status:                 INFORMATIONAL LIMITATIONS AND DIFFERENCES
+Coverage:               COMPLETE (1 of 1 binaries)
+Reconciliation:         PARTIAL (1 of 1 binaries)
+Unverifiable:           1 component
+Recon. differences:     1 difference
+
+RECONCILIATION LIMITATIONS (1)
+----------------------------------------------------------------------------------------------------
+Effect:                 informational; does not affect vulnerability coverage or exit status
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     github.com/brancz/kube-rbac-proxy@(devel)
+Effective component:    github.com/brancz/kube-rbac-proxy@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/bin/kube-rbac-proxy
+
+RECONCILIATION DIFFERENCES (1)
+----------------------------------------------------------------------------------------------------
+Comparison:             go version -m versus govulncheck
+Effect:                 informational; does not affect coverage or exit status
+
+DIFFERENCE
+----------
+Finding:                stdlib@v1.20.12 versus stdlib@go1.20.12 X:strictfipsruntime
+Description:            identifies the same Go release using a different version representation
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/bin/kube-rbac-proxy
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/kube-rbac-proxy-58698c84109b
+Image reference:        ...y@sha256:58698c84109b0833060ab86ef36c0092418c87aba61ba271bef60a18e6b5a6af
+Image digest:           sha256:a083d6d53630f47a8503a45b639ae5c567d1f724096d1f729082bfdb9d760585
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:54:20.255044Z
+Scan completed:         2026-09-24T01:54:22.118869Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

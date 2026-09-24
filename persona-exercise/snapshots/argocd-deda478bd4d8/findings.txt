@@ -1,0 +1,3732 @@
+PYGO-AUDIT FINDINGS
+===================
+
+RESULT
+----------------------------------------------------------------------------------------------------
+Status:                 VULNERABILITIES DETECTED
+Coverage:               COMPLETE (4 of 4 binaries)
+Vulnerability scans:    COMPLETE=4
+Affected packages:      186
+Vulnerabilities:        63
+Finding records:        505
+Reconciliation:         PARTIAL (4 of 4 binaries)
+Unverifiable:           8 components
+Recon. differences:     1 difference
+
+PACKAGE
+-------
+Name:                   crypto/tls
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-56862
+    Evidence: symbol
+    Affected binaries (4)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/git-lfs
+      - /usr/local/bin/helm
+      - /usr/local/bin/kustomize
+
+PACKAGE
+-------
+Name:                   encoding/asn1
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-33818
+    Evidence: symbol
+    Affected binaries (4)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/git-lfs
+      - /usr/local/bin/helm
+      - /usr/local/bin/kustomize
+
+PACKAGE
+-------
+Name:                   encoding/xml
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-56859
+    Evidence: symbol
+    Affected binaries (4)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/git-lfs
+      - /usr/local/bin/helm
+      - /usr/local/bin/kustomize
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-billy/v5/helper/chroot
+Module:                 github.com/go-git/go-billy/v5
+Current version:        v5.6.2
+
+Vulnerabilities (2)
+  CVE-2026-44740
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-44973
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-billy/v5/osfs
+Module:                 github.com/go-git/go-billy/v5
+Current version:        v5.6.2
+
+Vulnerabilities (1)
+  CVE-2026-44973
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-billy/v5/util
+Module:                 github.com/go-git/go-billy/v5
+Current version:        v5.6.2
+
+Vulnerabilities (1)
+  CVE-2026-44740
+    Evidence: package
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (6)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45571
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-71556
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/config
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/internal/path_util
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/internal/revision
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/internal/url
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/cache
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/filemode
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/config
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/diff
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/gitignore
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/idxfile
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/index
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/objfile
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/packfile
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (5)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  GHSA-w5pp-99ch-qj29
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/pktline
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/hash
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/object
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (5)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45022
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/protocol/packp
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/protocol/packp/capability
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/protocol/packp/sideband
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/revlist
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/storer
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/client
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/file
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/git
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/http
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (5)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-41506
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/internal/common
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/server
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/ssh
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   ...o-git/go-git/v5/plumbing/transport/ssh.(*command).golang.org/x/crypto/ssh
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   ...m/go-git/go-git/v5/plumbing/transport/ssh.command.golang.org/x/crypto/ssh
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/storage
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/storage/filesystem
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/storage/filesystem/dotgit
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (5)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-71557
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   ...otgit.(*ObjectWriter).github.com/go-git/go-git/v5/plumbing/format/objfile
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/storage/memory
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/binary
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/diff
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/ioutil
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/merkletrie
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/merkletrie/filesystem
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/merkletrie/index
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/merkletrie/internal/frame
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/merkletrie/noder
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/sync
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/trace
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.14.0
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   github.com/klauspost/compress/s2
+Module:                 github.com/klauspost/compress
+Current version:        v1.18.0
+
+Vulnerabilities (1)
+  GHSA-259r-337f-4rfw
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   github.com/moby/spdystream
+Module:                 github.com/moby/spdystream
+Current version:        v0.5.0
+
+Vulnerabilities (1)
+  CVE-2026-35469
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   github.com/moby/spdystream/spdy
+Module:                 github.com/moby/spdystream
+Current version:        v0.5.0
+
+Vulnerabilities (1)
+  CVE-2026-35469
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/openpgp
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.36.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.45.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/openpgp/armor
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.36.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.45.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/openpgp/clearsign
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.36.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.45.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/openpgp/elgamal
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.36.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.45.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/openpgp/errors
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.36.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.45.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/openpgp/packet
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.36.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.45.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/openpgp/s2k
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.36.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.45.0
+
+Vulnerabilities (1)
+  GO-2026-5932
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/ssh
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.36.0
+
+Vulnerabilities (13)
+  CVE-2025-58181
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-39827
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-39828
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-39829
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-39830
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-39831
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-39834
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-39835
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-46595
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-46597
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-56854
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-56855
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-78662
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.45.0
+
+Vulnerabilities (12)
+  CVE-2026-39827
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-39828
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-39829
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-39830
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-39831
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-39834
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-39835
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-46595
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-46597
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-56854
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-56855
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-78662
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.53.0
+
+Vulnerabilities (3)
+  CVE-2026-56854
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-56855
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-78662
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/ssh/agent
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.36.0
+
+Vulnerabilities (5)
+  CVE-2025-47913
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2025-47914
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-39832
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-39833
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-46598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.45.0
+
+Vulnerabilities (3)
+  CVE-2026-39832
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-39833
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-46598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/ssh/knownhosts
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.36.0
+
+Vulnerabilities (1)
+  CVE-2026-42508
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/crypto
+Current version:        v0.45.0
+
+Vulnerabilities (1)
+  CVE-2026-42508
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/dns/dnsmessage
+
+Component
+Module:                 golang.org/x/net
+Current version:        v0.38.0
+
+Vulnerabilities (1)
+  CVE-2026-46600
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/net
+Current version:        v0.47.0
+
+Vulnerabilities (1)
+  CVE-2026-46600
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/html
+
+Component
+Module:                 golang.org/x/net
+Current version:        v0.38.0
+
+Vulnerabilities (7)
+  CVE-2025-47911
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2025-58190
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-25680
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-25681
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-27136
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-42502
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+  CVE-2026-42506
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/net
+Current version:        v0.47.0
+
+Vulnerabilities (5)
+  CVE-2026-25680
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-25681
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-27136
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-42502
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-42506
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/http2
+
+Component
+Module:                 golang.org/x/net
+Current version:        v0.38.0
+
+Vulnerabilities (1)
+  CVE-2026-33814
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/net
+Current version:        v0.47.0
+
+Vulnerabilities (1)
+  CVE-2026-33814
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/idna
+
+Component
+Module:                 golang.org/x/net
+Current version:        v0.38.0
+
+Vulnerabilities (1)
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/net
+Current version:        v0.47.0
+
+Vulnerabilities (1)
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   golang.org/x/text/unicode/norm
+
+Component
+Module:                 golang.org/x/text
+Current version:        v0.23.0
+
+Vulnerabilities (1)
+  CVE-2026-56852
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/git-lfs
+
+Component
+Module:                 golang.org/x/text
+Current version:        v0.28.0
+
+Vulnerabilities (1)
+  CVE-2026-56852
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/kustomize
+
+Component
+Module:                 golang.org/x/text
+Current version:        v0.31.0
+
+Vulnerabilities (1)
+  CVE-2026-56852
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+Component
+Module:                 golang.org/x/text
+Current version:        v0.38.0
+
+Vulnerabilities (1)
+  CVE-2026-56852
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   google.golang.org/grpc
+Module:                 google.golang.org/grpc
+Current version:        v1.72.1
+
+Vulnerabilities (1)
+  CVE-2026-33186
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   google.golang.org/grpc/internal/transport
+
+Component
+Module:                 google.golang.org/grpc
+Current version:        v1.72.1
+
+Vulnerabilities (3)
+  CVE-2026-84304
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  CVE-2026-84445
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+  GHSA-hrxh-6v49-42gf
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+Component
+Module:                 google.golang.org/grpc
+Current version:        v1.79.3
+
+Vulnerabilities (3)
+  CVE-2026-84304
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2026-84445
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  GHSA-hrxh-6v49-42gf
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   google.golang.org/grpc/internal/xds/httpfilter/rbac
+Module:                 google.golang.org/grpc
+Current version:        v1.72.1
+
+Vulnerabilities (1)
+  CVE-2026-84303
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   google.golang.org/grpc/internal/xds/rbac
+Module:                 google.golang.org/grpc
+Current version:        v1.72.1
+
+Vulnerabilities (1)
+  GHSA-hrxh-6v49-42gf
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   google.golang.org/grpc/internal/xds/server
+Module:                 google.golang.org/grpc
+Current version:        v1.72.1
+
+Vulnerabilities (1)
+  CVE-2026-84445
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   google.golang.org/grpc/mem
+
+Component
+Module:                 google.golang.org/grpc
+Current version:        v1.72.1
+
+Vulnerabilities (1)
+  CVE-2026-84304
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/helm
+
+Component
+Module:                 google.golang.org/grpc
+Current version:        v1.79.3
+
+Vulnerabilities (1)
+  CVE-2026-84304
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   html/template
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-56858
+    Evidence: symbol
+    Affected binaries (4)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/git-lfs
+      - /usr/local/bin/helm
+      - /usr/local/bin/kustomize
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/api/legacyscheme
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/api/v1/service
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admission
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admission/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admission/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admission/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admissionregistration
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admissionregistration/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admissionregistration/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admissionregistration/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admissionregistration/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/apps
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/apps/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/apps/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/apps/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/apps/v1beta2
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authentication
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authentication/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authentication/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authentication/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authentication/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authorization
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authorization/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authorization/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authorization/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling/v2
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling/v2beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling/v2beta2
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/batch
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/batch/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/batch/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/batch/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/certificates
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/certificates/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/certificates/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/certificates/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/certificates/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/coordination
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/coordination/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/coordination/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/coordination/v1alpha2
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/coordination/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/core
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/core/helper
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/core/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/core/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/core/v1/helper
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/discovery
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/discovery/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/discovery/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/discovery/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/events
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/events/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/events/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/events/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/extensions
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/extensions/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/extensions/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol/v1beta2
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol/v1beta3
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/imagepolicy
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/imagepolicy/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/imagepolicy/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/networking
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/networking/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/networking/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/networking/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/node
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/node/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/node/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/node/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/node/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/policy
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/policy/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/policy/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/policy/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/rbac
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/rbac/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/rbac/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/rbac/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/rbac/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/scheduling
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/scheduling/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/scheduling/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/scheduling/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/scheduling/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/storage
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/storage/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/storage/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/storage/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/storage/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/features
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/util/parsers
+Module:                 k8s.io/kubernetes
+Current version:        v1.34.2
+
+Vulnerabilities (2)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/argocd
+
+PACKAGE
+-------
+Name:                   net
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-46600
+    Evidence: symbol
+    Affected binaries (4)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/git-lfs
+      - /usr/local/bin/helm
+      - /usr/local/bin/kustomize
+
+PACKAGE
+-------
+Name:                   net/http
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (2)
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (4)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/git-lfs
+      - /usr/local/bin/helm
+      - /usr/local/bin/kustomize
+  CVE-2026-56853
+    Evidence: symbol
+    Affected binaries (4)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/git-lfs
+      - /usr/local/bin/helm
+      - /usr/local/bin/kustomize
+
+PACKAGE
+-------
+Name:                   net/http/internal/http2
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (3)
+      - /usr/local/bin/git-lfs
+      - /usr/local/bin/helm
+      - /usr/local/bin/kustomize
+
+PACKAGE
+-------
+Name:                   net/url
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-56860
+    Evidence: symbol
+    Affected binaries (4)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/git-lfs
+      - /usr/local/bin/helm
+      - /usr/local/bin/kustomize
+
+PACKAGE
+-------
+Name:                   oras.land/oras-go/v2/content/file
+Module:                 oras.land/oras-go/v2
+Current version:        v2.6.0
+
+Vulnerabilities (2)
+  CVE-2026-50162
+    Evidence: symbol
+    Affected binaries (2)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/helm
+  CVE-2026-50163
+    Evidence: symbol
+    Affected binaries (2)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   oras.land/oras-go/v2/registry/remote
+Module:                 oras.land/oras-go/v2
+Current version:        v2.6.0
+
+Vulnerabilities (1)
+  CVE-2026-50151
+    Evidence: symbol
+    Affected binaries (2)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/helm
+
+PACKAGE
+-------
+Name:                   oras.land/oras-go/v2/registry/remote/auth
+Module:                 oras.land/oras-go/v2
+Current version:        v2.6.0
+
+Vulnerabilities (2)
+  CVE-2026-48978
+    Evidence: symbol
+    Affected binaries (2)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/helm
+  GHSA-vh4v-2xq2-g5cg
+    Evidence: symbol
+    Affected binaries (2)
+      - /usr/local/bin/argocd
+      - /usr/local/bin/helm
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/argocd-deda478bd4d8
+Image reference:        ...9@sha256:deda478bd4d845e08dd25fb839e1c15d7d4507a397c7184c90b4f78d19410e05
+Image digest:           sha256:a64530771531e94cc35f750738a55e74f59acabb451b65ed29e6b41bd4da5de8
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:47:52.116066Z
+Scan completed:         2026-09-24T01:47:57.868566Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

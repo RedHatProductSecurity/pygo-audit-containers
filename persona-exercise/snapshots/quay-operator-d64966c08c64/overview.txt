@@ -1,0 +1,78 @@
+PYGO-AUDIT OVERVIEW
+===================
+
+RESULT
+----------------------------------------------------------------------------------------------------
+Status:                 VULNERABILITIES DETECTED
+Coverage:               COMPLETE (1 of 1 binaries)
+Vulnerability scans:    COMPLETE=1
+Go binaries:            1
+CGO enabled:            1
+Affected packages:      13
+Vulnerabilities:        14
+Reconciliation:         PARTIAL (1 of 1 binaries)
+Unverifiable:           1 component
+Recon. differences:     1 difference
+
+VULNERABILITIES (14)
+----------------------------------------------------------------------------------------------------
+  - CVE-2026-33814
+  - CVE-2026-33815
+  - CVE-2026-33816
+  - CVE-2026-33818
+  - CVE-2026-34986
+  - CVE-2026-39821
+  - CVE-2026-41889
+  - CVE-2026-42505
+  - CVE-2026-46600
+  - CVE-2026-56852
+  - CVE-2026-56853
+  - CVE-2026-56859
+  - CVE-2026-56860
+  - CVE-2026-56862
+
+AFFECTED PACKAGES (13)
+----------------------------------------------------------------------------------------------------
+  - (unknown package)
+  - crypto/tls
+  - encoding/asn1
+  - encoding/xml
+  - github.com/go-jose/go-jose/v4
+  - github.com/jackc/pgx/v5/internal/sanitize
+  - github.com/jackc/pgx/v5/pgproto3
+  - golang.org/x/net/http2
+  - golang.org/x/net/idna
+  - golang.org/x/text/unicode/norm
+  - net
+  - net/http
+  - net/url
+
+NATIVE CODE COVERAGE
+----------------------------------------------------------------------------------------------------
+  CGO is enabled in one or more binaries. Native libraries are outside
+  the scope of this Go dependency audit.
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/quay-operator-d64966c08c64
+Image reference:        ...9@sha256:d64966c08c644f4843d9ff0281f7c9357802c4769d09389c18b62389ab019692
+Image digest:           sha256:b17a240fd3c7032b9f098c9a3369a52ee4afaa23aa97a35936bf3fd44243681c
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:53:23.024218Z
+Scan completed:         2026-09-24T01:53:24.838352Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

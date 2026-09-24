@@ -1,0 +1,300 @@
+PYGO-AUDIT OVERVIEW
+===================
+
+RESULT
+----------------------------------------------------------------------------------------------------
+Status:                 VULNERABILITIES DETECTED
+Coverage:               COMPLETE (4 of 4 binaries)
+Vulnerability scans:    COMPLETE=4
+Go binaries:            4
+CGO enabled:            4
+Affected packages:      186
+Vulnerabilities:        63
+Reconciliation:         PARTIAL (4 of 4 binaries)
+Unverifiable:           8 components
+Recon. differences:     1 difference
+
+VULNERABILITIES (63)
+----------------------------------------------------------------------------------------------------
+  - CVE-2024-7598
+  - CVE-2025-1767
+  - CVE-2025-47911
+  - CVE-2025-47913
+  - CVE-2025-47914
+  - CVE-2025-58181
+  - CVE-2025-58190
+  - CVE-2026-25680
+  - CVE-2026-25681
+  - CVE-2026-25934
+  - CVE-2026-27136
+  - CVE-2026-33186
+  - CVE-2026-33762
+  - CVE-2026-33814
+  - CVE-2026-33818
+  - CVE-2026-34165
+  - CVE-2026-35469
+  - CVE-2026-39821
+  - CVE-2026-39827
+  - CVE-2026-39828
+  - CVE-2026-39829
+  - CVE-2026-39830
+  - CVE-2026-39831
+  - CVE-2026-39832
+  - CVE-2026-39833
+  - CVE-2026-39834
+  - CVE-2026-39835
+  - CVE-2026-41506
+  - CVE-2026-42502
+  - CVE-2026-42506
+  - CVE-2026-42508
+  - CVE-2026-44740
+  - CVE-2026-44973
+  - CVE-2026-45022
+  - CVE-2026-45570
+  - CVE-2026-45571
+  - CVE-2026-46595
+  - CVE-2026-46597
+  - CVE-2026-46598
+  - CVE-2026-46600
+  - CVE-2026-48978
+  - CVE-2026-50151
+  - CVE-2026-50162
+  - CVE-2026-50163
+  - CVE-2026-56852
+  - CVE-2026-56853
+  - CVE-2026-56854
+  - CVE-2026-56855
+  - CVE-2026-56858
+  - CVE-2026-56859
+  - CVE-2026-56860
+  - CVE-2026-56862
+  - CVE-2026-71556
+  - CVE-2026-71557
+  - CVE-2026-78662
+  - CVE-2026-84303
+  - CVE-2026-84304
+  - CVE-2026-84445
+  - GHSA-259r-337f-4rfw
+  - GHSA-hrxh-6v49-42gf
+  - GHSA-vh4v-2xq2-g5cg
+  - GHSA-w5pp-99ch-qj29
+  - GO-2026-5932
+
+AFFECTED PACKAGES (186)
+----------------------------------------------------------------------------------------------------
+  - crypto/tls
+  - encoding/asn1
+  - encoding/xml
+  - github.com/go-git/go-billy/v5/helper/chroot
+  - github.com/go-git/go-billy/v5/osfs
+  - github.com/go-git/go-billy/v5/util
+  - github.com/go-git/go-git/v5
+  - github.com/go-git/go-git/v5/config
+  - github.com/go-git/go-git/v5/internal/path_util
+  - github.com/go-git/go-git/v5/internal/revision
+  - github.com/go-git/go-git/v5/internal/url
+  - github.com/go-git/go-git/v5/plumbing
+  - github.com/go-git/go-git/v5/plumbing/cache
+  - github.com/go-git/go-git/v5/plumbing/filemode
+  - github.com/go-git/go-git/v5/plumbing/format/config
+  - github.com/go-git/go-git/v5/plumbing/format/diff
+  - github.com/go-git/go-git/v5/plumbing/format/gitignore
+  - github.com/go-git/go-git/v5/plumbing/format/idxfile
+  - github.com/go-git/go-git/v5/plumbing/format/index
+  - github.com/go-git/go-git/v5/plumbing/format/objfile
+  - github.com/go-git/go-git/v5/plumbing/format/packfile
+  - github.com/go-git/go-git/v5/plumbing/format/pktline
+  - github.com/go-git/go-git/v5/plumbing/hash
+  - github.com/go-git/go-git/v5/plumbing/object
+  - github.com/go-git/go-git/v5/plumbing/protocol/packp
+  - github.com/go-git/go-git/v5/plumbing/protocol/packp/capability
+  - github.com/go-git/go-git/v5/plumbing/protocol/packp/sideband
+  - github.com/go-git/go-git/v5/plumbing/revlist
+  - github.com/go-git/go-git/v5/plumbing/storer
+  - github.com/go-git/go-git/v5/plumbing/transport
+  - github.com/go-git/go-git/v5/plumbing/transport/client
+  - github.com/go-git/go-git/v5/plumbing/transport/file
+  - github.com/go-git/go-git/v5/plumbing/transport/git
+  - github.com/go-git/go-git/v5/plumbing/transport/http
+  - github.com/go-git/go-git/v5/plumbing/transport/internal/common
+  - github.com/go-git/go-git/v5/plumbing/transport/server
+  - github.com/go-git/go-git/v5/plumbing/transport/ssh
+  - github.com/go-git/go-git/v5/plumbing/transport/ssh.(*command).golang.org/x/crypto/ssh
+  - github.com/go-git/go-git/v5/plumbing/transport/ssh.command.golang.org/x/crypto/ssh
+  - github.com/go-git/go-git/v5/storage
+  - github.com/go-git/go-git/v5/storage/filesystem
+  - github.com/go-git/go-git/v5/storage/filesystem/dotgit
+  - ...storage/filesystem/dotgit.(*ObjectWriter).github.com/go-git/go-git/v5/plumbing/format/objfile
+  - github.com/go-git/go-git/v5/storage/memory
+  - github.com/go-git/go-git/v5/utils/binary
+  - github.com/go-git/go-git/v5/utils/diff
+  - github.com/go-git/go-git/v5/utils/ioutil
+  - github.com/go-git/go-git/v5/utils/merkletrie
+  - github.com/go-git/go-git/v5/utils/merkletrie/filesystem
+  - github.com/go-git/go-git/v5/utils/merkletrie/index
+  - github.com/go-git/go-git/v5/utils/merkletrie/internal/frame
+  - github.com/go-git/go-git/v5/utils/merkletrie/noder
+  - github.com/go-git/go-git/v5/utils/sync
+  - github.com/go-git/go-git/v5/utils/trace
+  - github.com/klauspost/compress/s2
+  - github.com/moby/spdystream
+  - github.com/moby/spdystream/spdy
+  - golang.org/x/crypto/openpgp
+  - golang.org/x/crypto/openpgp/armor
+  - golang.org/x/crypto/openpgp/clearsign
+  - golang.org/x/crypto/openpgp/elgamal
+  - golang.org/x/crypto/openpgp/errors
+  - golang.org/x/crypto/openpgp/packet
+  - golang.org/x/crypto/openpgp/s2k
+  - golang.org/x/crypto/ssh
+  - golang.org/x/crypto/ssh/agent
+  - golang.org/x/crypto/ssh/knownhosts
+  - golang.org/x/net/dns/dnsmessage
+  - golang.org/x/net/html
+  - golang.org/x/net/http2
+  - golang.org/x/net/idna
+  - golang.org/x/text/unicode/norm
+  - google.golang.org/grpc
+  - google.golang.org/grpc/internal/transport
+  - google.golang.org/grpc/internal/xds/httpfilter/rbac
+  - google.golang.org/grpc/internal/xds/rbac
+  - google.golang.org/grpc/internal/xds/server
+  - google.golang.org/grpc/mem
+  - html/template
+  - k8s.io/kubernetes/pkg/api/legacyscheme
+  - k8s.io/kubernetes/pkg/api/v1/service
+  - k8s.io/kubernetes/pkg/apis/admission
+  - k8s.io/kubernetes/pkg/apis/admission/install
+  - k8s.io/kubernetes/pkg/apis/admission/v1
+  - k8s.io/kubernetes/pkg/apis/admission/v1beta1
+  - k8s.io/kubernetes/pkg/apis/admissionregistration
+  - k8s.io/kubernetes/pkg/apis/admissionregistration/install
+  - k8s.io/kubernetes/pkg/apis/admissionregistration/v1
+  - k8s.io/kubernetes/pkg/apis/admissionregistration/v1alpha1
+  - k8s.io/kubernetes/pkg/apis/admissionregistration/v1beta1
+  - k8s.io/kubernetes/pkg/apis/apps
+  - k8s.io/kubernetes/pkg/apis/apps/install
+  - k8s.io/kubernetes/pkg/apis/apps/v1
+  - k8s.io/kubernetes/pkg/apis/apps/v1beta1
+  - k8s.io/kubernetes/pkg/apis/apps/v1beta2
+  - k8s.io/kubernetes/pkg/apis/authentication
+  - k8s.io/kubernetes/pkg/apis/authentication/install
+  - k8s.io/kubernetes/pkg/apis/authentication/v1
+  - k8s.io/kubernetes/pkg/apis/authentication/v1alpha1
+  - k8s.io/kubernetes/pkg/apis/authentication/v1beta1
+  - k8s.io/kubernetes/pkg/apis/authorization
+  - k8s.io/kubernetes/pkg/apis/authorization/install
+  - k8s.io/kubernetes/pkg/apis/authorization/v1
+  - k8s.io/kubernetes/pkg/apis/authorization/v1beta1
+  - k8s.io/kubernetes/pkg/apis/autoscaling
+  - k8s.io/kubernetes/pkg/apis/autoscaling/install
+  - k8s.io/kubernetes/pkg/apis/autoscaling/v1
+  - k8s.io/kubernetes/pkg/apis/autoscaling/v2
+  - k8s.io/kubernetes/pkg/apis/autoscaling/v2beta1
+  - k8s.io/kubernetes/pkg/apis/autoscaling/v2beta2
+  - k8s.io/kubernetes/pkg/apis/batch
+  - k8s.io/kubernetes/pkg/apis/batch/install
+  - k8s.io/kubernetes/pkg/apis/batch/v1
+  - k8s.io/kubernetes/pkg/apis/batch/v1beta1
+  - k8s.io/kubernetes/pkg/apis/certificates
+  - k8s.io/kubernetes/pkg/apis/certificates/install
+  - k8s.io/kubernetes/pkg/apis/certificates/v1
+  - k8s.io/kubernetes/pkg/apis/certificates/v1alpha1
+  - k8s.io/kubernetes/pkg/apis/certificates/v1beta1
+  - k8s.io/kubernetes/pkg/apis/coordination
+  - k8s.io/kubernetes/pkg/apis/coordination/install
+  - k8s.io/kubernetes/pkg/apis/coordination/v1
+  - k8s.io/kubernetes/pkg/apis/coordination/v1alpha2
+  - k8s.io/kubernetes/pkg/apis/coordination/v1beta1
+  - k8s.io/kubernetes/pkg/apis/core
+  - k8s.io/kubernetes/pkg/apis/core/helper
+  - k8s.io/kubernetes/pkg/apis/core/install
+  - k8s.io/kubernetes/pkg/apis/core/v1
+  - k8s.io/kubernetes/pkg/apis/core/v1/helper
+  - k8s.io/kubernetes/pkg/apis/discovery
+  - k8s.io/kubernetes/pkg/apis/discovery/install
+  - k8s.io/kubernetes/pkg/apis/discovery/v1
+  - k8s.io/kubernetes/pkg/apis/discovery/v1beta1
+  - k8s.io/kubernetes/pkg/apis/events
+  - k8s.io/kubernetes/pkg/apis/events/install
+  - k8s.io/kubernetes/pkg/apis/events/v1
+  - k8s.io/kubernetes/pkg/apis/events/v1beta1
+  - k8s.io/kubernetes/pkg/apis/extensions
+  - k8s.io/kubernetes/pkg/apis/extensions/install
+  - k8s.io/kubernetes/pkg/apis/extensions/v1beta1
+  - k8s.io/kubernetes/pkg/apis/flowcontrol
+  - k8s.io/kubernetes/pkg/apis/flowcontrol/install
+  - k8s.io/kubernetes/pkg/apis/flowcontrol/v1
+  - k8s.io/kubernetes/pkg/apis/flowcontrol/v1beta1
+  - k8s.io/kubernetes/pkg/apis/flowcontrol/v1beta2
+  - k8s.io/kubernetes/pkg/apis/flowcontrol/v1beta3
+  - k8s.io/kubernetes/pkg/apis/imagepolicy
+  - k8s.io/kubernetes/pkg/apis/imagepolicy/install
+  - k8s.io/kubernetes/pkg/apis/imagepolicy/v1alpha1
+  - k8s.io/kubernetes/pkg/apis/networking
+  - k8s.io/kubernetes/pkg/apis/networking/install
+  - k8s.io/kubernetes/pkg/apis/networking/v1
+  - k8s.io/kubernetes/pkg/apis/networking/v1beta1
+  - k8s.io/kubernetes/pkg/apis/node
+  - k8s.io/kubernetes/pkg/apis/node/install
+  - k8s.io/kubernetes/pkg/apis/node/v1
+  - k8s.io/kubernetes/pkg/apis/node/v1alpha1
+  - k8s.io/kubernetes/pkg/apis/node/v1beta1
+  - k8s.io/kubernetes/pkg/apis/policy
+  - k8s.io/kubernetes/pkg/apis/policy/install
+  - k8s.io/kubernetes/pkg/apis/policy/v1
+  - k8s.io/kubernetes/pkg/apis/policy/v1beta1
+  - k8s.io/kubernetes/pkg/apis/rbac
+  - k8s.io/kubernetes/pkg/apis/rbac/install
+  - k8s.io/kubernetes/pkg/apis/rbac/v1
+  - k8s.io/kubernetes/pkg/apis/rbac/v1alpha1
+  - k8s.io/kubernetes/pkg/apis/rbac/v1beta1
+  - k8s.io/kubernetes/pkg/apis/scheduling
+  - k8s.io/kubernetes/pkg/apis/scheduling/install
+  - k8s.io/kubernetes/pkg/apis/scheduling/v1
+  - k8s.io/kubernetes/pkg/apis/scheduling/v1alpha1
+  - k8s.io/kubernetes/pkg/apis/scheduling/v1beta1
+  - k8s.io/kubernetes/pkg/apis/storage
+  - k8s.io/kubernetes/pkg/apis/storage/install
+  - k8s.io/kubernetes/pkg/apis/storage/v1
+  - k8s.io/kubernetes/pkg/apis/storage/v1alpha1
+  - k8s.io/kubernetes/pkg/apis/storage/v1beta1
+  - k8s.io/kubernetes/pkg/features
+  - k8s.io/kubernetes/pkg/util/parsers
+  - net
+  - net/http
+  - net/http/internal/http2
+  - net/url
+  - oras.land/oras-go/v2/content/file
+  - oras.land/oras-go/v2/registry/remote
+  - oras.land/oras-go/v2/registry/remote/auth
+
+NATIVE CODE COVERAGE
+----------------------------------------------------------------------------------------------------
+  CGO is enabled in one or more binaries. Native libraries are outside
+  the scope of this Go dependency audit.
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/argocd-deda478bd4d8
+Image reference:        ...9@sha256:deda478bd4d845e08dd25fb839e1c15d7d4507a397c7184c90b4f78d19410e05
+Image digest:           sha256:a64530771531e94cc35f750738a55e74f59acabb451b65ed29e6b41bd4da5de8
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:47:52.116066Z
+Scan completed:         2026-09-24T01:47:57.868566Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

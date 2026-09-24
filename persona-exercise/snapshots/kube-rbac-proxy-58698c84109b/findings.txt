@@ -1,0 +1,443 @@
+PYGO-AUDIT FINDINGS
+===================
+
+RESULT
+----------------------------------------------------------------------------------------------------
+Status:                 VULNERABILITIES DETECTED
+Coverage:               COMPLETE (1 of 1 binaries)
+Vulnerability scans:    COMPLETE=1
+Affected packages:      21
+Vulnerabilities:        55
+Finding records:        59
+Reconciliation:         PARTIAL (1 of 1 binaries)
+Unverifiable:           1 component
+Recon. differences:     1 difference
+
+PACKAGE
+-------
+Name:                   (unknown package)
+Module:                 golang.org/x/net
+Current version:        v0.29.0
+
+Vulnerabilities (1)
+  CVE-2025-22870
+    Evidence: module
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   crypto/tls
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (6)
+  CVE-2025-58189
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2025-61730
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2025-68121
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-32283
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-42505
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-56862
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   crypto/x509
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (9)
+  CVE-2024-24783
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2024-45341
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2025-58187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2025-58188
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2025-61727
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2025-61729
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-27145
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-32280
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-32281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   encoding/asn1
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (2)
+  CVE-2025-58185
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-33818
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   encoding/pem
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (1)
+  CVE-2025-61723
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   encoding/xml
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (1)
+  CVE-2026-56859
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/http2
+Module:                 golang.org/x/net
+Current version:        v0.29.0
+
+Vulnerabilities (1)
+  CVE-2026-33814
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/idna
+Module:                 golang.org/x/net
+Current version:        v0.29.0
+
+Vulnerabilities (1)
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   google.golang.org/grpc
+Module:                 google.golang.org/grpc
+Current version:        v1.47.0
+
+Vulnerabilities (2)
+  CVE-2026-33186
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  GHSA-m425-mq94-257g
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   google.golang.org/grpc/internal/transport
+Module:                 google.golang.org/grpc
+Current version:        v1.47.0
+
+Vulnerabilities (4)
+  CVE-2026-84304
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-84445
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  GHSA-hrxh-6v49-42gf
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  GHSA-m425-mq94-257g
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   html/template
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (6)
+  CVE-2024-24785
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-27142
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-32289
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-39823
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-39826
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-56858
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   mime
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (1)
+  CVE-2026-42504
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   net
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (2)
+  CVE-2026-33811
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-39836
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   net/http
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (10)
+  CVE-2023-45288
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2023-45289
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2024-24791
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2024-45336
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2025-22870
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2025-4673
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2025-58186
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-33814
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-56853
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   net/http/httputil
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (1)
+  CVE-2026-39825
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   net/http/internal
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (1)
+  CVE-2025-22871
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   net/netip
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (1)
+  CVE-2024-24790
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   net/textproto
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (3)
+  CVE-2023-45290
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2025-61724
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-42507
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   net/url
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (4)
+  CVE-2025-47912
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2025-61726
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-25679
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+  CVE-2026-56860
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   os
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (1)
+  CVE-2026-27139
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+PACKAGE
+-------
+Name:                   os/exec
+Module:                 stdlib
+Current version:        v1.20.12
+
+Vulnerabilities (1)
+  CVE-2025-47906
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/bin/kube-rbac-proxy
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/kube-rbac-proxy-58698c84109b
+Image reference:        ...y@sha256:58698c84109b0833060ab86ef36c0092418c87aba61ba271bef60a18e6b5a6af
+Image digest:           sha256:a083d6d53630f47a8503a45b639ae5c567d1f724096d1f729082bfdb9d760585
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:54:20.255044Z
+Scan completed:         2026-09-24T01:54:22.118869Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

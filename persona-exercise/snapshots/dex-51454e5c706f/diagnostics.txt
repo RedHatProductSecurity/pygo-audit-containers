@@ -1,0 +1,76 @@
+PYGO-AUDIT DIAGNOSTICS
+======================
+
+DIAGNOSTIC SUMMARY
+----------------------------------------------------------------------------------------------------
+Status:                 INFORMATIONAL LIMITATIONS AND DIFFERENCES
+Coverage:               COMPLETE (1 of 1 binaries)
+Reconciliation:         PARTIAL (1 of 1 binaries)
+Unverifiable:           2 components
+Recon. differences:     1 difference
+
+RECONCILIATION LIMITATIONS (2)
+----------------------------------------------------------------------------------------------------
+Effect:                 informational; does not affect vulnerability coverage or exit status
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     github.com/dexidp/dex/api/v2@v2.4.0
+Effective component:    ./api/v2@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/dex
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     github.com/dexidp/dex@(devel)
+Effective component:    github.com/dexidp/dex@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/dex
+
+RECONCILIATION DIFFERENCES (1)
+----------------------------------------------------------------------------------------------------
+Comparison:             go version -m versus govulncheck
+Effect:                 informational; does not affect coverage or exit status
+
+DIFFERENCE
+----------
+Finding:                stdlib@v1.26.5 versus stdlib@go1.26.5 (Red Hat 1.26.5-1.el9_8)
+                        X:strictfipsruntime
+Description:            identifies the same Go release using a different version representation
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/dex
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/dex-51454e5c706f
+Image reference:        ...9@sha256:51454e5c706fd913503980d29a11ab233e3d0b82d319b23d46394612dd81d3ff
+Image digest:           sha256:4f114a65d6d588722821ddc5bf0510829574c2428400d84260558a1b703969d4
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:52:29.883165Z
+Scan completed:         2026-09-24T01:52:31.519812Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

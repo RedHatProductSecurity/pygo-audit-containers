@@ -1,0 +1,54 @@
+PYGO-AUDIT OVERVIEW
+===================
+
+RESULT
+----------------------------------------------------------------------------------------------------
+Status:                 INDETERMINATE - INCOMPLETE COVERAGE
+Coverage:               INCOMPLETE (0 of 4 binaries)
+Vulnerability scans:    FAILED=4
+Go binaries:            4
+CGO enabled:            4
+Affected packages:      0
+Vulnerabilities:        0
+Operational issues:     4
+
+COVERAGE WARNING
+----------------------------------------------------------------------------------------------------
+  Vulnerability scanning did not complete for 4 of 4 binaries.
+  Missing findings must not be interpreted as a clean result.
+
+VULNERABILITIES (0)
+----------------------------------------------------------------------------------------------------
+  None detected.
+
+AFFECTED PACKAGES (0)
+----------------------------------------------------------------------------------------------------
+  None detected.
+
+NATIVE CODE COVERAGE
+----------------------------------------------------------------------------------------------------
+  CGO is enabled in one or more binaries. Native libraries are outside
+  the scope of this Go dependency audit.
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/argocd-deda478bd4d8
+Image reference:        ...9@sha256:deda478bd4d845e08dd25fb839e1c15d7d4507a397c7184c90b4f78d19410e05
+Image digest:           sha256:a64530771531e94cc35f750738a55e74f59acabb451b65ed29e6b41bd4da5de8
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:46:27.766632Z
+Scan completed:         2026-09-24T01:46:29.346020Z
+Database:               https://vuln.go.dev

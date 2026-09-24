@@ -1,0 +1,5728 @@
+PYGO-AUDIT BINARIES
+===================
+
+INVENTORY
+----------------------------------------------------------------------------------------------------
+Go binaries:            1
+CGO enabled:            1
+Coverage:               COMPLETE (1 of 1 binaries)
+Reconciliation:         PARTIAL (1 of 1 binaries)
+Unverifiable:           1 component
+Recon. differences:     1 difference
+
+BINARY
+----------------------------------------------------------------------------------------------------
+Path:                   /usr/local/bin/manager
+SHA-256 suffix:         d1c912fd10240bf4
+Main package:           command-line-arguments
+Compiled with:          ...4.6 (Red Hat 1.24.6-1.module+el8.10.0+23407+428597c7) X:strictfipsruntime
+CGO:                    ENABLED
+Scan status:            COMPLETE
+Dependencies:           160
+Affected packages:      198
+Vulnerabilities:        70
+
+DECLARED DEPENDENCIES (160)
+---------------------------
+
+Dependency 1:           cloud.google.com/go/compute/metadata
+Declared version:       v0.6.0
+Checksum:               h1:A6hENjEsCDtC1k8byVsgwvVcioamEHvZ4j01OwKxG9I=
+
+Dependency 2:           dario.cat/mergo
+Declared version:       v1.0.2
+Checksum:               h1:85+piFYR1tMbRrLcDwR18y4UKJ3aH1Tbzi24VRW1TK8=
+
+Dependency 3:           github.com/Azure/azure-sdk-for-go/sdk/azcore
+Declared version:       v1.18.0
+Checksum:               h1:Gt0j3wceWMwPmiazCa8MzMA0MfhmPIz0Qp0FJ6qcM0U=
+
+Dependency 4:           github.com/Azure/azure-sdk-for-go/sdk/azidentity
+Declared version:       v1.10.1
+Checksum:               h1:B+blDbyVIG3WaikNxPnhPiJ1MThR03b3vKGtER95TP4=
+
+Dependency 5:           github.com/Azure/azure-sdk-for-go/sdk/internal
+Declared version:       v1.11.1
+Checksum:               h1:FPKJS1T+clwv+OLGt13a8UjqeRuh0O4SJ3lUriThc+4=
+
+Dependency 6:           github.com/AzureAD/microsoft-authentication-library-for-go
+Declared version:       v1.4.2
+Checksum:               h1:oygO0locgZJe7PpYPXT5A29ZkwJaPqcva7BVeemZOZs=
+
+Dependency 7:           github.com/MakeNowJust/heredoc
+Declared version:       v1.0.0
+Checksum:               h1:cXCdzVdstXyiTqTvfqk9SDHpKNjxuom+DOlyEeQ4pzQ=
+
+Dependency 8:           github.com/Masterminds/semver/v3
+Declared version:       v3.3.1
+Checksum:               h1:QtNSWtVZ3nBfk8mAOu/B6v7FMJ+NHTIgUPi7rj+4nv4=
+
+Dependency 9:           github.com/ProtonMail/go-crypto
+Declared version:       v1.1.6
+Checksum:               h1:ZcV+Ropw6Qn0AX9brlQLAUXfqLBc7Bl+f/DmNxpLfdw=
+
+Dependency 10:          github.com/argoproj-labs/argo-rollouts-manager
+Declared version:       v0.0.6-0.20250731075119-a100fc1d88b8
+Checksum:               h1:6+eo7BKrNkSIhQ1nnyCUloSNrGzghlb8r8e7GokoeBo=
+
+Dependency 11:          github.com/argoproj-labs/argocd-operator
+Declared version:       v0.16.0-rc1.0.20251210081855-96c4956c5ce8
+Checksum:               h1:r6AJ7fKOEvCevYdtv6Q4HKeqyYW4pGlqZJzDyE6TZcA=
+
+Dependency 12:          github.com/argoproj/argo-cd/v3
+Declared version:       v3.1.5
+Checksum:               h1:dm1SY5CaILDIQIQINA4H6uJrXpExyif2Yz5915g91kQ=
+
+Dependency 13:          github.com/argoproj/gitops-engine
+Declared version:       v0.7.1-0.20250905160054-e48120133eec
+Checksum:               h1:rNAwbRQFvRIuW/e2bU+B10mlzghYXsnwZedYeA7Drz4=
+
+Dependency 14:          github.com/argoproj/pkg
+Declared version:       v0.13.7-0.20250305113207-cbc37dc61de5
+Checksum:               h1:YBoLSjpoaJXaXAldVvBRKJuOPvIXz9UOv6S96gMJM/Q=
+
+Dependency 15:          github.com/argoproj/pkg/v2
+Declared version:       v2.0.1
+Checksum:               h1:O/gCETzB/3+/hyFL/7d/VM/6pSOIRWIiBOTb2xqAHvc=
+
+Dependency 16:          github.com/beorn7/perks
+Declared version:       v1.0.1
+Checksum:               h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
+
+Dependency 17:          github.com/blang/semver/v4
+Declared version:       v4.0.0
+Checksum:               h1:1PFHFE6yCCTv8C1TeyNNarDzntLi7wMI5i/pzqYIsAM=
+
+Dependency 18:          github.com/bmatcuk/doublestar/v4
+Declared version:       v4.8.1
+Checksum:               h1:54Bopc5c2cAvhLRAzqOGCYHYyhcDHsFF4wWIR5wKP38=
+
+Dependency 19:          github.com/bombsimon/logrusr/v4
+Declared version:       v4.1.0
+Checksum:               h1:uZNPbwusB0eUXlO8hIUwStE6Lr5bLN6IgYgG+75kuh4=
+
+Dependency 20:          github.com/bradleyfalzon/ghinstallation/v2
+Declared version:       v2.16.0
+Checksum:               h1:B91r9bHtXp/+XRgS5aZm6ZzTdz3ahgJYmkt4xZkgDz8=
+
+Dependency 21:          github.com/casbin/casbin/v2
+Declared version:       v2.107.0
+Checksum:               h1:Kk1+9S2ou8aTTQd30L+vRvFBNf5YvbN65N5uCzdren8=
+
+Dependency 22:          github.com/casbin/govaluate
+Declared version:       v1.7.0
+Checksum:               h1:Es2j2K2jv7br+QHJhxKcdoOa4vND0g0TqsO6rJeqJbA=
+
+Dependency 23:          github.com/cert-manager/cert-manager
+Declared version:       v1.14.4
+Checksum:               h1:DLXIZHx3jhkViYfobXo+N7/od/oj4YgG6AJw4ORJnYs=
+
+Dependency 24:          github.com/cespare/xxhash/v2
+Declared version:       v2.3.0
+Checksum:               h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
+
+Dependency 25:          github.com/chai2010/gettext-go
+Declared version:       v1.0.3
+Checksum:               h1:9liNh8t+u26xl5ddmWLmsOsdNLwkdRTg5AG+JnTiM80=
+
+Dependency 26:          github.com/cloudflare/circl
+Declared version:       v1.6.1
+Checksum:               h1:zqIqSPIndyBh1bjLVVDHMPpVKqp8Su/V+6MeDzzQBQ0=
+
+Dependency 27:          github.com/cyphar/filepath-securejoin
+Declared version:       v0.4.1
+Checksum:               h1:JyxxyPEaktOD+GAnqIqTf9A8tHyAG22rowi7HkoSU1s=
+
+Dependency 28:          github.com/davecgh/go-spew
+Declared version:       v1.1.2-0.20180830191138-d8f796af33cc
+Checksum:               h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
+
+Dependency 29:          github.com/dgryski/go-rendezvous
+Declared version:       v0.0.0-20200823014737-9f7001d12a5f
+Checksum:               h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=
+
+Dependency 30:          github.com/distribution/reference
+Declared version:       v0.6.0
+Checksum:               h1:0IXCQ5g4/QMHHkarYzh5l+u8T3t73zM5QvfrDyIgxBk=
+
+Dependency 31:          github.com/dlclark/regexp2
+Declared version:       v1.11.5
+Checksum:               h1:Q/sSnsKerHeCkc/jSTNq1oCm7KiVgUMZRDUoRu0JQZQ=
+
+Dependency 32:          github.com/emicklei/go-restful/v3
+Declared version:       v3.12.2
+Checksum:               h1:DhwDP0vY3k8ZzE0RunuJy8GhNpPL6zqLkDf9B/a0/xU=
+
+Dependency 33:          github.com/emirpasic/gods
+Declared version:       v1.18.1
+Checksum:               h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
+
+Dependency 34:          github.com/evanphx/json-patch/v5
+Declared version:       v5.9.11
+Checksum:               h1:/8HVnzMq13/3x9TPvjG08wUGqBTmZBsCWzjTM0wiaDU=
+
+Dependency 35:          github.com/exponent-io/jsonpath
+Declared version:       v0.0.0-20210407135951-1de76d718b3f
+Checksum:               h1:Wl78ApPPB2Wvf/TIe2xdyJxTlb6obmF18d8QdkxNDu4=
+
+Dependency 36:          github.com/fatih/camelcase
+Declared version:       v1.0.0
+Checksum:               h1:hxNvNX/xYBp0ovncs8WyWZrOrpBNub/JfaMvbURyft8=
+
+Dependency 37:          github.com/fsnotify/fsnotify
+Declared version:       v1.9.0
+Checksum:               h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=
+
+Dependency 38:          github.com/fxamacker/cbor/v2
+Declared version:       v2.8.0
+Checksum:               h1:fFtUGXUzXPHTIUdne5+zzMPTfffl3RD5qYnkY40vtxU=
+
+Dependency 39:          github.com/go-errors/errors
+Declared version:       v1.5.1
+Checksum:               h1:ZwEMSLRCapFLflTpT7NKaAc7ukJ8ZPEjzlxt8rPN8bk=
+
+Dependency 40:          github.com/go-git/gcfg
+Declared version:       v1.5.1-0.20230307220236-3a3c6141e376
+Checksum:               h1:+zs/tPmkDkHx3U66DAb0lQFJrpS6731Oaa12ikc+DiI=
+
+Dependency 41:          github.com/go-git/go-billy/v5
+Declared version:       v5.6.2
+Checksum:               h1:6Q86EsPXMa7c3YZ3aLAQsMA0VlWmy43r6FHqa/UNbRM=
+
+Dependency 42:          github.com/go-git/go-git/v5
+Declared version:       v5.16.2
+Checksum:               h1:fT6ZIOjE5iEnkzKyxTHK1W4HGAsPhqEqiSAssSO77hM=
+
+Dependency 43:          github.com/go-logr/logr
+Declared version:       v1.4.3
+Checksum:               h1:CjnDlHq8ikf6E492q6eKboGOC0T8CDaOvkHCIg8idEI=
+
+Dependency 44:          github.com/go-logr/zapr
+Declared version:       v1.3.0
+Checksum:               h1:XGdV8XW8zdwFiwOA2Dryh1gj2KRQyOOoNmBy4EplIcQ=
+
+Dependency 45:          github.com/go-openapi/jsonpointer
+Declared version:       v0.21.1
+Checksum:               h1:whnzv/pNXtK2FbX/W9yJfRmE2gsmkfahjMKB0fZvcic=
+
+Dependency 46:          github.com/go-openapi/jsonreference
+Declared version:       v0.21.0
+Checksum:               h1:Rs+Y7hSXT83Jacb7kFyjn4ijOuVGSvOdF2+tg1TRrwQ=
+
+Dependency 47:          github.com/go-openapi/swag
+Declared version:       v0.23.1
+Checksum:               h1:lpsStH0n2ittzTnbaSloVZLuB5+fvSY/+hnagBjSNZU=
+
+Dependency 48:          github.com/go-redis/cache/v9
+Declared version:       v9.0.0
+Checksum:               h1:0thdtFo0xJi0/WXbRVu8B066z8OvVymXTJGaXrVWnN0=
+
+Dependency 49:          github.com/gobwas/glob
+Declared version:       v0.2.3
+Checksum:               h1:A4xDbljILXROh+kObIiy5kIaPYD8e96x1tgBhUI5J+Y=
+
+Dependency 50:          github.com/gogo/protobuf
+Declared version:       v1.3.2
+Checksum:               h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=
+
+Dependency 51:          github.com/golang-jwt/jwt/v4
+Declared version:       v4.5.2
+Checksum:               h1:YtQM7lnr8iZ+j5q71MGKkNw9Mn7AjHM68uc9g5fXeUI=
+
+Dependency 52:          github.com/golang-jwt/jwt/v5
+Declared version:       v5.2.2
+Checksum:               h1:Rl4B7itRWVtYIHFrSNd7vhTiz9UpLdi6gZhZ3wEeDy8=
+
+Dependency 53:          github.com/golang/groupcache
+Declared version:       v0.0.0-20241129210726-2c02b8208cf8
+Checksum:               h1:f+oWsMOmNPc8JmEHVZIycC7hBoQxHH9pNKQORJNozsQ=
+
+Dependency 54:          github.com/google/btree
+Declared version:       v1.1.3
+Checksum:               h1:CVpQJjYgC4VbzxeGVHfvZrv1ctoYCAI8vbl07Fcxlyg=
+
+Dependency 55:          github.com/google/gnostic-models
+Declared version:       v0.6.9
+Checksum:               h1:MU/8wDLif2qCXZmzncUQ/BOfxWfthHi63KqpoNbWqVw=
+
+Dependency 56:          github.com/google/go-cmp
+Declared version:       v0.7.0
+Checksum:               h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
+
+Dependency 57:          github.com/google/go-github/v69
+Declared version:       v69.2.0
+Checksum:               h1:wR+Wi/fN2zdUx9YxSmYE0ktiX9IAR/BeePzeaUUbEHE=
+
+Dependency 58:          github.com/google/go-github/v72
+Declared version:       v72.0.0
+Checksum:               h1:FcIO37BLoVPBO9igQQ6tStsv2asG4IPcYFi655PPvBM=
+
+Dependency 59:          github.com/google/go-querystring
+Declared version:       v1.1.0
+Checksum:               h1:AnCroh3fv4ZBgVIf1Iwtovgjaw/GiKJo8M8yD/fhyJ8=
+
+Dependency 60:          github.com/google/shlex
+Declared version:       v0.0.0-20191202100458-e7afc7fbc510
+Checksum:               h1:El6M4kTTCOh6aBiKaUGG7oYTSPP8MxqL4YI3kZKwcP4=
+
+Dependency 61:          github.com/google/uuid
+Declared version:       v1.6.1-0.20241114170450-2d3c2a9cc518
+Checksum:               h1:UBg1xk+oAsIVbFuGg6hdfAm7EvCv3EL80vFxJNsslqw=
+
+Dependency 62:          github.com/gorilla/websocket
+Declared version:       v1.5.4-0.20250319132907-e064f32e3674
+Checksum:               h1:JeSE6pjso5THxAzdVpqr6/geYxZytqFMBCOtn/ujyeo=
+
+Dependency 63:          github.com/gregjones/httpcache
+Declared version:       v0.0.0-20190611155906-901d90724c79
+Checksum:               h1:+ngKgrYPPJrOjhax5N+uePQ0Fh1Z7PheYoUI/0nzkPA=
+
+Dependency 64:          github.com/hashicorp/go-version
+Declared version:       v1.7.0
+Checksum:               h1:5tqGy27NaOTB8yJKUZELlFAS/LTKJkrmONwQKeRZfjY=
+
+Dependency 65:          github.com/jbenet/go-context
+Declared version:       v0.0.0-20150711004518-d14ea06fba99
+Checksum:               h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
+
+Dependency 66:          github.com/jonboulle/clockwork
+Declared version:       v0.5.0
+Checksum:               h1:Hyh9A8u51kptdkR+cqRpT1EebBwTn1oK9YfGYbdFz6I=
+
+Dependency 67:          github.com/josharian/intern
+Declared version:       v1.0.0
+Checksum:               h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
+
+Dependency 68:          github.com/json-iterator/go
+Declared version:       v1.1.12
+Checksum:               h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
+
+Dependency 69:          github.com/kballard/go-shellquote
+Declared version:       v0.0.0-20180428030007-95032a82bc51
+Checksum:               h1:Z9n2FFNUXsshfwJMBgNA0RU6/i7WVaAegv3PtuIHPMs=
+
+Dependency 70:          github.com/kevinburke/ssh_config
+Declared version:       v1.2.0
+Checksum:               h1:x584FjTGwHzMwvHx18PXxbBVzfnxogHaAReU4gf13a4=
+
+Dependency 71:          github.com/klauspost/compress
+Declared version:       v1.18.0
+Checksum:               h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
+
+Dependency 72:          github.com/kylelemons/godebug
+Declared version:       v1.1.0
+Checksum:               h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0SNc=
+
+Dependency 73:          github.com/liggitt/tabwriter
+Declared version:       v0.0.0-20181228230101-89fcab3d43de
+Checksum:               h1:9TO3cAIGXtEhnIaL+V+BEER86oLrvS+kWobKpbJuye0=
+
+Dependency 74:          github.com/mailru/easyjson
+Declared version:       v0.9.0
+Checksum:               h1:PrnmzHw7262yW8sTBwxi1PdJA3Iw/EKBa8psRf7d9a4=
+
+Dependency 75:          github.com/mitchellh/go-wordwrap
+Declared version:       v1.0.1
+Checksum:               h1:TLuKupo69TCn6TQSyGxwI1EblZZEsQ0vMlAFQflz0v0=
+
+Dependency 76:          github.com/moby/spdystream
+Declared version:       v0.5.0
+Checksum:               h1:7r0J1Si3QO/kjRitvSLVVFUjxMEb/YLj6S9FF62JBCU=
+
+Dependency 77:          github.com/moby/term
+Declared version:       v0.5.2
+Checksum:               h1:6qk3FJAFDs6i/q3W/pQ97SX192qKfZgGjCQqfCJkgzQ=
+
+Dependency 78:          github.com/modern-go/concurrent
+Declared version:       v0.0.0-20180306012644-bacd9c7ef1dd
+Checksum:               h1:TRLaZ9cD/w8PVh93nsPXa1VrQ6jlwL5oN8l14QlcNfg=
+
+Dependency 79:          github.com/modern-go/reflect2
+Declared version:       v1.0.2
+Checksum:               h1:xBagoLtFs94CBntxluKeaWgTMpvLxC4ur3nMaC9Gz0M=
+
+Dependency 80:          github.com/monochromegane/go-gitignore
+Declared version:       v0.0.0-20200626010858-205db1a8cc00
+Checksum:               h1:n6/2gBQ3RWajuToeY6ZtZTIKv2v7ThUy5KKusIT0yc0=
+
+Dependency 81:          github.com/munnerz/goautoneg
+Declared version:       v0.0.0-20191010083416-a7dc8b61c822
+Checksum:               h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=
+
+Dependency 82:          github.com/mxk/go-flowrate
+Declared version:       v0.0.0-20140419014527-cca7078d478f
+Checksum:               h1:y5//uYreIhSUg3J1GEMiLbxo1LJaP8RfCpH6pymGZus=
+
+Dependency 83:          github.com/opencontainers/go-digest
+Declared version:       v1.0.0
+Checksum:               h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
+
+Dependency 84:          github.com/opencontainers/image-spec
+Declared version:       v1.1.1
+Checksum:               h1:y0fUlFfIZhPF1W537XOLg0/fcx6zcHCJwooC2xJA040=
+
+Dependency 85:          github.com/openshift/api
+Declared version:       v0.0.0-20240906151052-5d963dce87aa
+Checksum:               h1:RMI6Xa+l8KriyoxsRO/swMDPyCwrxJNA9H67K0Jod/w=
+
+Dependency 86:          github.com/operator-framework/api
+Declared version:       v0.17.5
+Checksum:               h1:9d0pc6m1Vp4QeS8i5dhl/B0nifhKQdtw+iFsNx0An0Q=
+
+Dependency 87:          github.com/patrickmn/go-cache
+Declared version:       v2.1.1-0.20191004192108-46f407853014+incompatible
+Checksum:               h1:IWzUvJ72xMjmrjR9q3H1PF+jwdN0uNQiR2t1BLNalyo=
+
+Dependency 88:          github.com/peterbourgon/diskv
+Declared version:       v2.0.1+incompatible
+Checksum:               h1:UBdAOUP5p4RWqPBg048CAvpKN+vxiaj6gdUUzhl4XmI=
+
+Dependency 89:          github.com/pjbgf/sha1cd
+Declared version:       v0.3.2
+Checksum:               h1:a9wb0bp1oC2TGwStyn0Umc/IGKQnEgF0vVaZ8QF8eo4=
+
+Dependency 90:          github.com/pkg/browser
+Declared version:       v0.0.0-20240102092130-5ac0b6a4141c
+Checksum:               h1:+mdjkGKdHQG3305AYmdv1U2eRNDiU2ErMBj1gwrq8eQ=
+
+Dependency 91:          github.com/pkg/errors
+Declared version:       v0.9.1
+Checksum:               h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+
+Dependency 92:          github.com/pmezard/go-difflib
+Declared version:       v1.0.1-0.20181226105442-5d4384ee4fb2
+Checksum:               h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
+
+Dependency 93:          github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring
+Declared version:       v0.73.2
+Checksum:               h1:GwlGJPK6vf1UIohpc72KJVkKYlzki1UgE3xC4bWbf20=
+
+Dependency 94:          github.com/prometheus/client_golang
+Declared version:       v1.22.0
+Checksum:               h1:rb93p9lokFEsctTys46VnV1kLCDpVZ0a/Y92Vm0Zc6Q=
+
+Dependency 95:          github.com/prometheus/client_model
+Declared version:       v0.6.2
+Checksum:               h1:oBsgwpGs7iVziMvrGhE53c/GrLUsZdHnqNwqPLxwZyk=
+
+Dependency 96:          github.com/prometheus/common
+Declared version:       v0.64.0
+Checksum:               h1:pdZeA+g617P7oGv1CzdTzyeShxAGrTBsolKNOLQPGO4=
+
+Dependency 97:          github.com/prometheus/procfs
+Declared version:       v0.16.1
+Checksum:               h1:hZ15bTNuirocR6u0JZ6BAHHmwS1p8B4P6MRqxtzMyRg=
+
+Dependency 98:          github.com/redhat-developer/gitops-operator
+Declared version:       (devel)
+
+Dependency 99:          github.com/redis/go-redis/v9
+Declared version:       v9.8.0
+Checksum:               h1:q3nRvjrlge/6UD7eTu/DSg2uYiU2mCL0G/uzBWqhicI=
+
+Dependency 100:         github.com/robfig/cron/v3
+Declared version:       v3.0.2-0.20210106135023-bc59245fe10e
+Checksum:               h1:0xChnl3lhHiXbgSJKgChye0D+DvoItkOdkGcwelDXH0=
+
+Dependency 101:         github.com/russross/blackfriday/v2
+Declared version:       v2.1.0
+Checksum:               h1:JIOH55/0cWyOuilr9/qlrm0BSXldqnqwMsf35Ld67mk=
+
+Dependency 102:         github.com/sergi/go-diff
+Declared version:       v1.3.2-0.20230802210424-5b0b94c5c0d3
+Checksum:               h1:n661drycOFuPLCN3Uc8sB6B/s6Z4t2xvBgU1htSHuq8=
+
+Dependency 103:         github.com/sethvargo/go-password
+Declared version:       v0.3.1
+Checksum:               h1:WqrLTjo7X6AcVYfC6R7GtSyuUQR9hGyAj/f1PYQZCJU=
+
+Dependency 104:         github.com/sirupsen/logrus
+Declared version:       v1.9.3
+Checksum:               h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ=
+
+Dependency 105:         github.com/skeema/knownhosts
+Declared version:       v1.3.1
+Checksum:               h1:X2osQ+RAjK76shCbvhHHHVl3ZlgDm8apHEHFqRjnBY8=
+
+Dependency 106:         github.com/spf13/cobra
+Declared version:       v1.9.1
+Checksum:               h1:CXSaggrXdbHK9CF+8ywj8Amf7PBRmPCOJugH954Nnlo=
+
+Dependency 107:         github.com/spf13/pflag
+Declared version:       v1.0.6
+Checksum:               h1:jFzHGLGAlb3ruxLB8MhbI6A8+AQX/2eW4qeyNZXNp2o=
+
+Dependency 108:         github.com/stretchr/testify
+Declared version:       v1.10.0
+Checksum:               h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
+
+Dependency 109:         github.com/vmihailenco/go-tinylfu
+Declared version:       v0.2.2
+Checksum:               h1:H1eiG6HM36iniK6+21n9LLpzx1G9R3DJa2UjUjbynsI=
+
+Dependency 110:         github.com/vmihailenco/msgpack/v5
+Declared version:       v5.4.1
+Checksum:               h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
+
+Dependency 111:         github.com/vmihailenco/tagparser/v2
+Declared version:       v2.0.0
+Checksum:               h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=
+
+Dependency 112:         github.com/x448/float16
+Declared version:       v0.8.4
+Checksum:               h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
+
+Dependency 113:         github.com/xanzy/ssh-agent
+Declared version:       v0.3.3
+Checksum:               h1:+/15pJfg/RsTxqYcX6fHqOXZwwMP+2VyYWJeWM2qQFM=
+
+Dependency 114:         github.com/xlab/treeprint
+Declared version:       v1.2.0
+Checksum:               h1:HzHnuAF1plUN2zGlAFHbSQP2qJ0ZAD3XF5XD7OesXRQ=
+
+Dependency 115:         go.opentelemetry.io/otel
+Declared version:       v1.36.0
+Checksum:               h1:UumtzIklRBY6cI/lllNZlALOF5nNIzJVb16APdvgTXg=
+
+Dependency 116:         go.opentelemetry.io/otel/trace
+Declared version:       v1.36.0
+Checksum:               h1:ahxWNuqZjpdiFAyrIoQ4GIiAIhxAunQR6MUoKrsNd4w=
+
+Dependency 117:         go.uber.org/multierr
+Declared version:       v1.11.0
+Checksum:               h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=
+
+Dependency 118:         go.uber.org/zap
+Declared version:       v1.27.0
+Checksum:               h1:aJMhYGrd5QSmlpLMr2MftRKl7t8J8PTZPA732ud/XR8=
+
+Dependency 119:         golang.org/x/crypto
+Declared version:       v0.39.0
+Checksum:               h1:SHs+kF4LP+f+p14esP5jAoDpHU8Gu/v9lFRK6IT5imM=
+
+Dependency 120:         golang.org/x/mod
+Declared version:       v0.25.0
+Checksum:               h1:n7a+ZbQKQA/Ysbyb0/6IbB1H/X41mKgbhfv7AfG/44w=
+
+Dependency 121:         golang.org/x/net
+Declared version:       v0.41.0
+Checksum:               h1:vBTly1HeNPEn3wtREYfy4GZ/NECgw2Cnl+nK6Nz3uvw=
+
+Dependency 122:         golang.org/x/oauth2
+Declared version:       v0.30.0
+Checksum:               h1:dnDm7JmhM45NNpd8FDDeLhK6FwqbOf4MLCM9zb1BOHI=
+
+Dependency 123:         golang.org/x/sync
+Declared version:       v0.15.0
+Checksum:               h1:KWH3jNZsfyT6xfAfKiz6MRNmd46ByHDYaZ7KSkCtdW8=
+
+Dependency 124:         golang.org/x/sys
+Declared version:       v0.33.0
+Checksum:               h1:q3i8TbbEz+JRD9ywIRlyRAQbM0qF7hu24q3teo2hbuw=
+
+Dependency 125:         golang.org/x/term
+Declared version:       v0.32.0
+Checksum:               h1:DR4lr0TjUs3epypdhTOkMmuF5CDFJ/8pOnbzMZPQ7bg=
+
+Dependency 126:         golang.org/x/text
+Declared version:       v0.26.0
+Checksum:               h1:P42AVeLghgTYr4+xUnTRKDMqpar+PtX7KWuNQL21L8M=
+
+Dependency 127:         golang.org/x/time
+Declared version:       v0.12.0
+Checksum:               h1:ScB/8o8olJvc+CQPWrK3fPZNfh7qgwCrY0zJmoEQLSE=
+
+Dependency 128:         gomodules.xyz/jsonpatch/v2
+Declared version:       v2.4.0
+Checksum:               h1:Ci3iUJyx9UeRx7CeFN8ARgGbkESwJK+KB9lLcWxY/Zw=
+
+Dependency 129:         google.golang.org/genproto/googleapis/rpc
+Declared version:       v0.0.0-20250519155744-55703ea1f237
+Checksum:               h1:cJfm9zPbe1e873mHJzmQ1nwVEeRDU/T1wXDK2kUSU34=
+
+Dependency 130:         google.golang.org/grpc
+Declared version:       v1.73.0
+Checksum:               h1:VIWSmpI2MegBtTuFt5/JWy2oXxtjJ/e89Z70ImfD2ok=
+
+Dependency 131:         google.golang.org/protobuf
+Declared version:       v1.36.6
+Checksum:               h1:z1NpPI8ku2WgiWnf+t9wTPsn6eP1L7ksHUlkfLvd9xY=
+
+Dependency 132:         gopkg.in/evanphx/json-patch.v4
+Declared version:       v4.12.0
+Checksum:               h1:n6jtcsulIzXPJaxegRbvFNNrZDjbij7ny3gmSPG+6V4=
+
+Dependency 133:         gopkg.in/inf.v0
+Declared version:       v0.9.1
+Checksum:               h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
+
+Dependency 134:         gopkg.in/warnings.v0
+Declared version:       v0.1.2
+Checksum:               h1:wFXVbFY8DY5/xOe1ECiWdKCzZlxgshcYVNkBHstARME=
+
+Dependency 135:         gopkg.in/yaml.v2
+Declared version:       v2.4.0
+Replacement path:       gopkg.in/yaml.v2
+Replacement version:    v2.4.0
+Replacement checksum:   h1:D8xgwECY7CYvx+Y2n4sBz93Jn9JRvxdiyyo8CTfuKaY=
+
+Dependency 136:         gopkg.in/yaml.v3
+Declared version:       v3.0.1
+Replacement path:       gopkg.in/yaml.v3
+Replacement version:    v3.0.1
+Replacement checksum:   h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+
+Dependency 137:         k8s.io/api
+Declared version:       v0.33.2
+Replacement path:       k8s.io/api
+Replacement version:    v0.33.1
+Replacement checksum:   h1:tA6Cf3bHnLIrUK4IqEgb2v++/GYUtqiu9sRVk3iBXyw=
+
+Dependency 138:         k8s.io/apiextensions-apiserver
+Declared version:       v0.33.1
+Replacement path:       k8s.io/apiextensions-apiserver
+Replacement version:    v0.33.1
+Replacement checksum:   h1:N7ccbSlRN6I2QBcXevB73PixX2dQNIW0ZRuguEE91zI=
+
+Dependency 139:         k8s.io/apimachinery
+Declared version:       v0.33.2
+Replacement path:       k8s.io/apimachinery
+Replacement version:    v0.33.1
+Replacement checksum:   h1:mzqXWV8tW9Rw4VeW9rEkqvnxj59k1ezDUl20tFK/oM4=
+
+Dependency 140:         k8s.io/apiserver
+Declared version:       v0.33.2
+Replacement path:       k8s.io/apiserver
+Replacement version:    v0.33.1
+Replacement checksum:   h1:yLgLUPDVC6tHbNcw5uE9mo1T6ELhJj7B0geifra3Qdo=
+
+Dependency 141:         k8s.io/cli-runtime
+Declared version:       v0.33.2
+Replacement path:       k8s.io/cli-runtime
+Replacement version:    v0.33.1
+Replacement checksum:   h1:TvpjEtF71ViFmPeYMj1baZMJR4iWUEplklsUQ7D3quA=
+
+Dependency 142:         k8s.io/client-go
+Declared version:       v12.0.0+incompatible
+Replacement path:       k8s.io/client-go
+Replacement version:    v0.33.1
+Replacement checksum:   h1:ZZV/Ks2g92cyxWkRRnfUDsnhNn28eFpt26aGc8KbXF4=
+
+Dependency 143:         k8s.io/component-base
+Declared version:       v0.33.2
+Replacement path:       k8s.io/component-base
+Replacement version:    v0.33.1
+Replacement checksum:   h1:EoJ0xA+wr77T+G8p6T3l4efT2oNwbqBVKR71E0tBIaI=
+
+Dependency 144:         k8s.io/component-helpers
+Declared version:       v0.33.2
+Replacement path:       k8s.io/component-helpers
+Replacement version:    v0.33.1
+Replacement checksum:   h1:DdQMww8jOr+sGhIrkz70Lp9Qerq/JzeZDBRd508DHDo=
+
+Dependency 145:         k8s.io/controller-manager
+Declared version:       v0.33.1
+Replacement path:       k8s.io/controller-manager
+Replacement version:    v0.33.1
+Replacement checksum:   h1:ZYTzGp2f9TVhHCvrgSQtc367yR+D3UditkHDHCZc2GU=
+
+Dependency 146:         k8s.io/klog/v2
+Declared version:       v2.130.1
+Checksum:               h1:n9Xl7H1Xvksem4KFG4PYbdQCQxqc/tTUyrgXaOhHSzk=
+
+Dependency 147:         k8s.io/kube-aggregator
+Declared version:       v0.33.1
+Replacement path:       k8s.io/kube-aggregator
+Replacement version:    v0.33.1
+Replacement checksum:   h1:PigQUqAvd6Y4hBjQAqhKz3lEJC2VHLL4bSOEuS06a40=
+
+Dependency 148:         k8s.io/kube-openapi
+Declared version:       v0.0.0-20250610211856-8b98d1ed966a
+Checksum:               h1:ZV3Zr+/7s7aVbjNGICQt+ppKWsF1tehxggNfbM7XnG8=
+
+Dependency 149:         k8s.io/kubectl
+Declared version:       v0.33.1
+Replacement path:       k8s.io/kubectl
+Replacement version:    v0.33.1
+Replacement checksum:   h1:OJUXa6FV5bap6iRy345ezEjU9dTLxqv1zFTVqmeHb6A=
+
+Dependency 150:         k8s.io/kubernetes
+Declared version:       v1.33.1
+Checksum:               h1:86+VVY/f11taZdpEZrNciLw1MIQhu6BFXf/OMFn5EUg=
+
+Dependency 151:         k8s.io/utils
+Declared version:       v0.0.0-20250604170112-4c0f3b243397
+Checksum:               h1:hwvWFiBzdWw1FhfY1FooPn3kzWuJ8tmbZBHi4zVsl1Y=
+
+Dependency 152:         oras.land/oras-go/v2
+Declared version:       v2.6.0
+Checksum:               h1:X4ELRsiGkrbeox69+9tzTu492FMUu7zJQW6eJU+I2oc=
+
+Dependency 153:         sigs.k8s.io/controller-runtime
+Declared version:       v0.21.0
+Checksum:               h1:CYfjpEuicjUecRk+KAeyYh+ouUBn4llGyDYytIGcJS8=
+
+Dependency 154:         sigs.k8s.io/gateway-api
+Declared version:       v1.0.0
+Checksum:               h1:iPTStSv41+d9p0xFydll6d7f7MOBGuqXM6p2/zVYMAs=
+
+Dependency 155:         sigs.k8s.io/json
+Declared version:       v0.0.0-20241014173422-cfa47c3a1cc8
+Checksum:               h1:gBQPwqORJ8d8/YNZWEjoZs7npUVDpVXUUOFfW6CgAqE=
+
+Dependency 156:         sigs.k8s.io/kustomize/api
+Declared version:       v0.19.0
+Checksum:               h1:F+2HB2mU1MSiR9Hp1NEgoU2q9ItNOaBJl0I4Dlus5SQ=
+
+Dependency 157:         sigs.k8s.io/kustomize/kyaml
+Declared version:       v0.19.0
+Checksum:               h1:RFge5qsO1uHhwJsu3ipV7RNolC7Uozc0jUBC/61XSlA=
+
+Dependency 158:         sigs.k8s.io/randfill
+Declared version:       v1.0.0
+Checksum:               h1:JfjMILfT8A6RbawdsK2JXGBR5AQVfd+9TbzrlneTyrU=
+
+Dependency 159:         sigs.k8s.io/structured-merge-diff/v4
+Declared version:       v4.7.0
+Checksum:               h1:qPeWmscJcXP0snki5IYF79Z8xrl8ETFxgMd7wez1XkI=
+
+Dependency 160:         sigs.k8s.io/yaml
+Declared version:       v1.4.0
+Checksum:               h1:Mk1wCc2gy/F0THH0TAp1QYyJNzRm2KCLy3o5ASXVI5E=
+
+PACKAGE
+-------
+Name:                   archive/zip
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (1)
+  CVE-2025-61728
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   crypto/tls
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (6)
+  CVE-2025-58189
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-61730
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-68121
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-32283
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-42505
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-56862
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   crypto/x509
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (7)
+  CVE-2025-58187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-58188
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-61727
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-61729
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-27145
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-32280
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-32281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   encoding/asn1
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (2)
+  CVE-2025-58185
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33818
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   encoding/pem
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (1)
+  CVE-2025-61723
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   encoding/xml
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (1)
+  CVE-2026-56859
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/common
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/server/settings/oidc
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/assets
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/cache
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/cert
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/config
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/env
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/exec
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/git
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/glob
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/helm
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/http
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/io
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/kube
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/log
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/oci
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/password
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/proxy
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/rbac
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/regex
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/security
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/settings
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/tls
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/argoproj/argo-cd/v3/util/workloadidentity
+Module:                 github.com/argoproj/argo-cd/v3
+Current version:        v3.1.5
+
+Vulnerabilities (5)
+  CVE-2025-55191
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59531
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59537
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-59538
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45738
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/cloudflare/circl/dh/x25519
+Module:                 github.com/cloudflare/circl
+Current version:        v1.6.1
+
+Vulnerabilities (1)
+  CVE-2026-1229
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/cloudflare/circl/dh/x448
+Module:                 github.com/cloudflare/circl
+Current version:        v1.6.1
+
+Vulnerabilities (1)
+  CVE-2026-1229
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/cloudflare/circl/ecc/goldilocks
+Module:                 github.com/cloudflare/circl
+Current version:        v1.6.1
+
+Vulnerabilities (1)
+  CVE-2026-1229
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/cloudflare/circl/internal/conv
+Module:                 github.com/cloudflare/circl
+Current version:        v1.6.1
+
+Vulnerabilities (1)
+  CVE-2026-1229
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/cloudflare/circl/internal/sha3
+Module:                 github.com/cloudflare/circl
+Current version:        v1.6.1
+
+Vulnerabilities (1)
+  CVE-2026-1229
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/cloudflare/circl/math
+Module:                 github.com/cloudflare/circl
+Current version:        v1.6.1
+
+Vulnerabilities (1)
+  CVE-2026-1229
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/cloudflare/circl/math/fp25519
+Module:                 github.com/cloudflare/circl
+Current version:        v1.6.1
+
+Vulnerabilities (1)
+  CVE-2026-1229
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/cloudflare/circl/math/fp448
+Module:                 github.com/cloudflare/circl
+Current version:        v1.6.1
+
+Vulnerabilities (1)
+  CVE-2026-1229
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/cloudflare/circl/math/mlsbset
+Module:                 github.com/cloudflare/circl
+Current version:        v1.6.1
+
+Vulnerabilities (1)
+  CVE-2026-1229
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/cloudflare/circl/sign/ed25519
+Module:                 github.com/cloudflare/circl
+Current version:        v1.6.1
+
+Vulnerabilities (1)
+  CVE-2026-1229
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/cloudflare/circl/sign/ed448
+Module:                 github.com/cloudflare/circl
+Current version:        v1.6.1
+
+Vulnerabilities (1)
+  CVE-2026-1229
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-billy/v5/helper/chroot
+Module:                 github.com/go-git/go-billy/v5
+Current version:        v5.6.2
+
+Vulnerabilities (2)
+  CVE-2026-44740
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-44973
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-billy/v5/osfs
+Module:                 github.com/go-git/go-billy/v5
+Current version:        v5.6.2
+
+Vulnerabilities (1)
+  CVE-2026-44973
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/config
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/internal/url
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/cache
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/filemode
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/config
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/diff
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/idxfile
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/index
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/objfile
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/packfile
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (5)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  GHSA-w5pp-99ch-qj29
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/format/pktline
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/hash
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/object
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/protocol/packp
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/protocol/packp/capability
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/protocol/packp/sideband
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/storer
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/client
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/file
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/git
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/http
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (5)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-41506
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/internal/common
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/server
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/plumbing/transport/ssh
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   ...o-git/go-git/v5/plumbing/transport/ssh.(*command).golang.org/x/crypto/ssh
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   ...m/go-git/go-git/v5/plumbing/transport/ssh.command.golang.org/x/crypto/ssh
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/storage/filesystem
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/storage/filesystem/dotgit
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (5)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-71557
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   ...otgit.(*ObjectWriter).github.com/go-git/go-git/v5/plumbing/format/objfile
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/storage/memory
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/binary
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/ioutil
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/merkletrie/filesystem
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/sync
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-git/go-git/v5/utils/trace
+Module:                 github.com/go-git/go-git/v5
+Current version:        v5.16.2
+
+Vulnerabilities (4)
+  CVE-2026-25934
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33762
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-34165
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-45570
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/moby/spdystream
+Module:                 github.com/moby/spdystream
+Current version:        v0.5.0
+
+Vulnerabilities (1)
+  CVE-2026-35469
+    Evidence: package
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   github.com/moby/spdystream/spdy
+Module:                 github.com/moby/spdystream
+Current version:        v0.5.0
+
+Vulnerabilities (1)
+  CVE-2026-35469
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/ssh
+Module:                 golang.org/x/crypto
+Current version:        v0.39.0
+
+Vulnerabilities (13)
+  CVE-2025-58181
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-39827
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-39828
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-39829
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-39830
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-39831
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-39834
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-39835
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-46595
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-46597
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-56854
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-56855
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-78662
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/ssh/agent
+Module:                 golang.org/x/crypto
+Current version:        v0.39.0
+
+Vulnerabilities (2)
+  CVE-2025-47913
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-39832
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/crypto/ssh/knownhosts
+Module:                 golang.org/x/crypto
+Current version:        v0.39.0
+
+Vulnerabilities (1)
+  CVE-2026-42508
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/http2
+Module:                 golang.org/x/net
+Current version:        v0.41.0
+
+Vulnerabilities (1)
+  CVE-2026-33814
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/idna
+Module:                 golang.org/x/net
+Current version:        v0.41.0
+
+Vulnerabilities (1)
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/text/unicode/norm
+Module:                 golang.org/x/text
+Current version:        v0.26.0
+
+Vulnerabilities (1)
+  CVE-2026-56852
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/api/legacyscheme
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/api/v1/service
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admission
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admission/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admission/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admission/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admissionregistration
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admissionregistration/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admissionregistration/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admissionregistration/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/admissionregistration/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/apps
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/apps/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/apps/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/apps/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/apps/v1beta2
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authentication
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authentication/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authentication/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authentication/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authentication/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authorization
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authorization/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authorization/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/authorization/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling/v2
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling/v2beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/autoscaling/v2beta2
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/batch
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/batch/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/batch/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/batch/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/certificates
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/certificates/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/certificates/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/certificates/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/certificates/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/coordination
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/coordination/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/coordination/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/coordination/v1alpha2
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/coordination/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/core
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/core/helper
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/core/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/core/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/core/v1/helper
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/discovery
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/discovery/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/discovery/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/discovery/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/events
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/events/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/events/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/events/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/extensions
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/extensions/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/extensions/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol/v1beta2
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/flowcontrol/v1beta3
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/imagepolicy
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/imagepolicy/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/imagepolicy/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/networking
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/networking/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/networking/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/networking/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/networking/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/node
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/node/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/node/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/node/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/node/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/policy
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/policy/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/policy/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/policy/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/rbac
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/rbac/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/rbac/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/rbac/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/rbac/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/scheduling
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/scheduling/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/scheduling/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/scheduling/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/scheduling/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/storage
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/storage/install
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/storage/v1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/storage/v1alpha1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/apis/storage/v1beta1
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/features
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   k8s.io/kubernetes/pkg/util/parsers
+Module:                 k8s.io/kubernetes
+Current version:        v1.33.1
+
+Vulnerabilities (5)
+  CVE-2024-7598
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-13281
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-1767
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-4563
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-5187
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   mime
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (1)
+  CVE-2026-42504
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   net
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (2)
+  CVE-2026-33811
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-39836
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   net/http
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (4)
+  CVE-2025-58186
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-33814
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-56853
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   net/textproto
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (2)
+  CVE-2025-61724
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-42507
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   net/url
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (4)
+  CVE-2025-47912
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2025-61726
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-25679
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+  CVE-2026-56860
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+PACKAGE
+-------
+Name:                   os
+Module:                 stdlib
+Current version:        v1.24.6
+
+Vulnerabilities (1)
+  CVE-2026-27139
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/manager
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/gitops-operator-95aa28b8b04e
+Image reference:        ...r@sha256:95aa28b8b04efde78d2e4495d2c58e7f8ebd5b399cb2afda927eb01011d2061e
+Image digest:           sha256:7f6e588459ff59366a9f8f8f32a784806af11931f8584e46e1d53472a2e010a9
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:53:55.590517Z
+Scan completed:         2026-09-24T01:54:06.134201Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

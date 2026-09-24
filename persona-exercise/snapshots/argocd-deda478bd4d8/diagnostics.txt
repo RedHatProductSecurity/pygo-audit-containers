@@ -1,0 +1,145 @@
+PYGO-AUDIT DIAGNOSTICS
+======================
+
+DIAGNOSTIC SUMMARY
+----------------------------------------------------------------------------------------------------
+Status:                 INFORMATIONAL LIMITATIONS AND DIFFERENCES
+Coverage:               COMPLETE (4 of 4 binaries)
+Reconciliation:         PARTIAL (4 of 4 binaries)
+Unverifiable:           8 components
+Recon. differences:     1 difference
+
+RECONCILIATION LIMITATIONS (8)
+----------------------------------------------------------------------------------------------------
+Effect:                 informational; does not affect vulnerability coverage or exit status
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     github.com/argoproj/argo-cd/gitops-engine@v0.7.1-0.20250908182407-97ad5b59a627
+Effective component:    ./gitops-engine@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/argocd
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     github.com/argoproj/argo-cd/v3@(devel)
+Effective component:    github.com/argoproj/argo-cd/v3@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/argocd
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     github.com/git-lfs/git-lfs/v3@(devel)
+Effective component:    github.com/git-lfs/git-lfs/v3@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/git-lfs
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     helm.sh/helm/v3@(devel)
+Effective component:    helm.sh/helm/v3@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/helm
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     sigs.k8s.io/kustomize/api@(devel)
+Effective component:    sigs.k8s.io/kustomize/api@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/kustomize
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     sigs.k8s.io/kustomize/cmd/config@(devel)
+Effective component:    sigs.k8s.io/kustomize/cmd/config@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/kustomize
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     sigs.k8s.io/kustomize/kustomize/v5@(devel)
+Effective component:    sigs.k8s.io/kustomize/kustomize/v5@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/kustomize
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     sigs.k8s.io/kustomize/kyaml@(devel)
+Effective component:    sigs.k8s.io/kustomize/kyaml@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/kustomize
+
+RECONCILIATION DIFFERENCES (1)
+----------------------------------------------------------------------------------------------------
+Comparison:             go version -m versus govulncheck
+Effect:                 informational; does not affect coverage or exit status
+
+DIFFERENCE
+----------
+Finding:                stdlib@v1.26.5 versus stdlib@go1.26.5 (Red Hat 1.26.5-1.el9_8)
+                        X:strictfipsruntime
+Description:            identifies the same Go release using a different version representation
+
+AFFECTED BINARIES (4)
+---------------------
+  - /usr/local/bin/argocd
+  - /usr/local/bin/git-lfs
+  - /usr/local/bin/helm
+  - /usr/local/bin/kustomize
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/argocd-deda478bd4d8
+Image reference:        ...9@sha256:deda478bd4d845e08dd25fb839e1c15d7d4507a397c7184c90b4f78d19410e05
+Image digest:           sha256:a64530771531e94cc35f750738a55e74f59acabb451b65ed29e6b41bd4da5de8
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:47:52.116066Z
+Scan completed:         2026-09-24T01:47:57.868566Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

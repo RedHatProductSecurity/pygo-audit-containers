@@ -1,0 +1,65 @@
+PYGO-AUDIT DIAGNOSTICS
+======================
+
+DIAGNOSTIC SUMMARY
+----------------------------------------------------------------------------------------------------
+Status:                 INFORMATIONAL LIMITATIONS AND DIFFERENCES
+Coverage:               COMPLETE (1 of 1 binaries)
+Reconciliation:         PARTIAL (1 of 1 binaries)
+Unverifiable:           1 component
+Recon. differences:     1 difference
+
+RECONCILIATION LIMITATIONS (1)
+----------------------------------------------------------------------------------------------------
+Effect:                 informational; does not affect vulnerability coverage or exit status
+
+COMPONENT
+---------
+Source:                 govulncheck SBOM
+Declared component:     github.com/redhat-developer/gitops-operator@(devel)
+Effective component:    github.com/redhat-developer/gitops-operator@(devel)
+Description:            module path matches but at least one version is not verifiable
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/manager
+
+RECONCILIATION DIFFERENCES (1)
+----------------------------------------------------------------------------------------------------
+Comparison:             go version -m versus govulncheck
+Effect:                 informational; does not affect coverage or exit status
+
+DIFFERENCE
+----------
+Finding:                stdlib@v1.24.6 versus stdlib@go1.24.6 (Red Hat
+                        1.24.6-1.module+el8.10.0+23407+428597c7) X:strictfipsruntime
+Description:            identifies the same Go release using a different version representation
+
+AFFECTED BINARIES (1)
+---------------------
+  - /usr/local/bin/manager
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/gitops-operator-95aa28b8b04e
+Image reference:        ...r@sha256:95aa28b8b04efde78d2e4495d2c58e7f8ebd5b399cb2afda927eb01011d2061e
+Image digest:           sha256:7f6e588459ff59366a9f8f8f32a784806af11931f8584e46e1d53472a2e010a9
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:53:55.590517Z
+Scan completed:         2026-09-24T01:54:06.134201Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

@@ -1,0 +1,183 @@
+PYGO-AUDIT FINDINGS
+===================
+
+RESULT
+----------------------------------------------------------------------------------------------------
+Status:                 VULNERABILITIES DETECTED
+Coverage:               COMPLETE (1 of 1 binaries)
+Vulnerability scans:    COMPLETE=1
+Affected packages:      11
+Vulnerabilities:        12
+Finding records:        14
+Reconciliation:         PARTIAL (1 of 1 binaries)
+Unverifiable:           2 components
+Recon. differences:     1 difference
+
+PACKAGE
+-------
+Name:                   (unknown package)
+Module:                 golang.org/x/net
+Current version:        v0.55.0
+
+Vulnerabilities (1)
+  CVE-2026-46600
+    Evidence: module
+    Affected binaries (1)
+      - /usr/local/bin/dex
+
+PACKAGE
+-------
+Name:                   crypto/tls
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-56862
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+
+PACKAGE
+-------
+Name:                   encoding/asn1
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-33818
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+
+PACKAGE
+-------
+Name:                   encoding/xml
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-56859
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+
+PACKAGE
+-------
+Name:                   golang.org/x/text/unicode/norm
+Module:                 golang.org/x/text
+Current version:        v0.37.0
+
+Vulnerabilities (1)
+  CVE-2026-56852
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+
+PACKAGE
+-------
+Name:                   google.golang.org/grpc/internal/transport
+Module:                 google.golang.org/grpc
+Current version:        v1.79.3
+
+Vulnerabilities (3)
+  CVE-2026-84304
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+  CVE-2026-84445
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+  GHSA-hrxh-6v49-42gf
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+
+PACKAGE
+-------
+Name:                   google.golang.org/grpc/mem
+Module:                 google.golang.org/grpc
+Current version:        v1.79.3
+
+Vulnerabilities (1)
+  CVE-2026-84304
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+
+PACKAGE
+-------
+Name:                   html/template
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-56858
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+
+PACKAGE
+-------
+Name:                   net
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-46600
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+
+PACKAGE
+-------
+Name:                   net/http
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (2)
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+  CVE-2026-56853
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+
+PACKAGE
+-------
+Name:                   net/url
+Module:                 stdlib
+Current version:        v1.26.5
+
+Vulnerabilities (1)
+  CVE-2026-56860
+    Evidence: symbol
+    Affected binaries (1)
+      - /usr/local/bin/dex
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/dex-51454e5c706f
+Image reference:        ...9@sha256:51454e5c706fd913503980d29a11ab233e3d0b82d319b23d46394612dd81d3ff
+Image digest:           sha256:4f114a65d6d588722821ddc5bf0510829574c2428400d84260558a1b703969d4
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:52:29.883165Z
+Scan completed:         2026-09-24T01:52:31.519812Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z

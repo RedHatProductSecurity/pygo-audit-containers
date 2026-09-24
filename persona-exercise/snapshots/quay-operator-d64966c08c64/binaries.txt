@@ -1,0 +1,546 @@
+PYGO-AUDIT BINARIES
+===================
+
+INVENTORY
+----------------------------------------------------------------------------------------------------
+Go binaries:            1
+CGO enabled:            1
+Coverage:               COMPLETE (1 of 1 binaries)
+Reconciliation:         PARTIAL (1 of 1 binaries)
+Unverifiable:           1 component
+Recon. differences:     1 difference
+
+BINARY
+----------------------------------------------------------------------------------------------------
+Path:                   /workspace/manager
+SHA-256 suffix:         6979733c1e45576b
+Main package:           command-line-arguments
+Compiled with:          go1.26.4 (Red Hat 1.26.4-1.el9_8) X:strictfipsruntime
+CGO:                    ENABLED
+Scan status:            COMPLETE
+Dependencies:           109
+Affected packages:      13
+Vulnerabilities:        14
+
+DECLARED DEPENDENCIES (109)
+---------------------------
+
+Dependency 1:           github.com/Azure/azure-sdk-for-go/sdk/azcore
+Declared version:       v1.18.1
+
+Dependency 2:           github.com/Azure/azure-sdk-for-go/sdk/internal
+Declared version:       v1.11.1
+
+Dependency 3:           github.com/Azure/azure-sdk-for-go/sdk/storage/azblob
+Declared version:       v1.6.2
+
+Dependency 4:           github.com/Azure/go-ntlmssp
+Declared version:       v0.0.0-20221128193559-754e69321358
+
+Dependency 5:           github.com/aws/aws-sdk-go
+Declared version:       v1.50.20
+
+Dependency 6:           github.com/beorn7/perks
+Declared version:       v1.0.1
+
+Dependency 7:           github.com/cespare/xxhash/v2
+Declared version:       v2.2.0
+
+Dependency 8:           github.com/coreos/go-oidc/v3
+Declared version:       v3.15.0
+
+Dependency 9:           github.com/creasty/defaults
+Declared version:       v1.7.0
+
+Dependency 10:          github.com/davecgh/go-spew
+Declared version:       v1.1.1
+
+Dependency 11:          github.com/dgryski/go-rendezvous
+Declared version:       v0.0.0-20200823014737-9f7001d12a5f
+
+Dependency 12:          github.com/dustin/go-humanize
+Declared version:       v1.0.1
+
+Dependency 13:          github.com/emicklei/go-restful/v3
+Declared version:       v3.11.0
+
+Dependency 14:          github.com/evanphx/json-patch
+Declared version:       v5.6.0+incompatible
+
+Dependency 15:          github.com/evanphx/json-patch/v5
+Declared version:       v5.7.0
+
+Dependency 16:          github.com/fsnotify/fsnotify
+Declared version:       v1.7.0
+
+Dependency 17:          github.com/go-asn1-ber/asn1-ber
+Declared version:       v1.5.8-0.20250403174932-29230038a667
+
+Dependency 18:          github.com/go-errors/errors
+Declared version:       v1.0.1
+
+Dependency 19:          github.com/go-ini/ini
+Declared version:       v1.67.0
+
+Dependency 20:          github.com/go-jose/go-jose/v4
+Declared version:       v4.0.5
+
+Dependency 21:          github.com/go-ldap/ldap/v3
+Declared version:       v3.4.11
+
+Dependency 22:          github.com/go-logr/logr
+Declared version:       v1.4.1
+
+Dependency 23:          github.com/go-logr/zapr
+Declared version:       v1.2.4
+
+Dependency 24:          github.com/go-openapi/jsonpointer
+Declared version:       v0.20.0
+
+Dependency 25:          github.com/go-openapi/jsonreference
+Declared version:       v0.20.2
+
+Dependency 26:          github.com/go-openapi/swag
+Declared version:       v0.22.4
+
+Dependency 27:          github.com/go-redis/redis/v8
+Declared version:       v8.11.5
+
+Dependency 28:          github.com/go-sql-driver/mysql
+Declared version:       v1.7.1
+
+Dependency 29:          github.com/goccy/go-json
+Declared version:       v0.10.5
+
+Dependency 30:          github.com/gogo/protobuf
+Declared version:       v1.3.2
+
+Dependency 31:          github.com/golang/groupcache
+Declared version:       v0.0.0-20210331224755-41bb18bfe9da
+
+Dependency 32:          github.com/golang/protobuf
+Declared version:       v1.5.3
+
+Dependency 33:          github.com/google/gnostic-models
+Declared version:       v0.6.8
+
+Dependency 34:          github.com/google/go-cmp
+Declared version:       v0.6.0
+
+Dependency 35:          github.com/google/gofuzz
+Declared version:       v1.2.0
+
+Dependency 36:          github.com/google/shlex
+Declared version:       v0.0.0-20191202100458-e7afc7fbc510
+
+Dependency 37:          github.com/google/uuid
+Declared version:       v1.6.0
+
+Dependency 38:          github.com/imdario/mergo
+Declared version:       v0.3.16
+
+Dependency 39:          github.com/jackc/pgpassfile
+Declared version:       v1.0.0
+
+Dependency 40:          github.com/jackc/pgservicefile
+Declared version:       v0.0.0-20240606120523-5a60cdf6a761
+
+Dependency 41:          github.com/jackc/pgx/v5
+Declared version:       v5.7.4
+
+Dependency 42:          github.com/jmespath/go-jmespath
+Declared version:       v0.4.0
+
+Dependency 43:          github.com/josharian/intern
+Declared version:       v1.0.0
+
+Dependency 44:          github.com/json-iterator/go
+Declared version:       v1.1.12
+
+Dependency 45:          github.com/klauspost/compress
+Declared version:       v1.18.0
+
+Dependency 46:          github.com/klauspost/cpuid/v2
+Declared version:       v2.2.11
+
+Dependency 47:          github.com/mailru/easyjson
+Declared version:       v0.7.7
+
+Dependency 48:          github.com/mattn/go-sqlite3
+Declared version:       v1.14.22
+
+Dependency 49:          github.com/matttproud/golang_protobuf_extensions/v2
+Declared version:       v2.0.0
+
+Dependency 50:          github.com/minio/crc64nvme
+Declared version:       v1.0.2
+
+Dependency 51:          github.com/minio/md5-simd
+Declared version:       v1.1.2
+
+Dependency 52:          github.com/minio/minio-go/v7
+Declared version:       v7.0.95
+
+Dependency 53:          github.com/modern-go/concurrent
+Declared version:       v0.0.0-20180306012644-bacd9c7ef1dd
+
+Dependency 54:          github.com/modern-go/reflect2
+Declared version:       v1.0.2
+
+Dependency 55:          github.com/monochromegane/go-gitignore
+Declared version:       v0.0.0-20200626010858-205db1a8cc00
+
+Dependency 56:          github.com/munnerz/goautoneg
+Declared version:       v0.0.0-20191010083416-a7dc8b61c822
+
+Dependency 57:          github.com/ncw/swift
+Declared version:       v1.0.53
+
+Dependency 58:          github.com/openshift/api
+Declared version:       v0.0.0-20240729140855-0a58f8c30a8c
+
+Dependency 59:          github.com/philhofer/fwd
+Declared version:       v1.2.0
+
+Dependency 60:          github.com/pkg/errors
+Declared version:       v0.9.1
+
+Dependency 61:          github.com/pmezard/go-difflib
+Declared version:       v1.0.0
+
+Dependency 62:          github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring
+Declared version:       v0.53.1
+
+Dependency 63:          github.com/prometheus/client_golang
+Declared version:       v1.17.0
+
+Dependency 64:          github.com/prometheus/client_model
+Declared version:       v0.5.0
+
+Dependency 65:          github.com/prometheus/common
+Declared version:       v0.45.0
+
+Dependency 66:          github.com/prometheus/procfs
+Declared version:       v0.12.0
+
+Dependency 67:          github.com/quay/clair/config
+Declared version:       v1.1.3
+
+Dependency 68:          github.com/quay/quay-operator
+Declared version:       (devel)
+
+Dependency 69:          github.com/quay/quay/config-tool
+Declared version:       v0.0.0-20260416181537-f0cc068f7cad
+
+Dependency 70:          github.com/rs/xid
+Declared version:       v1.6.0
+
+Dependency 71:          github.com/sirupsen/logrus
+Declared version:       v1.9.3
+
+Dependency 72:          github.com/spf13/pflag
+Declared version:       v1.0.5
+
+Dependency 73:          github.com/stretchr/testify
+Declared version:       v1.10.0
+
+Dependency 74:          github.com/tidwall/gjson
+Declared version:       v1.10.2
+
+Dependency 75:          github.com/tidwall/match
+Declared version:       v1.1.1
+
+Dependency 76:          github.com/tidwall/pretty
+Declared version:       v1.2.0
+
+Dependency 77:          github.com/tidwall/sjson
+Declared version:       v1.2.3
+
+Dependency 78:          github.com/tinylib/msgp
+Declared version:       v1.3.0
+
+Dependency 79:          github.com/xlab/treeprint
+Declared version:       v0.0.0-20181112141820-a009c3971eca
+
+Dependency 80:          go.starlark.net
+Declared version:       v0.0.0-20200306205701-8dd3e2ee1dd5
+
+Dependency 81:          go.uber.org/multierr
+Declared version:       v1.11.0
+
+Dependency 82:          go.uber.org/zap
+Declared version:       v1.25.0
+
+Dependency 83:          golang.org/x/crypto
+Declared version:       v0.41.0
+
+Dependency 84:          golang.org/x/exp
+Declared version:       v0.0.0-20231006140011-7918f672742d
+
+Dependency 85:          golang.org/x/net
+Declared version:       v0.43.0
+
+Dependency 86:          golang.org/x/oauth2
+Declared version:       v0.28.0
+
+Dependency 87:          golang.org/x/sys
+Declared version:       v0.35.0
+
+Dependency 88:          golang.org/x/term
+Declared version:       v0.34.0
+
+Dependency 89:          golang.org/x/text
+Declared version:       v0.29.0
+
+Dependency 90:          golang.org/x/time
+Declared version:       v0.3.0
+
+Dependency 91:          gomodules.xyz/jsonpatch/v2
+Declared version:       v2.4.0
+
+Dependency 92:          google.golang.org/protobuf
+Declared version:       v1.33.0
+
+Dependency 93:          gopkg.in/inf.v0
+Declared version:       v0.9.1
+
+Dependency 94:          gopkg.in/yaml.v2
+Declared version:       v2.4.0
+
+Dependency 95:          gopkg.in/yaml.v3
+Declared version:       v3.0.1
+
+Dependency 96:          k8s.io/api
+Declared version:       v0.28.3
+
+Dependency 97:          k8s.io/apiextensions-apiserver
+Declared version:       v0.28.3
+
+Dependency 98:          k8s.io/apimachinery
+Declared version:       v0.28.3
+
+Dependency 99:          k8s.io/client-go
+Declared version:       v0.28.3
+
+Dependency 100:         k8s.io/component-base
+Declared version:       v0.28.3
+
+Dependency 101:         k8s.io/klog/v2
+Declared version:       v2.100.1
+
+Dependency 102:         k8s.io/kube-openapi
+Declared version:       v0.0.0-20231010175941-2dd684a91f00
+
+Dependency 103:         k8s.io/utils
+Declared version:       v0.0.0-20230726121419-3b25d923346b
+
+Dependency 104:         sigs.k8s.io/controller-runtime
+Declared version:       v0.16.3
+
+Dependency 105:         sigs.k8s.io/json
+Declared version:       v0.0.0-20221116044647-bc3834ca7abd
+
+Dependency 106:         sigs.k8s.io/kustomize/api
+Declared version:       v0.10.1
+
+Dependency 107:         sigs.k8s.io/kustomize/kyaml
+Declared version:       v0.13.0
+
+Dependency 108:         sigs.k8s.io/structured-merge-diff/v4
+Declared version:       v4.3.0
+
+Dependency 109:         sigs.k8s.io/yaml
+Declared version:       v1.3.0
+
+PACKAGE
+-------
+Name:                   (unknown package)
+Module:                 golang.org/x/net
+Current version:        v0.43.0
+
+Vulnerabilities (1)
+  CVE-2026-46600
+    Evidence: module
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   crypto/tls
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (2)
+  CVE-2026-42505
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+  CVE-2026-56862
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   encoding/asn1
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (1)
+  CVE-2026-33818
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   encoding/xml
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (1)
+  CVE-2026-56859
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   github.com/go-jose/go-jose/v4
+Module:                 github.com/go-jose/go-jose/v4
+Current version:        v4.0.5
+
+Vulnerabilities (1)
+  CVE-2026-34986
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   github.com/jackc/pgx/v5/internal/sanitize
+Module:                 github.com/jackc/pgx/v5
+Current version:        v5.7.4
+
+Vulnerabilities (1)
+  CVE-2026-41889
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   github.com/jackc/pgx/v5/pgproto3
+Module:                 github.com/jackc/pgx/v5
+Current version:        v5.7.4
+
+Vulnerabilities (2)
+  CVE-2026-33815
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+  CVE-2026-33816
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/http2
+Module:                 golang.org/x/net
+Current version:        v0.43.0
+
+Vulnerabilities (1)
+  CVE-2026-33814
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/net/idna
+Module:                 golang.org/x/net
+Current version:        v0.43.0
+
+Vulnerabilities (1)
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   golang.org/x/text/unicode/norm
+Module:                 golang.org/x/text
+Current version:        v0.29.0
+
+Vulnerabilities (1)
+  CVE-2026-56852
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   net
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (1)
+  CVE-2026-46600
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   net/http
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (2)
+  CVE-2026-39821
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+  CVE-2026-56853
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+PACKAGE
+-------
+Name:                   net/url
+Module:                 stdlib
+Current version:        v1.26.4
+
+Vulnerabilities (1)
+  CVE-2026-56860
+    Evidence: symbol
+    Affected binaries (1)
+      - /workspace/manager
+
+SUBJECT
+----------------------------------------------------------------------------------------------------
+Type:                   container image
+Root:                   /tmp/pygo-audit-persona-rootfs/quay-operator-d64966c08c64
+Image reference:        ...9@sha256:d64966c08c644f4843d9ff0281f7c9357802c4769d09389c18b62389ab019692
+Image digest:           sha256:b17a240fd3c7032b9f098c9a3369a52ee4afaa23aa97a35936bf3fd44243681c
+Platform:               linux/amd64
+Extractor:              oc
+
+PROVENANCE
+----------------------------------------------------------------------------------------------------
+Scanner:                pygo-audit 0.1.0
+Go toolchain:           go version go1.26.8-X:nodwarf5 linux/amd64
+Go command:             /usr/bin/go
+govulncheck status:     available
+govulncheck version:    Go: go1.26.8-X:nodwarf5
+                        Scanner: govulncheck@v0.0.0
+                        DB: https://vuln.go.dev
+                        DB updated: 2026-09-16 18:00:43 +0000 UTC
+govulncheck command:    /usr/bin/govulncheck
+Scan started:           2026-09-24T01:53:23.024218Z
+Scan completed:         2026-09-24T01:53:24.838352Z
+Database:               https://vuln.go.dev
+Database updated:       2026-09-16T18:00:43Z
