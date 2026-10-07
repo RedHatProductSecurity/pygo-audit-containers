@@ -148,6 +148,34 @@ history with `docker image save`, `podman save`, an OCI layout produced by
 Skopeo, or `oc image extract` layer selectors; `docker export` and
 `podman export` produce a flattened container filesystem instead.
 
+### Extract every layer separately
+
+The standalone helper discovers the layer count, resolves the image to an
+immutable digest, and extracts each layer into its own directory:
+
+```console
+./scripts/extract-image-layers IMAGE NEW_DIRECTORY --platform linux/amd64
+```
+
+It requires `oc` and Python 3, with no additional Python packages. The output
+contains `image-info.json` and directories named `layer-000`, `layer-001`, and
+so on, in the metadata's layer order. Existing destinations are refused. A
+failure stops extraction and retains partial output for inspection.
+
+To make it available as a command in your active virtual environment:
+
+```console
+install -m 755 scripts/extract-image-layers "${VIRTUAL_ENV:?Activate your virtual environment first}/bin/extract-image-layers"
+extract-image-layers IMAGE NEW_DIRECTORY
+```
+
+Each directory contains one layer's changes, including files later replaced
+or deleted by another layer. Scan layer directories separately and identify
+findings as layer findings; they do not establish that a binary survives in
+the final filesystem. `oc` applies deletion markers while extracting, so
+retain an image archive separately if the original archives and markers are
+needed. The scanner itself remains independent of image extraction.
+
 ## Installation
 
 Installation is optional. It provides a system or virtual-environment command
