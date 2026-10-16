@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+"""Unpack each image layer into a separate directory using oc."""
+
+import argparse
+import json
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+
+
+def is_digest(value):
+    return isinstance(value, str) and re.fullmatch(
+        r"[A-Za-z0-9_+.-]+:[0-9a-fA-F]{32,}", value
+    ) is not None
+
+
+def inspect_image(image, platform):
+    result = subprocess.run(
+        ["oc", "image", "info", f"--filter-by-os={platform}", "-o", "json", image],
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        info = json.loads(result.stdout)
+    except json.JSONDecodeError as error:
+        raise ValueError("oc image info returned invalid JSON") from error
+    if not isinstance(info, dict) or not is_digest(info.get("digest")):
+        raise ValueError("oc image info did not return one resolved image digest")
+    layers = info.get("layers")
+    if not isinstance(layers, list) or not all(
+        isinstance(layer, dict) and is_digest(layer.get("digest"))
+        for layer in layers
+    ):
+        raise ValueError("oc image info did not return a valid layer list")
+    config = info.get("config")
+    if not isinstance(config, dict):
+        raise ValueError("oc image info did not return image platform metadata")
+    actual = f"{config.get('os', '')}/{config.get('architecture', '')}"
+    requested = platform.split("/")
+    if actual != "/".join(requested[:2]) or (
+        len(requested) == 3 and config.get("variant") != requested[2]
+    ):
+        raise ValueError(f"image platform {actual!r} does not match {platform!r}")
+
+    name = info.get("name")
+    if not isinstance(name, str) or not name:
+        raise ValueError("oc image info did not return an image name")
+    # Remove a tag without removing a registry's port number.
+    prefix, separator, repository = name.split("@", 1)[0].rpartition("/")
+    resolved = prefix + separator + repository.split(":", 1)[0]
+    return info, f"{resolved}@{info['digest']}"
+
+
+def extract_layers(image, destination, platform):
+    if destination.exists() or destination.is_symlink():
+        raise ValueError(f"destination already exists: {destination}; choose a new directory")
+    if shutil.which("oc") is None:
+        raise ValueError(
+            "OpenShift is unavailable. Please use your preferred container tools "
+            "to extract container images."
+        )
+    info, resolved = inspect_image(image, platform)
+    destination.mkdir()
+    with (destination / "image-info.json").open("x", encoding="utf-8") as output:
+        json.dump(info, output, indent=2)
+        output.write("\n")
+
+    layers = info["layers"]
+    print(f"Image: {resolved}", flush=True)
+    for index, layer in enumerate(layers):
+        layer_dir = destination / f"layer-{index:03d}"
+        layer_dir.mkdir()
+        print(
+            f"Extracting layer {index + 1}/{len(layers)} "
+            f"({layer['digest']}) into {layer_dir}",
+            flush=True,
+        )
+        subprocess.run(
+            [
+                "oc", "image", "extract", f"{resolved}[{index}]",
+                f"--filter-by-os={platform}", f"--path=/:{layer_dir}",
+            ],
+            check=True,
+        )
+    print(f"Extracted all {len(layers)} layers into {destination}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Extract every image layer into its own directory using oc.",
+        epilog=(
+            "Requires oc on PATH. Layer directories contain individual changes, "
+            "not complete root filesystems. oc applies deletion markers; retain "
+            "an image archive separately if you need the original layer archives."
+        ),
+    )
+    parser.add_argument("image", metavar="IMAGE", help="registry image reference or digest")
+    parser.add_argument("destination", metavar="DIRECTORY", type=Path, help="new output directory")
+    parser.add_argument("--platform", default="linux/amd64", metavar="OS/ARCH[/VARIANT]")
+    args = parser.parse_args()
+    if not re.fullmatch(r"[a-z0-9_.-]+/[a-z0-9_.-]+(?:/[a-z0-9_.-]+)?", args.platform):
+        parser.error("--platform must be OS/ARCH or OS/ARCH/VARIANT")
+    try:
+        extract_layers(args.image, args.destination.absolute(), args.platform)
+    except subprocess.CalledProcessError as error:
+        print(
+            f"{parser.prog}: oc failed with exit status {error.returncode}; "
+            "extraction did not complete. Any partial output has been retained.",
+            file=sys.stderr,
+        )
+        return 1
+    except (OSError, ValueError) as error:
+        print(f"{parser.prog}: {error}", file=sys.stderr)
+        return 1
+    except KeyboardInterrupt:
+        print(f"\n{parser.prog}: interrupted; partial output retained", file=sys.stderr)
+        return 130
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

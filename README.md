@@ -3,8 +3,12 @@
 `pygo-audit` scans an unpacked Linux container filesystem and reports the Go
 modules and known vulnerabilities found in each Go binary.
 
-See the [proof-of-concept scope](docs/proof-of-concept-scope.md) for the planned
-analyst interface, immutable scan snapshots, and generated artifacts.
+Project guides:
+
+- [Proof-of-concept scope](docs/proof-of-concept-scope.md)
+- [First demonstration outline](docs/first-demonstration.md)
+- [Demonstration cheatsheet](docs/demonstration-cheatsheet.md)
+- [AI persona audit experiment (`persona-exercise` branch)](https://github.com/RedHatProductSecurity/pygo-audit-containers/tree/persona-exercise/persona-exercise)
 
 The scanner targets Python 3.14 and has no third-party runtime dependencies. It
 does not execute anything from the container. Build metadata is read by the
@@ -90,6 +94,10 @@ For safety, the script refuses to mix an image with files already present in
 `sandbox/`. Move or remove the previous extracted root filesystem before
 running it again.
 
+For a structured presentation that preserves one scan and demonstrates every
+report without rerunning `govulncheck`, follow the
+[first demonstration outline](docs/first-demonstration.md).
+
 ## Manual extraction with `oc`
 
 From the repository root, choose an image and platform, unpack its root
@@ -147,6 +155,34 @@ examining them is a separate, tool-dependent forensic workflow. Preserve layer
 history with `docker image save`, `podman save`, an OCI layout produced by
 Skopeo, or `oc image extract` layer selectors; `docker export` and
 `podman export` produce a flattened container filesystem instead.
+
+### Extract every layer separately
+
+The standalone helper discovers the layer count, resolves the image to an
+immutable digest, and extracts each layer into its own directory:
+
+```console
+./scripts/extract-image-layers IMAGE NEW_DIRECTORY --platform linux/amd64
+```
+
+It requires `oc` and Python 3, with no additional Python packages. The output
+contains `image-info.json` and directories named `layer-000`, `layer-001`, and
+so on, in the metadata's layer order. Existing destinations are refused. A
+failure stops extraction and retains partial output for inspection.
+
+To make it available as a command in your active virtual environment:
+
+```console
+install -m 755 scripts/extract-image-layers "${VIRTUAL_ENV:?Activate your virtual environment first}/bin/extract-image-layers"
+extract-image-layers IMAGE NEW_DIRECTORY
+```
+
+Each directory contains one layer's changes, including files later replaced
+or deleted by another layer. Scan layer directories separately and identify
+findings as layer findings; they do not establish that a binary survives in
+the final filesystem. `oc` applies deletion markers while extracting, so
+retain an image archive separately if the original archives and markers are
+needed. The scanner itself remains independent of image extraction.
 
 ## Installation
 
@@ -264,8 +300,8 @@ when every recognized Go binary completed vulnerability scanning. Otherwise
 its result is `INDETERMINATE`.
 
 The human-readable formats omit symbol names, references, fixed versions, and
-affected version ranges. Development schema version 6 retains
-scanner/database provenance, the minimal `govulncheck` SBOM, dependencies,
+affected version ranges. The canonical JSON retains scanner/database
+provenance, the minimal `govulncheck` SBOM, dependencies,
 full affected-version and package information, fixed versions, evidence levels,
 references, scan timestamps, per-binary SHA-256 digests, scan statistics, and
 non-fatal issues. It also reconciles the effective `go version -m` module
@@ -313,7 +349,7 @@ Generate the current portable artifact bundle from the same in-memory scan:
 The scan output directory contains:
 
 ```text
-audit.json       Complete versioned scan snapshot
+audit.json       Complete scan snapshot
 overview.txt     Result, coverage, package list, and vulnerability list
 findings.txt     Container-level findings organized by affected package
 binaries.txt     Per-binary findings and declared dependency inventory
@@ -348,9 +384,7 @@ Persist focused checks without regenerating the base reports:
 A snapshot directory may be supplied directly when it contains exactly one
 JSON snapshot. When it contains multiple snapshots, select the desired file.
 Snapshot reads never refresh findings against the current vulnerability
-database. Development schema-v3 through schema-v5 reports remain readable but
-naturally lack newer provenance fields. The schema selected when the proof of
-concept is complete will be frozen and designated as canonical.
+database. Snapshot JSON uses the current canonical report structure.
 
 ### Image identity
 
@@ -392,6 +426,16 @@ is reachable or exploitable because compiled binaries do not contain the call
 graph needed for source-level analysis. If symbol information is unavailable,
 `govulncheck` can fall back to broader module-level findings. A failed or timed
 out vulnerability check is reported as incomplete, never as a clean result.
+
+## AI-assisted evaluation
+
+The repository includes a reusable, evidence-constrained experiment for
+evaluating how security, Go engineering, and assurance personas interpret the
+same pygo-audit snapshots. The complete framework and first experiment's
+generated snapshots, messages, analyses, targeted checks, and tutorials are on
+the separate `persona-exercise` branch. See the
+[experiment guide](https://github.com/RedHatProductSecurity/pygo-audit-containers/tree/persona-exercise/persona-exercise)
+for its evidence boundaries and layout.
 
 ## Tests
 
