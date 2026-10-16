@@ -5,16 +5,17 @@
 All conclusions below use only `persona-exercise/snapshots/` and the preserved
 root filesystems under `/tmp/pygo-audit-persona-rootfs/`. The five snapshots
 are schema 6. Each bundle `audit.json` is byte-identical to its corresponding
-file in `persona-exercise/snapshots/store/`, and recomputing the canonical JSON
+file in the corresponding `persona-exercise/snapshots/*/audit.json` directory,
+and recomputing the canonical JSON
 SHA-256 produced the store filename shown below:
 
 | Image | Content-addressed snapshot | Vulnerability coverage | Reconciliation |
 |---|---|---:|---|
-| Argo CD | `persona-exercise/snapshots/store/3c8370f7cbec63890b77c2a8d702dbaf83e4c6ae1e4a3b89e9b386bc52dab949.json` | complete, 4/4 | partial, 4/4; 8 unverifiable components |
-| Dex | `persona-exercise/snapshots/store/f26c0e7685601832563b0c2c2a055b0d41a98a4b9ce866ff363a495e1e1e5292.json` | complete, 1/1 | partial, 1/1; 2 unverifiable components |
-| Quay Operator | `persona-exercise/snapshots/store/ebad81c263e3474e46264bc99dfb89cbadd0cc68cd394beebec1897a8f0b78e8.json` | complete, 1/1 | partial, 1/1; 1 unverifiable component |
-| GitOps Operator | `persona-exercise/snapshots/store/29314403694c6ec4e24eff6ce0c8187040e1113356bd1135f8caa010296b17dd.json` | complete, 1/1 | partial, 1/1; 1 unverifiable component |
-| kube-rbac-proxy | `persona-exercise/snapshots/store/e88d0a2c84e6544ab2bf302468c43fffd24b52b6e71419a1e4bf1f7a3c8e10e5.json` | complete, 1/1 | partial, 1/1; 1 unverifiable component |
+| Argo CD | `persona-exercise/snapshots/argocd-deda478bd4d8/audit.json` | complete, 4/4 | partial, 4/4; 8 unverifiable components |
+| Dex | `persona-exercise/snapshots/dex-51454e5c706f/audit.json` | complete, 1/1 | partial, 1/1; 2 unverifiable components |
+| Quay Operator | `persona-exercise/snapshots/quay-operator-d64966c08c64/audit.json` | complete, 1/1 | partial, 1/1; 1 unverifiable component |
+| GitOps Operator | `persona-exercise/snapshots/gitops-operator-95aa28b8b04e/audit.json` | complete, 1/1 | partial, 1/1; 1 unverifiable component |
+| kube-rbac-proxy | `persona-exercise/snapshots/kube-rbac-proxy-58698c84109b/audit.json` | complete, 1/1 | partial, 1/1; 1 unverifiable component |
 
 All five snapshots record `pygo-audit 0.1.0`, host toolchain `go version
 go1.26.8-X:nodwarf5 linux/amd64`, `govulncheck@v0.0.0`, database

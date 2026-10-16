@@ -10,15 +10,15 @@ binary, not proof of runtime execution or exploitability.
 
 Evidence labels expand to these exact paths:
 
-- **A-S** — `persona-exercise/snapshots/store/3c8370f7cbec63890b77c2a8d702dbaf83e4c6ae1e4a3b89e9b386bc52dab949.json`
+- **A-S** — `persona-exercise/snapshots/argocd-deda478bd4d8/audit.json`
 - **A-R** — `/tmp/pygo-audit-persona-rootfs/argocd-deda478bd4d8/`
-- **D-S** — `persona-exercise/snapshots/store/f26c0e7685601832563b0c2c2a055b0d41a98a4b9ce866ff363a495e1e1e5292.json`
+- **D-S** — `persona-exercise/snapshots/dex-51454e5c706f/audit.json`
 - **D-R** — `/tmp/pygo-audit-persona-rootfs/dex-51454e5c706f/`
-- **Q-S** — `persona-exercise/snapshots/store/ebad81c263e3474e46264bc99dfb89cbadd0cc68cd394beebec1897a8f0b78e8.json`
+- **Q-S** — `persona-exercise/snapshots/quay-operator-d64966c08c64/audit.json`
 - **Q-R** — `/tmp/pygo-audit-persona-rootfs/quay-operator-d64966c08c64/`
-- **G-S** — `persona-exercise/snapshots/store/29314403694c6ec4e24eff6ce0c8187040e1113356bd1135f8caa010296b17dd.json`
+- **G-S** — `persona-exercise/snapshots/gitops-operator-95aa28b8b04e/audit.json`
 - **G-R** — `/tmp/pygo-audit-persona-rootfs/gitops-operator-95aa28b8b04e/`
-- **R-S** — `persona-exercise/snapshots/store/e88d0a2c84e6544ab2bf302468c43fffd24b52b6e71419a1e4bf1f7a3c8e10e5.json`
+- **R-S** — `persona-exercise/snapshots/kube-rbac-proxy-58698c84109b/audit.json`
 - **R-R** — `/tmp/pygo-audit-persona-rootfs/kube-rbac-proxy-58698c84109b/`
 
 All five snapshots record `linux/amd64`, extraction by `oc`, pygo-audit 0.1.0,

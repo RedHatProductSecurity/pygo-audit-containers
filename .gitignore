@@ -9,6 +9,11 @@ audit-cache/
 audit-snapshots/
 audit-artifacts/
 
+# Emacs backup, auto-save, and lock files.
+*~
+.#*
+[#]*[#]
+
 # Keep extracted container files local while retaining sandbox/ in fresh clones.
 /sandbox/*
 !/sandbox/.gitignore

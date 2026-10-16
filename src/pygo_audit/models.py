@@ -560,7 +560,6 @@ class ScanReport:
         binaries = sorted(self.binaries, key=lambda binary: min(binary.paths))
         issues = sorted(self.issues, key=lambda issue: (issue.path, issue.stage))
         return {
-            "schema_version": 6,
             "root": self.root,
             "producer": {
                 "name": self.producer_name,

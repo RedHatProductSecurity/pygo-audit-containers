@@ -43,43 +43,18 @@ class SnapshotTests(unittest.TestCase):
         self.assertEqual(loaded.to_dict(), report.to_dict())
         self.assertEqual(loaded_from_directory.to_dict(), report.to_dict())
 
-    def test_rejects_unsupported_schemas(self) -> None:
+    def test_requires_canonical_snapshot_provenance(self) -> None:
+        document = self._report().to_dict()
+        document.pop("producer")
         with TemporaryDirectory() as temporary_directory:
             report_path = Path(temporary_directory) / "report.json"
             report_path.write_text(
-                json.dumps({"schema_version": 999}),
+                json.dumps(document),
                 encoding="utf-8",
             )
 
-            with self.assertRaisesRegex(SnapshotError, "unsupported snapshot schema"):
+            with self.assertRaisesRegex(SnapshotError, "producer must be an object"):
                 load_snapshot(report_path)
-
-    def test_loads_legacy_reports_without_unavailable_provenance(self) -> None:
-        for schema_version in (3, 4, 5):
-            with self.subTest(schema_version=schema_version):
-                document = self._report().to_dict()
-                document["schema_version"] = schema_version
-                document.pop("producer")
-                document.pop("vulnerability_databases")
-                if schema_version in (3, 4):
-                    document.pop("subject")
-                if schema_version == 3:
-                    document.pop("scan")
-                    for binary in document["binaries"]:
-                        binary.pop("sha256")
-
-                with TemporaryDirectory() as temporary_directory:
-                    report_path = Path(temporary_directory) / "report.json"
-                    report_path.write_text(json.dumps(document), encoding="utf-8")
-                    report = load_snapshot(report_path)
-
-                if schema_version in (3, 4):
-                    self.assertFalse(report.image_identity.is_present)
-                self.assertEqual(report.producer_name, "")
-                if schema_version == 3:
-                    self.assertEqual(report.scan_started_at, "")
-                    self.assertEqual(report.scan_completed_at, "")
-                    self.assertEqual(report.binaries[0].sha256, "")
 
     def test_refuses_to_replace_a_tampered_content_address(self) -> None:
         report = self._report()

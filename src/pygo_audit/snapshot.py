@@ -27,8 +27,6 @@ from pygo_audit.models import (
 )
 
 
-CURRENT_SCHEMA_VERSION = 6
-SUPPORTED_SCHEMA_VERSIONS = {3, 4, 5, CURRENT_SCHEMA_VERSION}
 _CONTENT_ADDRESS_NAME = re.compile(r"[0-9a-fA-F]{64}")
 
 
@@ -95,7 +93,7 @@ def snapshot_digest(report: ScanReport) -> str:
 
 
 def load_snapshot(snapshot_path: Path) -> ScanReport:
-    """Load a supported snapshot from a JSON file or single-snapshot directory."""
+    """Load a canonical snapshot from a JSON file or single-snapshot directory."""
     path = _resolve_snapshot_path(Path(snapshot_path))
     document = _read_json_document(path)
     _verify_content_address(path, document)
@@ -173,20 +171,9 @@ def _verify_content_address(path: Path, document: dict[str, Any]) -> None:
 
 
 def _parse_scan_report(value: dict[str, Any]) -> ScanReport:
-    schema_version = value.get("schema_version")
-    if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
-        raise SnapshotError(
-            f"unsupported snapshot schema {schema_version!r}; "
-            f"expected one of {sorted(SUPPORTED_SCHEMA_VERSIONS)}"
-        )
-
-    producer = (
-        _mapping(value.get("producer"), "producer")
-        if schema_version >= 6
-        else _optional_mapping(value.get("producer"), "producer")
-    )
-    subject = _optional_mapping(value.get("subject"), "subject")
-    scan = _optional_mapping(value.get("scan"), "scan")
+    producer = _mapping(value.get("producer"), "producer")
+    subject = _mapping(value.get("subject"), "subject")
+    scan = _mapping(value.get("scan"), "scan")
     toolchain = _mapping(value.get("toolchain"), "toolchain")
     vulnerability_toolchain = _mapping(
         value.get("vulnerability_toolchain"),
@@ -194,15 +181,10 @@ def _parse_scan_report(value: dict[str, Any]) -> ScanReport:
     )
     report = ScanReport(
         root=_required_string(value.get("root"), "root"),
-        producer_name=(
-            _required_string(producer.get("name"), "producer.name")
-            if schema_version >= 6
-            else _string(producer.get("name"))
-        ),
-        producer_version=(
-            _required_string(producer.get("version"), "producer.version")
-            if schema_version >= 6
-            else _string(producer.get("version"))
+        producer_name=_required_string(producer.get("name"), "producer.name"),
+        producer_version=_required_string(
+            producer.get("version"),
+            "producer.version",
         ),
         go_command=_string(toolchain.get("command")),
         go_tool_version=_string(toolchain.get("version")),
@@ -226,21 +208,20 @@ def _parse_scan_report(value: dict[str, Any]) -> ScanReport:
         ],
         stats=_parse_stats(_mapping(value.get("stats"), "stats")),
     )
-    if schema_version >= 6:
-        database_observations = [
-            {
-                "url": _required_string(item.get("url"), "database URL"),
-                "last_modified": _string(item.get("last_modified")),
-            }
-            for item in _mapping_list(
-                value.get("vulnerability_databases"),
-                "vulnerability_databases",
-            )
-        ]
-        if database_observations != report.vulnerability_databases():
-            raise SnapshotError(
-                "vulnerability_databases does not match per-binary observations"
-            )
+    database_observations = [
+        {
+            "url": _required_string(item.get("url"), "database URL"),
+            "last_modified": _string(item.get("last_modified")),
+        }
+        for item in _mapping_list(
+            value.get("vulnerability_databases"),
+            "vulnerability_databases",
+        )
+    ]
+    if database_observations != report.vulnerability_databases():
+        raise SnapshotError(
+            "vulnerability_databases does not match per-binary observations"
+        )
     report.binaries.sort(key=lambda binary: min(binary.paths))
     return report
 
@@ -471,12 +452,6 @@ def _mapping(value: object, field_name: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise SnapshotError(f"{field_name} must be an object")
     return value
-
-
-def _optional_mapping(value: object, field_name: str) -> dict[str, Any]:
-    if value is None:
-        return {}
-    return _mapping(value, field_name)
 
 
 def _mapping_list(value: object, field_name: str) -> list[dict[str, Any]]:

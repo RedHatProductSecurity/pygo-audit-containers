@@ -1,23 +1,6 @@
 {
-  "schema_version": 6,
-  "root": "/tmp/pygo-audit-persona-rootfs/gitops-operator-95aa28b8b04e",
-  "producer": {
-    "name": "pygo-audit",
-    "version": "0.1.0"
-  },
-  "subject": {
-    "type": "container_image",
-    "image": {
-      "reference": "registry.redhat.io/openshift-gitops-1/gitops-rhel8-operator@sha256:95aa28b8b04efde78d2e4495d2c58e7f8ebd5b399cb2afda927eb01011d2061e",
-      "digest": "sha256:7f6e588459ff59366a9f8f8f32a784806af11931f8584e46e1d53472a2e010a9",
-      "platform": "linux/amd64",
-      "extractor": "oc"
-    }
-  },
-  "scan": {
-    "started_at": "2026-09-24T01:53:55.590517Z",
-    "completed_at": "2026-09-24T01:54:06.134201Z"
-  },
+  "schema_version": 3,
+  "root": "/tmp/pygo-audit-redhat-run/gitops-operator",
   "toolchain": {
     "command": "/usr/bin/go",
     "version": "go version go1.26.8-X:nodwarf5 linux/amd64"
@@ -27,19 +10,12 @@
     "command": "/usr/bin/govulncheck",
     "version": "Go: go1.26.8-X:nodwarf5\nScanner: govulncheck@v0.0.0\nDB: https://vuln.go.dev\nDB updated: 2026-09-16 18:00:43 +0000 UTC"
   },
-  "vulnerability_databases": [
-    {
-      "url": "https://vuln.go.dev",
-      "last_modified": "2026-09-16T18:00:43Z"
-    }
-  ],
   "binaries": [
     {
       "paths": [
         "/usr/local/bin/manager"
       ],
       "size": 147524288,
-      "sha256": "34578cdf615bba1b8e70f88db76cf241eb8ae253cb5bce93d1c912fd10240bf4",
       "go_version": "go1.24.6 (Red Hat 1.24.6-1.module+el8.10.0+23407+428597c7) X:strictfipsruntime",
       "cgo_enabled": true,
       "main_package": "command-line-arguments",
@@ -1155828,7 +1155804,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1155845,7 +1155821,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1155857,7 +1155833,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1155874,7 +1155850,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1155886,7 +1155862,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1155903,7 +1155879,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1155915,7 +1155891,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1155932,7 +1155908,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1155944,7 +1155920,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1155961,7 +1155937,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1155973,7 +1155949,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1155990,7 +1155966,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156002,7 +1155978,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156019,7 +1155995,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156031,7 +1156007,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156048,7 +1156024,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156060,7 +1156036,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156077,7 +1156053,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156089,7 +1156065,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156106,7 +1156082,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156118,7 +1156094,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156135,7 +1156111,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156147,7 +1156123,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156164,7 +1156140,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156176,7 +1156152,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156193,7 +1156169,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156205,7 +1156181,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156222,7 +1156198,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156234,7 +1156210,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156251,7 +1156227,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156263,7 +1156239,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156280,7 +1156256,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1156364,7 +1156340,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156381,7 +1156357,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156393,7 +1156369,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156410,7 +1156386,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156422,7 +1156398,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156439,7 +1156415,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156451,7 +1156427,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156468,7 +1156444,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156480,7 +1156456,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156497,7 +1156473,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156509,7 +1156485,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156526,7 +1156502,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1156602,7 +1156578,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156619,7 +1156595,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1156699,7 +1156675,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156716,7 +1156692,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156728,7 +1156704,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156745,7 +1156721,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156757,7 +1156733,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156774,7 +1156750,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156786,7 +1156762,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156803,7 +1156779,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1156880,7 +1156856,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156897,7 +1156873,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1156909,7 +1156885,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1156926,7 +1156902,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1157016,7 +1156992,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157033,7 +1157009,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1157045,7 +1157021,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157062,7 +1157038,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1157074,7 +1157050,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157091,7 +1157067,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1157103,7 +1157079,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157120,7 +1157096,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1157132,7 +1157108,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157149,7 +1157125,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1157161,7 +1157137,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157178,7 +1157154,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1157190,7 +1157166,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157207,7 +1157183,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1157219,7 +1157195,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157236,7 +1157212,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1157248,7 +1157224,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157265,7 +1157241,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1157277,7 +1157253,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157294,7 +1157270,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1157370,7 +1157346,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157387,7 +1157363,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1157462,7 +1157438,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157479,7 +1157455,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1157879,7 +1157855,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157896,7 +1157872,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1157908,7 +1157884,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1157925,7 +1157901,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1158000,7 +1157976,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1158017,7 +1157993,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1354079,7 +1354055,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354096,7 +1354072,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1354108,7 +1354084,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354125,7 +1354101,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1354137,7 +1354113,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354154,7 +1354130,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1354166,7 +1354142,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354183,7 +1354159,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1354195,7 +1354171,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354212,7 +1354188,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1354224,7 +1354200,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354241,7 +1354217,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1354336,7 +1354312,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354353,7 +1354329,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1354365,7 +1354341,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354382,7 +1354358,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1354394,7 +1354370,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354411,7 +1354387,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1354423,7 +1354399,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354440,7 +1354416,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1354452,7 +1354428,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354469,7 +1354445,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1354481,7 +1354457,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354498,7 +1354474,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1354575,7 +1354551,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354592,7 +1354568,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1354604,7 +1354580,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354621,7 +1354597,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1354697,7 +1354673,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1354714,7 +1354690,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1376295,7 +1376271,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376312,7 +1376288,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1376324,7 +1376300,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376341,7 +1376317,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1376353,7 +1376329,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376370,7 +1376346,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1376382,7 +1376358,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376399,7 +1376375,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1376478,7 +1376454,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376495,7 +1376471,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1376507,7 +1376483,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376524,7 +1376500,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1376536,7 +1376512,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376553,7 +1376529,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1376642,7 +1376618,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376659,7 +1376635,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1376671,7 +1376647,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376688,7 +1376664,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1376700,7 +1376676,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376717,7 +1376693,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1376729,7 +1376705,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376746,7 +1376722,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1376758,7 +1376734,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376775,7 +1376751,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1376787,7 +1376763,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1376804,7 +1376780,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1414209,7 +1414185,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414226,7 +1414202,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414238,7 +1414214,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414255,7 +1414231,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414267,7 +1414243,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414284,7 +1414260,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414296,7 +1414272,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414313,7 +1414289,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414325,7 +1414301,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414342,7 +1414318,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414354,7 +1414330,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414371,7 +1414347,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414383,7 +1414359,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414400,7 +1414376,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414412,7 +1414388,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414429,7 +1414405,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414441,7 +1414417,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414458,7 +1414434,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414470,7 +1414446,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414487,7 +1414463,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414499,7 +1414475,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414516,7 +1414492,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414528,7 +1414504,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414545,7 +1414521,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414557,7 +1414533,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414574,7 +1414550,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414586,7 +1414562,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414603,7 +1414579,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414615,7 +1414591,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414632,7 +1414608,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414644,7 +1414620,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414661,7 +1414637,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1414673,7 +1414649,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414690,7 +1414666,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1414766,7 +1414742,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414783,7 +1414759,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1414859,7 +1414835,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1414876,7 +1414852,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1415114,7 +1415090,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415131,7 +1415107,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415143,7 +1415119,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415160,7 +1415136,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415172,7 +1415148,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415189,7 +1415165,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415201,7 +1415177,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415218,7 +1415194,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415230,7 +1415206,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415247,7 +1415223,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415259,7 +1415235,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415276,7 +1415252,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415288,7 +1415264,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415305,7 +1415281,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415317,7 +1415293,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415334,7 +1415310,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415346,7 +1415322,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415363,7 +1415339,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415375,7 +1415351,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415392,7 +1415368,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415404,7 +1415380,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415421,7 +1415397,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415433,7 +1415409,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415450,7 +1415426,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415462,7 +1415438,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415479,7 +1415455,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415491,7 +1415467,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415508,7 +1415484,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415520,7 +1415496,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415537,7 +1415513,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415549,7 +1415525,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415566,7 +1415542,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415578,7 +1415554,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415595,7 +1415571,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1415607,7 +1415583,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415624,7 +1415600,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1415701,7 +1415677,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1415718,7 +1415694,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1418558,7 +1418534,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418575,7 +1418551,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1418587,7 +1418563,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418604,7 +1418580,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1418616,7 +1418592,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418633,7 +1418609,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1418645,7 +1418621,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418662,7 +1418638,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1418674,7 +1418650,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418691,7 +1418667,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1418703,7 +1418679,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418720,7 +1418696,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1418732,7 +1418708,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418749,7 +1418725,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1418761,7 +1418737,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418778,7 +1418754,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1418790,7 +1418766,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418807,7 +1418783,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1418819,7 +1418795,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418836,7 +1418812,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1418914,7 +1418890,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418931,7 +1418907,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1418943,7 +1418919,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418960,7 +1418936,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1418972,7 +1418948,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1418989,7 +1418965,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1419064,7 +1419040,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1419081,7 +1419057,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1419161,7 +1419137,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1419178,7 +1419154,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1419190,7 +1419166,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1419207,7 +1419183,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1419219,7 +1419195,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1419236,7 +1419212,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1419248,7 +1419224,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1419265,7 +1419241,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1530938,7 +1530914,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1530955,7 +1530931,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1530967,7 +1530943,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1530984,7 +1530960,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1530996,7 +1530972,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1531013,7 +1530989,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1531025,7 +1531001,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1531042,7 +1531018,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1531054,7 +1531030,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1531071,7 +1531047,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1531083,7 +1531059,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1531100,7 +1531076,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1531957,7 +1531933,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1531974,7 +1531950,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1531986,7 +1531962,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532003,7 +1531979,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1532093,7 +1532069,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532110,7 +1532086,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532122,7 +1532098,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532139,7 +1532115,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532151,7 +1532127,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532168,7 +1532144,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532180,7 +1532156,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532197,7 +1532173,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532209,7 +1532185,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532226,7 +1532202,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532238,7 +1532214,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532255,7 +1532231,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1532345,7 +1532321,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532362,7 +1532338,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532374,7 +1532350,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532391,7 +1532367,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532403,7 +1532379,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532420,7 +1532396,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532432,7 +1532408,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532449,7 +1532425,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1532540,7 +1532516,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532557,7 +1532533,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532569,7 +1532545,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532586,7 +1532562,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532598,7 +1532574,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532615,7 +1532591,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532627,7 +1532603,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532644,7 +1532620,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532656,7 +1532632,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532673,7 +1532649,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1532685,7 +1532661,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532702,7 +1532678,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1532972,7 +1532948,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1532989,7 +1532965,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               },
               {
@@ -1533001,7 +1532977,7 @@
                 "evidence": "symbol",
                 "reachability": "unknown",
                 "reconciliation": {
-                  "status": "representation_difference",
+                  "status": "mismatch",
                   "govulncheck": {
                     "path": "stdlib",
                     "version": "v1.24.6"
@@ -1533018,7 +1532994,7 @@
                     },
                     "replacement": false
                   },
-                  "detail": "identifies the same Go release using a different version representation"
+                  "detail": "matches the effective go version -m module and version"
                 }
               }
             ]
@@ -1533321,7 +1533297,7 @@
         "error": ""
       },
       "reconciliation": {
-        "status": "partial",
+        "status": "mismatch",
         "go_version": {
           "status": "exact",
           "go_version_m": "go1.24.6 (Red Hat 1.24.6-1.module+el8.10.0+23407+428597c7) X:strictfipsruntime",
@@ -1538485,7 +1538461,7 @@
         ],
         "finding_statuses": {
           "exact": 52489,
-          "representation_difference": 154
+          "mismatch": 154
         },
         "sbom_statuses": {
           "exact": 152,
@@ -1539846,8 +1539822,8 @@
   "issues": [
     {
       "path": "/usr/local/bin/manager",
-      "stage": "reconciliation-difference",
-      "message": "finding stdlib@v1.24.6 versus stdlib@go1.24.6 (Red Hat 1.24.6-1.module+el8.10.0+23407+428597c7) X:strictfipsruntime: identifies the same Go release using a different version representation"
+      "stage": "reconciliation",
+      "message": "finding stdlib@v1.24.6: matches the effective go version -m module and version"
     }
   ],
   "stats": {

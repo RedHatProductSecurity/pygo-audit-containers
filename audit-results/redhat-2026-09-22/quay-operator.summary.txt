@@ -1,0 +1,14 @@
+Go binaries: 1
+CGO enabled: 1
+Complete vulnerability scans: 1
+Unique vulnerabilities: 14
+
+COMPONENTS
+github.com/go-jose/go-jose/v4@v4.0.5: CVE-2026-34986
+github.com/jackc/pgx/v5@v5.7.4: CVE-2026-33815, CVE-2026-33816, CVE-2026-41889
+golang.org/x/net@v0.43.0: CVE-2026-33814, CVE-2026-39821, CVE-2026-46600
+golang.org/x/text@v0.29.0: CVE-2026-56852
+stdlib@v1.26.4: CVE-2026-33818, CVE-2026-39821, CVE-2026-42505, CVE-2026-46600, CVE-2026-56853, CVE-2026-56859, CVE-2026-56860, CVE-2026-56862
+
+SCAN ISSUES
+/workspace/manager [reconciliation]: finding stdlib@v1.26.4: matches the effective go version -m module and version

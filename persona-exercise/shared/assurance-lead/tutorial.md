@@ -8,7 +8,7 @@ Run the examples from the repository root. Select the retained Argo CD
 content-addressed snapshot:
 
 ```bash
-SNAPSHOT='persona-exercise/snapshots/store/3c8370f7cbec63890b77c2a8d702dbaf83e4c6ae1e4a3b89e9b386bc52dab949.json'
+SNAPSHOT='persona-exercise/snapshots/argocd-deda478bd4d8/audit.json'
 ```
 
 Do not add `--output-dir` to these commands. Without it, `report` and `check`
@@ -225,7 +225,7 @@ This loop prints only the leading result section for each stored snapshot and
 does not write anything:
 
 ```bash
-for SNAPSHOT in persona-exercise/snapshots/store/*.json; do
+for SNAPSHOT in persona-exercise/snapshots/*/audit.json; do
   echo
   echo "=== ${SNAPSHOT##*/} ==="
   ./pygo-audit report overview "$SNAPSHOT" | sed -n '1,18p'

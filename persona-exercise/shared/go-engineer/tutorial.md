@@ -8,7 +8,7 @@ snapshot because it contains build metadata, CGO, vulnerability findings, effect
 dependency replacements, and reconciliation limitations:
 
 ```bash
-SNAPSHOT=persona-exercise/snapshots/store/29314403694c6ec4e24eff6ce0c8187040e1113356bd1135f8caa010296b17dd.json
+SNAPSHOT=persona-exercise/snapshots/gitops-operator-95aa28b8b04e/audit.json
 ```
 
 All commands below omit `--output-dir`, so they render to the terminal without writing
@@ -225,7 +225,7 @@ The Argo CD snapshot contains four Go binaries, making it useful for spotting ve
 drift:
 
 ```bash
-ARGO_SNAPSHOT=persona-exercise/snapshots/store/3c8370f7cbec63890b77c2a8d702dbaf83e4c6ae1e4a3b89e9b386bc52dab949.json
+ARGO_SNAPSHOT=persona-exercise/snapshots/argocd-deda478bd4d8/audit.json
 
 ./pygo-audit report json "$ARGO_SNAPSHOT" |
   jq '[.binaries[] | {

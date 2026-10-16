@@ -1,0 +1,13 @@
+Go binaries: 1
+CGO enabled: 1
+Complete vulnerability scans: 1
+Unique vulnerabilities: 12
+
+COMPONENTS
+golang.org/x/net@v0.55.0: CVE-2026-46600
+golang.org/x/text@v0.37.0: CVE-2026-56852
+google.golang.org/grpc@v1.79.3: CVE-2026-84304, CVE-2026-84445, GHSA-hrxh-6v49-42gf
+stdlib@v1.26.5: CVE-2026-33818, CVE-2026-39821, CVE-2026-46600, CVE-2026-56853, CVE-2026-56858, CVE-2026-56859, CVE-2026-56860, CVE-2026-56862
+
+SCAN ISSUES
+/usr/local/bin/dex [reconciliation]: finding stdlib@v1.26.5: matches the effective go version -m module and version
