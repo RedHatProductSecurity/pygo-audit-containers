@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+"""Emit aligned NAME IMAGE pairs from an OpenShift release payload."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "release", help="OpenShift release version or release image reference"
+    )
+    parser.add_argument(
+        "--output", type=Path, help="write the target list instead of printing it"
+    )
+    args = parser.parse_args(argv)
+    try:
+        completed = subprocess.run(
+            ["oc", "adm", "release", "info", args.release, "-o", "json"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        document = json.loads(completed.stdout)
+        version = document["metadata"]["version"]
+        tags = document["references"]["spec"]["tags"]
+        targets = [
+            (f"{tag['name']}-{version}", tag["from"]["name"]) for tag in tags
+        ]
+        if not targets:
+            raise ValueError("release contains no image references")
+        name_width = max(len(name) for name, _ in targets)
+        output = "".join(
+            f"{name:<{name_width}}  {image}\n" for name, image in targets
+        )
+        if args.output is None:
+            print(output, end="")
+        else:
+            args.output.write_text(output, encoding="utf-8")
+        return 0
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+        subprocess.CalledProcessError,
+    ) as error:
+        detail = (
+            error.stderr.strip()
+            if isinstance(error, subprocess.CalledProcessError)
+            else str(error)
+        )
+        print(f"gather-openshift-targets: {detail}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

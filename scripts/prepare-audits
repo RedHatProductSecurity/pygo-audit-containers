@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+"""Prepare container audit directories from a NAME IMAGE inventory."""
+
+from __future__ import annotations
+
+import argparse
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+
+@dataclass(frozen=True)
+class Target:
+    name: str
+    image: str
+
+
+def parse_targets(path: Path) -> list[Target]:
+    targets = []
+    names, images = set(), set()
+    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        fields = line.split()
+        if len(fields) != 2:
+            raise ValueError(f"line {number} must contain NAME and IMAGE")
+        name, image = fields
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", name):
+            raise ValueError(f"invalid target name on line {number}: {name}")
+        if name in names or image in images:
+            raise ValueError(f"duplicate name or image on line {number}")
+        names.add(name)
+        images.add(image)
+        targets.append(Target(name, image))
+    if not targets:
+        raise ValueError("target list is empty")
+    return targets
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("targets", type=Path, help="UTF-8 NAME IMAGE inventory")
+    parser.add_argument(
+        "audit_root",
+        type=Path,
+        nargs="?",
+        default=Path.cwd(),
+        metavar="BATCH_AUDIT_ROOT",
+    )
+    parser.add_argument("--platform", default="linux/amd64")
+    parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="validate and list destinations without writes or registry access",
+    )
+    args = parser.parse_args(argv)
+    try:
+        if args.workers < 1:
+            raise ValueError("workers must be positive")
+        targets = parse_targets(args.targets)
+        root = args.audit_root.absolute()
+        for target in targets:
+            destination = root / target.name
+            if destination.exists() or destination.is_symlink():
+                raise ValueError(f"destination already exists: {destination}")
+            print(f"{target.name}\t{target.image}\t{destination}")
+        if args.dry_run:
+            return 0
+        if root.is_symlink():
+            raise ValueError(f"batch root must not be a symlink: {root}")
+        root.mkdir(parents=True, exist_ok=True)
+        extractor = Path(__file__).with_name("extract-image-layers")
+
+        def prepare(target: Target) -> int:
+            return subprocess.run(
+                [
+                    sys.executable,
+                    str(extractor),
+                    target.image,
+                    str(root / target.name),
+                    "--platform",
+                    args.platform,
+                ],
+                check=False,
+            ).returncode
+
+        with ThreadPoolExecutor(max_workers=args.workers) as pool:
+            statuses = list(pool.map(prepare, targets))
+        return int(any(statuses))
+    except (OSError, ValueError) as error:
+        print(f"prepare-audits: {error}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
