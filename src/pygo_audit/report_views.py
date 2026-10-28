@@ -2,67 +2,101 @@
 
 from __future__ import annotations
 
+import re
+from collections import defaultdict
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass
-from typing import Iterable, Sequence
+from operator import attrgetter
 
-from pygo_audit.models import FindingOccurrence, ScanReport
+from pygo_audit.models import (
+    AuditReport,
+    BinaryReport,
+    CveEvidence,
+    DependencyReconciliationRow,
+    FindingOccurrence,
+    FindingSummary,
+    JsonModel,
+    ModuleReconciliation,
+    ReconciliationDiagnostic,
+    Vulnerability,
+)
+
+CVE_RE = re.compile(r"^CVE-(\d{4})-(\d+)$", re.IGNORECASE)
 
 
-VALID_GROUPS = frozenset({"container", "binary", "package", "vulnerability"})
+def normalize_cve(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    value = value.strip().upper()
+    return value if CVE_RE.fullmatch(value) else None
+
+
+def vulnerability_cves(vulnerability: Vulnerability) -> set[str]:
+    return {
+        cve
+        for value in (vulnerability.id, *vulnerability.aliases)
+        if (cve := normalize_cve(value)) is not None
+    }
+
+
+def index_cve_evidence(report: AuditReport) -> dict[str, CveEvidence]:
+    """Index original observations once, retaining advisories without findings."""
+    observations = defaultdict(list)
+    for binary, vulnerability in iter_binary_vulnerabilities(report):
+        for cve in vulnerability_cves(vulnerability):
+            observations[cve].append((binary, vulnerability))
+    return {
+        cve: CveEvidence(cve, tuple(items))
+        for cve, items in sorted(observations.items())
+    }
+
+
+def iter_binary_vulnerabilities(
+    report: AuditReport,
+) -> Iterator[tuple[BinaryReport, Vulnerability]]:
+    """Yield original evidence, including advisories without finding records."""
+    for binary in report.binaries:
+        for vulnerability in binary.vulnerability_scan.vulnerabilities:
+            yield binary, vulnerability
 
 
 @dataclass(slots=True, frozen=True)
-class FindingRecord:
-    """A human-scale finding with duplicate symbol observations consolidated."""
-
-    package: str
-    module: str
-    current_version: str
-    vulnerability: str
-    binary_paths: tuple[str, ...]
-    evidence: tuple[str, ...]
-
-
-@dataclass(slots=True, frozen=True)
-class CheckResult:
-    identifier: str
-    status: str
-    coverage: str
-    matches: tuple[FindingOccurrence, ...]
-
-    def to_dict(self) -> dict[str, object]:
-        return {
-            "identifier": self.identifier,
-            "status": self.status,
-            "coverage": self.coverage,
-            "matches": [match.to_dict() for match in self.matches],
-        }
+class CheckResult(JsonModel):
+    identifier: str  # Requested advisory identifier, retaining user spelling.
+    status: str  # Detected, not detected, no binaries, or indeterminate.
+    coverage: str  # Recorded scan coverage used to interpret missing matches.
+    matches: tuple[
+        FindingOccurrence, ...
+    ]  # Saved finding observations matching the requested identifier.
 
 
 def evaluate_checks(
-    report: ScanReport,
+    report: AuditReport,
     checks: Sequence[str],
 ) -> list[CheckResult]:
-    results = []
-    for identifier in requested_identifiers(checks):
-        matches = tuple(report.findings_for_identifier(identifier))
-        if matches:
-            status = "detected"
-        elif report.coverage_state == "complete":
-            status = "not_detected"
-        elif report.coverage_state == "no_go_binaries":
-            status = "no_go_binaries"
-        else:
-            status = "indeterminate"
-        results.append(
-            CheckResult(
-                identifier=identifier,
-                status=status,
-                coverage=report.coverage_state,
-                matches=matches,
-            )
+    requested = requested_identifiers(checks)
+    if not requested:
+        return []
+    coverage = report.coverage_state
+    missing_status = {
+        "complete": "not_detected",
+        "no_go_binaries": "no_go_binaries",
+    }.get(coverage, "indeterminate")
+    matches = {identifier.upper(): [] for identifier in requested}
+    for occurrence in report.finding_occurrences():
+        for identifier in {
+            value.upper() for value in occurrence.identifiers
+        } & matches.keys():
+            matches[identifier].append(occurrence)
+    return [
+        CheckResult(
+            identifier,
+            "detected" if matches[identifier.upper()] else missing_status,
+            coverage,
+            tuple(matches[identifier.upper()]),
         )
-    return results
+        for identifier in requested
+    ]
 
 
 def requested_identifiers(checks: Sequence[str]) -> list[str]:
@@ -78,86 +112,73 @@ def requested_identifiers(checks: Sequence[str]) -> list[str]:
     return requested
 
 
-def finding_records(
+def binary_occurrence_groups(
     occurrences: Iterable[FindingOccurrence],
-) -> list[FindingRecord]:
-    aggregated: dict[
-        tuple[str, str, str, str],
-        dict[str, set[str]],
-    ] = {}
+) -> list[tuple[FindingOccurrence, ...]]:
+    """Group vulnerability findings by the binary observation that produced them."""
+    grouped: dict[tuple[object, ...], list[FindingOccurrence]] = {}
     for occurrence in occurrences:
-        package = occurrence.package or "(unknown package)"
-        module = occurrence.module or "(unknown module)"
-        identifier = preferred_identifier(
-            occurrence.vulnerability_id,
-            occurrence.aliases,
+        key = (
+            occurrence.binary_paths,
+            occurrence.binary_symlinks,
+            occurrence.binary_sha256,
+            occurrence.runtime_disposition,
+            occurrence.layer_history,
         )
-        key = (package, module, occurrence.current_version, identifier)
-        values = aggregated.setdefault(
-            key,
-            {"binary_paths": set(), "evidence": set()},
+        grouped.setdefault(key, []).append(occurrence)
+    return [
+        tuple(sorted(values, key=_finding_result_key))
+        for _, values in sorted(
+            grouped.items(),
+            key=lambda item: (
+                min(item[0][0]),
+                item[0][2],
+                item[0][3] != "runtime",
+            ),
         )
-        values["binary_paths"].update(occurrence.binary_paths)
-        values["evidence"].add(occurrence.evidence or "unknown")
-
-    records = [
-        FindingRecord(
-            package=package,
-            module=module,
-            current_version=current_version,
-            vulnerability=vulnerability,
-            binary_paths=tuple(sorted(values["binary_paths"])),
-            evidence=tuple(sorted(values["evidence"])),
-        )
-        for (
-            package,
-            module,
-            current_version,
-            vulnerability,
-        ), values in aggregated.items()
     ]
-    records.sort(
-        key=lambda record: (
-            record.package,
-            record.module,
-            record.current_version,
-            record.vulnerability,
-            record.binary_paths,
+
+
+def _finding_result_key(occurrence: FindingOccurrence) -> tuple[object, ...]:
+    return (
+        occurrence.vulnerability_id,
+        tuple(sorted(occurrence.aliases)),
+        occurrence.advisory_url,
+        occurrence.module,
+        occurrence.current_version,
+        occurrence.fixed_version,
+        occurrence.package,
+        occurrence.evidence,
+        occurrence.reachability,
+    )
+
+
+def group_items[Item, Key](
+    items: Iterable[Item], key: Callable[[Item], Key]
+) -> list[tuple[Key, list[Item]]]:
+    """Group by an explicit identity, preserving observations within sorted groups."""
+    grouped = defaultdict(list)
+    for item in items:
+        grouped[key(item)].append(item)
+    return sorted(grouped.items())
+
+
+def vulnerability_occurrences(
+    report: AuditReport,
+) -> dict[str, list[FindingOccurrence]]:
+    """Index findings by the advisory identifier displayed in vulnerability reports."""
+    return dict(
+        group_items(
+            report.finding_occurrences(),
+            lambda item: preferred_identifier(item.vulnerability_id, item.aliases),
         )
     )
-    return records
-
-
-def group_occurrences(
-    report: ScanReport,
-    group_by: str,
-) -> dict[str, list[FindingOccurrence]]:
-    if group_by not in VALID_GROUPS:
-        raise ValueError(f"unsupported finding group: {group_by}")
-
-    grouped: dict[str, list[FindingOccurrence]] = {}
-    for occurrence in report.finding_occurrences():
-        if group_by == "container":
-            key = report.root
-        elif group_by == "binary":
-            key = min(occurrence.binary_paths)
-        elif group_by == "package":
-            key = occurrence.package or "(unknown package)"
-        else:
-            key = preferred_identifier(
-                occurrence.vulnerability_id,
-                occurrence.aliases,
-            )
-        grouped.setdefault(key, []).append(occurrence)
-    return {key: grouped[key] for key in sorted(grouped)}
 
 
 def preferred_identifier(
     identifier: str,
     aliases: Iterable[str],
 ) -> str:
-    identifiers = list(dict.fromkeys((identifier, *aliases)))
-
     def priority(value: str) -> int:
         if value.startswith("CVE-"):
             return 0
@@ -167,8 +188,238 @@ def preferred_identifier(
             return 2
         return 3
 
-    ordered = sorted(
-        enumerate(identifiers),
-        key=lambda item: (priority(item[1]), item[0]),
+    return min((identifier, *aliases), key=priority)
+
+
+def finding_summaries(report: AuditReport) -> list[FindingSummary]:
+    """Collapse repeated symbol observations into review-sized groups."""
+    return summarize_findings(report.finding_occurrences())
+
+
+def summarize_findings(
+    occurrences: Iterable[FindingOccurrence],
+) -> list[FindingSummary]:
+    """Collapse finding observations without requiring their parent report."""
+
+    def key(item: FindingOccurrence) -> tuple[str, str, str, str, str]:
+        return (
+            preferred_identifier(item.vulnerability_id, item.aliases),
+            item.package or "(unknown package)",
+            item.module or "(unknown module)",
+            item.current_version,
+            item.fixed_version,
+        )
+
+    return [
+        FindingSummary(
+            *identity,
+            aliases={alias for item in items for alias in item.identifiers}
+            - {identity[0]},
+            advisory_urls={item.advisory_url for item in items if item.advisory_url},
+            evidence={item.evidence or "unknown" for item in items},
+            reachability={item.reachability or "unspecified" for item in items},
+            observation_count=len(items),
+        )
+        for identity, items in group_items(occurrences, key)
+    ]
+
+
+def dependency_reconciliation_rows(
+    binary: BinaryReport,
+) -> tuple[
+    list[DependencyReconciliationRow],
+    list[ModuleReconciliation],
+]:
+    rows_by_entry = {
+        entry: DependencyReconciliationRow(entry)
+        for entry in binary.reconciliation.effective_module_inventory
+    }
+    unmatched_observations: list[ModuleReconciliation] = []
+    for result in binary.reconciliation.sbom_modules:
+        if result.inventory_entry is None:
+            unmatched_observations.append(result)
+            continue
+        row = rows_by_entry.setdefault(
+            result.inventory_entry,
+            DependencyReconciliationRow(result.inventory_entry),
+        )
+        row.observations.append(result)
+
+    for vulnerability in binary.vulnerability_scan.vulnerabilities:
+        identifier = preferred_identifier(vulnerability.id, vulnerability.aliases)
+        for finding in vulnerability.findings:
+            reconciliation = finding.reconciliation
+            if reconciliation is None or reconciliation.inventory_entry is None:
+                continue
+            row = rows_by_entry.setdefault(
+                reconciliation.inventory_entry,
+                DependencyReconciliationRow(reconciliation.inventory_entry),
+            )
+            row.vulnerable_findings.append((identifier, finding))
+
+    rows = sorted(
+        rows_by_entry.values(),
+        key=attrgetter(
+            "entry.effective_path", "entry.effective_version", "entry.declared_path"
+        ),
     )
-    return ordered[0][1]
+    unmatched_observations.sort(
+        key=attrgetter("govulncheck_path", "govulncheck_version", "status")
+    )
+    return rows, unmatched_observations
+
+
+def dependency_row_status(row: DependencyReconciliationRow) -> str:
+    if not row.observations:
+        return "UNVERIFIABLE"
+    observed = [result for result in row.observations if result.govulncheck_path]
+    if not observed:
+        return "MISSING FROM SBOM"
+    statuses = {result.status for result in observed}
+    if "mismatch" in statuses:
+        return "VERSION MISMATCH"
+    if "unverifiable" in statuses:
+        return "UNVERIFIABLE"
+    if "representation_difference" in statuses:
+        return "MATCHED WITH DIFFERENCES"
+    if "replacement" in statuses:
+        return "MATCHED (REPLACEMENT)"
+    if statuses <= {"exact", "stdlib"}:
+        return "MATCHED"
+    return ", ".join(sorted(status.upper() for status in statuses))
+
+
+def reconciliation_diagnostics(
+    report: AuditReport,
+) -> tuple[list[ReconciliationDiagnostic], list[ReconciliationDiagnostic]]:
+    """Group original outcomes, keeping limitations and differences distinct."""
+    grouped = {}
+
+    def add(key: tuple, diagnostic: ReconciliationDiagnostic, source: str) -> None:
+        item = grouped.setdefault(key, diagnostic)
+        item.sources.add(source)
+        if all(existing is not binary for existing in item.binaries):
+            item.binaries.append(binary)
+
+    go_descriptions = {
+        "unverifiable": (
+            "The Go toolchain version could not be verified between "
+            "go version -m and govulncheck."
+        ),
+        "mismatch": "The Go toolchain versions reported by go version -m and govulncheck differ.",
+        "representation_difference": "The tools identify the same Go release using different version representations.",
+    }
+    for binary in sorted(report.binaries, key=lambda item: min(item.paths)):
+        reconciliation = binary.reconciliation
+        status = reconciliation.go_version_status
+        if status in go_descriptions:
+            add(
+                (
+                    "go_toolchain",
+                    status,
+                    reconciliation.go_version_m,
+                    reconciliation.govulncheck_go_version,
+                ),
+                ReconciliationDiagnostic(
+                    status,
+                    "GO_VERSION_MISSING"
+                    if status == "unverifiable"
+                    else status.upper(),
+                    "go_toolchain",
+                    reconciliation.go_version_m or "(not reported)",
+                    "",
+                    reconciliation.govulncheck_go_version or "(not reported)",
+                    go_descriptions[status],
+                ),
+                "Go toolchain",
+            )
+        observations = [
+            ("govulncheck SBOM", item) for item in reconciliation.sbom_modules
+        ]
+        observations.extend(
+            ("vulnerability finding", finding.reconciliation)
+            for vulnerability in binary.vulnerability_scan.vulnerabilities
+            for finding in vulnerability.findings
+            if finding.reconciliation is not None
+        )
+        for source, component in observations:
+            if component.status not in go_descriptions:
+                continue
+            inventory = component.inventory_entry
+            reason = (
+                component_limitation_reason(
+                    component,
+                    sbom_missing=source == "govulncheck SBOM"
+                    and binary.vulnerability_scan.sbom is None,
+                )
+                if component.status == "unverifiable"
+                else component.status.upper()
+            )
+            add(
+                ("component", component, reason),
+                ReconciliationDiagnostic(
+                    component.status,
+                    reason,
+                    "component",
+                    component_label(inventory.declared_path, inventory.declared_version)
+                    if inventory
+                    else "",
+                    component_label(
+                        inventory.effective_path, inventory.effective_version
+                    )
+                    if inventory
+                    else "",
+                    component_label(
+                        component.govulncheck_path, component.govulncheck_version
+                    ),
+                    component.detail
+                    or (
+                        "The component version could not be verified."
+                        if component.status == "unverifiable"
+                        else "The observed component differs from the embedded build metadata."
+                    ),
+                ),
+                source,
+            )
+    items = sorted(
+        grouped.values(),
+        key=attrgetter(
+            "reason", "kind", "effective", "observed", "declared", "description"
+        ),
+    )
+    return (
+        [item for item in items if item.status == "unverifiable"],
+        [item for item in items if item.status != "unverifiable"],
+    )
+
+
+def component_limitation_reason(
+    component: ModuleReconciliation, *, sbom_missing: bool
+) -> str:
+    """Classify why a component comparison is unverifiable."""
+    if (
+        sbom_missing
+        and not component.govulncheck_path
+        and component.inventory_entry is None
+    ):
+        return "NO_SBOM"
+    if not component.govulncheck_path:
+        return "MODULE_PATH_MISSING"
+
+    inventory = component.inventory_entry
+    versions = [component.govulncheck_version]
+    if inventory is not None:
+        versions.extend((inventory.declared_version, inventory.effective_version))
+    if any(version in {"devel", "(devel)"} for version in versions):
+        return "DEVELOPMENT_VERSION"
+    if inventory is None or not inventory.effective_version:
+        return "DECLARED_VERSION_MISSING"
+    if not component.govulncheck_version:
+        return "OBSERVED_VERSION_MISSING"
+    return "VERSION_UNVERIFIABLE"
+
+
+def component_label(path: str, version: str) -> str:
+    if not path:
+        return "(not reported)"
+    return f"{path}@{version}" if version else path

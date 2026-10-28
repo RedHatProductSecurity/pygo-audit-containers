@@ -2,92 +2,111 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from dataclasses import dataclass
 import json
-from typing import Sequence
+from typing import Mapping, Sequence
 
-from pygo_audit.models import ScanReport
-from pygo_audit.report_views import (
-    VALID_GROUPS,
-    evaluate_checks,
-    group_occurrences,
-)
+from pygo_audit.models import AuditReport
+from pygo_audit.comparison import VulnerabilityPriority
+from pygo_audit.report_views import evaluate_checks
 from pygo_audit.text_report import (
     render_binaries,
-    render_check_result,
+    render_by_vulnerability,
+    render_check_results,
     render_checks,
     render_diagnostics,
-    render_findings,
-    render_grouped,
+    render_module_reconciliation,
     render_overview,
 )
+from pygo_audit.text_layout import RenderPolicy, SUMMARY_POLICY, FULL_POLICY
+
+
+@dataclass(slots=True, frozen=True)
+class ReportView:
+    """Bind one CLI view to its deterministic artifact renderer."""
+
+    name: str
+    filename: str
+    renderer: Callable[[AuditReport, RenderPolicy], str]
+    json: bool = False
+
+    def render(
+        self,
+        report: AuditReport,
+        policy: RenderPolicy = SUMMARY_POLICY,
+        *,
+        priorities: Mapping[str, VulnerabilityPriority] | None = None,
+    ) -> str:
+        if self.name == "binary-findings":
+            return render_binaries(report, policy, priorities=priorities)
+        return self.renderer(report, policy)
 
 
 def render_json(
-    report: ScanReport,
+    report: AuditReport,
     *,
-    group_by: str | None = None,
     checks: Sequence[str] = (),
 ) -> str:
-    if group_by not in {None, *VALID_GROUPS}:
-        raise ValueError(f"unsupported finding group: {group_by}")
     document = report.to_dict()
-    if group_by or checks:
+    if checks:
         document["query"] = {
-            "group_by": group_by,
             "result": report.result_state,
             "coverage": {
                 "state": report.coverage_state,
                 "complete": report.complete_vulnerability_scans,
                 "incomplete": report.incomplete_vulnerability_scans,
             },
-            "groups": _json_groups(report, group_by),
-            "checks": [
-                result.to_dict() for result in evaluate_checks(report, checks)
-            ],
+            "checks": [result.to_dict() for result in evaluate_checks(report, checks)],
         }
     return json.dumps(document, indent=2, ensure_ascii=True)
 
 
-def render_container(report: ScanReport) -> str:
-    """Render visually grouped, container-level findings."""
-    return render_findings(report)
+def render_json_view(report: AuditReport, policy: RenderPolicy) -> str:
+    return render_json(report)
 
 
-def render_summary(report: ScanReport) -> str:
-    """Render a compact but complete vulnerability overview."""
-    return render_overview(report)
+REPORT_VIEWS = {
+    view.name: view
+    for view in (
+        ReportView("overview", "overview.txt", render_overview),
+        ReportView("binary-findings", "binary-findings.txt", render_binaries),
+        ReportView(
+            "vulnerability-findings",
+            "vulnerability-findings.txt",
+            render_by_vulnerability,
+        ),
+        ReportView(
+            "module-reconciliation",
+            "module-reconciliation.txt",
+            render_module_reconciliation,
+        ),
+        ReportView("diagnostics", "diagnostics.txt", render_diagnostics),
+        ReportView(
+            "json", "audit.json", render_json_view, json=True
+        ),  # Publish canonical evidence last.
+    )
+}
 
 
-def render_text(report: ScanReport) -> str:
-    """Render complete findings organized by binary."""
-    return render_binaries(report)
-
-
-def _json_groups(
-    report: ScanReport,
-    group_by: str | None,
-) -> list[dict[str, object]]:
-    if group_by is None:
-        return []
-    return [
-        {
-            "key": key,
-            "findings": [occurrence.to_dict() for occurrence in occurrences],
-        }
-        for key, occurrences in group_occurrences(report, group_by).items()
-    ]
+def render_full_report(report: AuditReport) -> str:
+    """Compose exhaustive text views using the same registry as saved reports."""
+    return "\n\n".join(
+        view.render(report, FULL_POLICY)
+        for view in REPORT_VIEWS.values()
+        if not view.json
+    )
 
 
 __all__ = [
+    "render_full_report",
+    "REPORT_VIEWS",
     "render_binaries",
-    "render_check_result",
+    "render_by_vulnerability",
+    "render_check_results",
     "render_checks",
-    "render_container",
     "render_diagnostics",
-    "render_findings",
-    "render_grouped",
+    "render_module_reconciliation",
     "render_json",
     "render_overview",
-    "render_summary",
-    "render_text",
 ]

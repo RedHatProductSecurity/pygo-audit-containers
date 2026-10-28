@@ -133,8 +133,36 @@ class GovulncheckJsonTests(unittest.TestCase):
         self.assertEqual(len(vulnerability.findings), 1)
         self.assertEqual(vulnerability.findings[0].evidence, "symbol")
         self.assertEqual(vulnerability.findings[0].symbol, "Decoder.Decode")
+        self.assertEqual(vulnerability.findings[0].to_dict()["symbol"], "Decoder.Decode")
         self.assertEqual(vulnerability.affected[0]["packages"][0]["goos"], ["linux"])
         self.assertNotIn("summary", vulnerability.to_dict())
+
+    def test_preserves_distinct_observed_symbols_and_deduplicates_repeated_traces(
+        self,
+    ) -> None:
+        messages = [{"config": {"scan_level": "symbol"}}]
+        for function in ("Encode", "Decode", "Encode"):
+            messages.append(
+                {
+                    "finding": {
+                        "osv": "GO-2026-0001",
+                        "trace": [
+                            {
+                                "module": "example.test/library",
+                                "package": "example.test/library/parser",
+                                "receiver": "Decoder",
+                                "function": function,
+                            }
+                        ],
+                    }
+                }
+            )
+        scan = parse_govulncheck_json("\n".join(map(json.dumps, messages)))
+        self.assertEqual(len(scan.vulnerabilities), 1)
+        self.assertEqual(
+            [finding.symbol for finding in scan.vulnerabilities[0].findings],
+            ["Decoder.Decode", "Decoder.Encode"],
+        )
 
 
 if __name__ == "__main__":

@@ -7,10 +7,25 @@ from pathlib import Path
 import re
 
 from pygo_audit.models import ImageIdentity
+from pygo_audit.storage import atomic_read_json
 
 
 DEFAULT_METADATA_NAME = ".pygo-audit-image.json"
 _DIGEST = re.compile(r"^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[0-9a-fA-F]{32,}$")
+
+SIDECAR_FIELDS = {
+    "image-ref": "reference",
+    "image-digest": "digest",
+    "platform": "platform",
+    "extractor": "extractor",
+    "image-name": "name",
+    "image-component": "component",
+    "source-git-url": "source_git_url",
+    "product-version": "product_version",
+    "component-version": "component_version",
+    "product-component": "product_component",
+    "cpe": "cpe",
+}
 
 
 class ImageIdentityError(ValueError):
@@ -25,11 +40,18 @@ def resolve_image_identity(
     digest: str | None = None,
     platform: str | None = None,
     extractor: str | None = None,
+    name: str | None = None,
+    component: str | None = None,
+    source_git_url: str | None = None,
+    product_version: str | None = None,
+    component_version: str | None = None,
+    product_component: str | None = None,
+    cpe: str | None = None,
 ) -> ImageIdentity:
     """Load optional sidecar metadata and apply explicit CLI overrides."""
     path = metadata_path
     if path is None:
-        default_path = Path(root) / DEFAULT_METADATA_NAME
+        default_path = Path(root).parent / DEFAULT_METADATA_NAME
         if default_path.exists():
             path = default_path
 
@@ -42,24 +64,23 @@ def resolve_image_identity(
         "digest": digest,
         "platform": platform,
         "extractor": extractor,
+        "name": name,
+        "component": component,
+        "source_git_url": source_git_url,
+        "product_version": product_version,
+        "component_version": component_version,
+        "product_component": product_component,
+        "cpe": cpe,
     }
-    values.update(
-        {key: value for key, value in overrides.items() if value is not None}
-    )
-    identity = ImageIdentity(
-        reference=values.get("reference", ""),
-        digest=values.get("digest", ""),
-        platform=values.get("platform", ""),
-        extractor=values.get("extractor", ""),
-    )
+    values.update({key: value for key, value in overrides.items() if value is not None})
+    identity = ImageIdentity(**values)
     _validate_identity(identity)
     return identity
 
 
 def _read_metadata(path: Path) -> dict[str, str]:
     try:
-        with path.open(encoding="utf-8") as metadata_file:
-            value = json.load(metadata_file)
+        value = atomic_read_json(path)
     except FileNotFoundError as error:
         raise ImageIdentityError(f"image metadata does not exist: {path}") from error
     except json.JSONDecodeError as error:
@@ -74,24 +95,30 @@ def _read_metadata(path: Path) -> dict[str, str]:
     if not isinstance(value, dict):
         raise ImageIdentityError(f"image metadata must be a JSON object: {path}")
 
-    result = {}
-    for key in ("reference", "digest", "platform", "extractor"):
-        item = value.get(key, "")
+    unknown_keys = sorted(set(value) - set(SIDECAR_FIELDS))
+    if unknown_keys:
+        formatted = ", ".join(repr(key) for key in unknown_keys)
+        raise ImageIdentityError(
+            "image metadata contains unknown fields; use scan option names: "
+            f"{formatted}"
+        )
+
+    result: dict[str, str] = {}
+    for sidecar_key, item in value.items():
+        identity_key = SIDECAR_FIELDS[sidecar_key]
         if not isinstance(item, str):
-            raise ImageIdentityError(f"image metadata field {key!r} must be a string")
-        result[key] = item
+            raise ImageIdentityError(
+                f"image metadata field {sidecar_key!r} must be a string"
+            )
+        result[identity_key] = item
     return result
 
 
 def _validate_identity(identity: ImageIdentity) -> None:
     if identity.digest and _DIGEST.fullmatch(identity.digest) is None:
-        raise ImageIdentityError(
-            "image digest must use the OCI algorithm:hex form"
-        )
+        raise ImageIdentityError("image digest must use the OCI algorithm:hex form")
     if identity.platform and (
         "/" not in identity.platform
         or any(character.isspace() for character in identity.platform)
     ):
-        raise ImageIdentityError(
-            "image platform must use the OS/architecture form"
-        )
+        raise ImageIdentityError("image platform must use the OS/architecture form")

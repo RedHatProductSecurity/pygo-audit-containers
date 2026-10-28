@@ -53,9 +53,8 @@ class ReconciliationTests(unittest.TestCase):
             ],
         )
 
-        mismatches = reconcile_binary(binary)
+        reconcile_binary(binary)
 
-        self.assertEqual(mismatches, [])
         self.assertEqual(binary.reconciliation.status, "matched")
         statuses = [
             finding.reconciliation.status
@@ -91,22 +90,33 @@ class ReconciliationTests(unittest.TestCase):
                 ],
                 "roots": ["example.test/app"],
             },
-            vulnerabilities=[
-                Vulnerability(id="GO-2026-0002", findings=[finding])
-            ],
+            vulnerabilities=[Vulnerability(id="GO-2026-0002", findings=[finding])],
         )
 
-        mismatches = reconcile_binary(binary)
+        reconcile_binary(binary)
 
         self.assertEqual(binary.reconciliation.status, "mismatch")
         retained = binary.vulnerability_scan.vulnerabilities[0].findings[0]
         self.assertEqual(retained.module, "example.test/unknown")
         self.assertIsNotNone(retained.reconciliation)
         self.assertEqual(retained.reconciliation.status, "mismatch")
-        self.assertTrue(any("Go version differs" in item for item in mismatches))
-        self.assertTrue(any("finding example.test/unknown" in item for item in mismatches))
-        self.assertTrue(any("SBOM example.test/extra" in item for item in mismatches))
-        self.assertTrue(any("SBOM missing example.test/library" in item for item in mismatches))
+        self.assertEqual(binary.reconciliation.go_version_status, "mismatch")
+        mismatches = {
+            item.govulncheck_path: item
+            for item in binary.reconciliation.sbom_modules
+            if item.govulncheck_path
+        }
+        self.assertEqual(mismatches["example.test/extra"].status, "mismatch")
+        self.assertEqual(mismatches["stdlib"].status, "mismatch")
+        self.assertIn("versions differ", mismatches["stdlib"].detail)
+        self.assertTrue(
+            any(
+                not item.govulncheck_path
+                and item.inventory_entry.declared_path == "example.test/library"
+                for item in binary.reconciliation.sbom_modules
+                if item.inventory_entry is not None
+            )
+        )
 
     def test_marks_development_versions_unverifiable_without_an_issue(self) -> None:
         binary = BinaryReport(
@@ -131,10 +141,9 @@ class ReconciliationTests(unittest.TestCase):
             ),
         )
 
-        mismatches = reconcile_binary(binary)
+        reconcile_binary(binary)
 
-        self.assertEqual(mismatches, [])
-        self.assertEqual(binary.reconciliation.status, "partial")
+        self.assertEqual(binary.reconciliation.status, "limited")
         self.assertEqual(binary.reconciliation.sbom_statuses["unverifiable"], 1)
 
     def test_reports_equivalent_standard_library_version_representations(self) -> None:
@@ -168,7 +177,7 @@ class ReconciliationTests(unittest.TestCase):
             ),
         )
 
-        differences = reconcile_binary(binary)
+        reconcile_binary(binary)
 
         self.assertEqual(binary.reconciliation.status, "matched_with_differences")
         finding = binary.vulnerability_scan.vulnerabilities[0].findings[0]
@@ -182,10 +191,7 @@ class ReconciliationTests(unittest.TestCase):
             "go1.26.8",
         )
         self.assertEqual(finding.reconciliation.govulncheck_version, "v1.26.8")
-        self.assertTrue(
-            any("same Go release" in difference for difference in differences)
-        )
-        self.assertFalse(any("mismatch" in difference for difference in differences))
+        self.assertIn("same Go release", finding.reconciliation.detail)
 
     @staticmethod
     def _binary() -> BinaryReport:

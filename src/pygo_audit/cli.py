@@ -1,415 +1,435 @@
-"""Command-line interface for pygo-audit."""
-
-from __future__ import annotations
+"""Define options once, resolve workspace settings, and dispatch commands."""
 
 import argparse
+import math
 from pathlib import Path
 import sys
+from uuid import uuid4
 
-from pygo_audit import __version__
-from pygo_audit.artifacts import (
-    ArtifactError,
-    validate_artifact_directory,
-    write_artifacts,
-    write_check_artifacts,
-)
-from pygo_audit.identity import ImageIdentityError, resolve_image_identity
-from pygo_audit.models import ScanReport
-from pygo_audit.report import (
-    render_checks,
-    render_container,
-    render_diagnostics,
-    render_grouped,
-    render_json,
-    render_summary,
-    render_text,
-)
-from pygo_audit.scanner import ScanConfigurationError, scan_root
-from pygo_audit.snapshot import SnapshotError, load_snapshot, write_snapshot
+from pygo_audit import __version__, aggregate, batch, comparison, csaf, report
+from pygo_audit.artifacts import write_check_artifacts, write_report_artifacts
+from pygo_audit.audit import load_audit
+from pygo_audit.identity import SIDECAR_FIELDS, resolve_image_identity
+from pygo_audit.models import AuditReport
+from pygo_audit.result_cache import ResultCacheError
+from pygo_audit.text_layout import RenderPolicy, Verbosity
+from pygo_audit.scanner import ScanConfigurationError
+from pygo_audit.storage import atomic_read_json
+from pygo_audit.workspace import scan_workspace
 
-
-def build_scan_parser(*, prog: str = "pygo-audit scan") -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        prog=prog,
-        description=(
-            "Scan Go dependencies and known vulnerabilities embedded in an "
-            "unpacked container rootfs."
-        ),
-    )
-    parser.add_argument(
-        "root",
-        type=Path,
-        nargs="?",
-        default=Path("sandbox"),
-        help="unpacked container root directory (default: ./sandbox)",
-    )
-    _add_output_directory_argument(parser)
-    parser.add_argument(
-        "--go",
-        default="go",
-        metavar="PATH",
-        help="Go command to use (default: go on PATH)",
-    )
-    parser.add_argument(
-        "--govulncheck",
-        default="govulncheck",
-        metavar="PATH",
-        help="govulncheck command to use (default: govulncheck on PATH)",
-    )
-    parser.add_argument(
-        "--no-vulncheck",
-        action="store_true",
-        help="report build information without running vulnerability checks",
-    )
-    parser.add_argument(
-        "--timeout",
-        type=_positive_float,
-        default=30.0,
-        metavar="SECONDS",
-        help="timeout for each inspection command (default: 30)",
-    )
-    parser.add_argument(
-        "--jobs",
-        type=_positive_integer,
-        default=4,
-        metavar="COUNT",
-        help="maximum concurrent binary inspections (default: 4)",
-    )
-    parser.add_argument(
-        "--strict",
-        action="store_true",
-        help="exit with status 1 when the completed scan has actionable issues",
-    )
-    parser.add_argument(
-        "--snapshot-dir",
-        type=Path,
-        metavar="PATH",
-        help="content-addressed store for the immutable scan snapshot",
-    )
-    parser.add_argument(
-        "--image-metadata",
-        type=Path,
-        metavar="PATH",
-        help="image identity sidecar (default: ROOT/.pygo-audit-image.json)",
-    )
-    parser.add_argument(
-        "--image-ref",
-        dest="image_reference",
-        metavar="REFERENCE",
-        help="original image reference",
-    )
-    parser.add_argument(
-        "--image-digest",
-        metavar="DIGEST",
-        help="resolved OCI manifest digest",
-    )
-    parser.add_argument(
-        "--platform",
-        metavar="OS/ARCH",
-        help="selected image platform",
-    )
-    parser.add_argument(
-        "--extractor",
-        metavar="TOOL",
-        help="tool used to produce the unpacked root",
-    )
-    parser.add_argument(
-        "--version",
-        action="version",
-        version=f"%(prog)s {__version__}",
-    )
-    return parser
+CONFIG_NAME = "pygo-audit.json"
+# Each entry defines the value type, workspace default, and CLI help together.
+OPTIONS: dict[str, tuple[type, object, str]] = {
+    "rootfs": (Path, "rootfs", "prepared container filesystem"),
+    "layers_dir": (Path, "layers", "discover children of this layer directory"),
+    "layer_dir": (Path, [], "repeat in known oldest-to-newest order"),
+    "layers": (bool, True, "include historical layers"),
+    "layer_sort": (
+        str,
+        "lexicographic",
+        "order discovered layer names; does not establish chronology",
+    ),
+    "output_dir": (Path, ".", "directory for generated reports"),
+    "history_dir": (Path, "history", "directory for previous audits"),
+    "cache_dir": (Path, "cache", "shared binary cache directory"),
+    "work_dir": (Path, "work", "temporary and failed-scan evidence directory"),
+    "audit_file": (Path, "audit.json", "select current or previous audit JSON"),
+    "csaf": (Path, ["csaf"], "local advisory files or directories"),
+    "targets": (Path, None, "list of immediate child directory names"),
+    "go": (str, "go", "host Go executable"),
+    "govulncheck": (
+        str,
+        "govulncheck",
+        "host govulncheck executable; checks each distinct Go binary in binary mode",
+    ),
+    "vulncheck": (bool, True, "run binary vulnerability checks"),
+    "timeout": (float, 30.0, "seconds per inspection command"),
+    "jobs": (int, 4, "concurrent binary inspections or aggregate CSAF workers"),
+    "workers": (int, 4, "concurrent container scans"),
+    "strict": (bool, False, "fail on actionable scan issues; audit defaults to strict"),
+    "fail_fast": (bool, False, "cancel queued containers after a failure"),
+    "image_metadata": (Path, None, "container identity JSON file"),
+    **{
+        name.replace("-", "_"): (str, None, f"container {field.replace('_', ' ')}")
+        for name, field in SIDECAR_FIELDS.items()
+    },
+}
+DEFAULTS = {name: definition[1] for name, definition in OPTIONS.items()}
+SCAN_OPTIONS = [
+    name
+    for name in OPTIONS
+    if name not in ("audit_file", "csaf", "targets", "workers", "fail_fast")
+]
+COMMANDS = {
+    "scan": ("scan a prepared container and save findings", SCAN_OPTIONS),
+    "report": (
+        "render current or previous findings",
+        "audit_file output_dir strict".split(),
+    ),
+    "audit": (
+        "scan prepared child container directories",
+        SCAN_OPTIONS + "targets workers fail_fast".split(),
+    ),
+    "aggregate": (
+        "summarize saved container audits in text and JSON",
+        "output_dir csaf jobs".split(),
+    ),
+    "check": (
+        "check saved evidence for specific vulnerabilities",
+        "audit_file output_dir strict".split(),
+    ),
+    "csaf": (
+        "compare saved findings with local CSAF documents",
+        "audit_file csaf output_dir".split(),
+    ),
+}
+LAYER_SORTS = ("lexicographic", "numeric")
 
 
-def build_report_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        prog="pygo-audit report",
-        description="Render a view of a previously stored scan snapshot.",
+def normalize(values: dict[str, object], base: Path) -> dict[str, object]:
+    """Validate settings and resolve paths relative to their source."""
+    result = {}
+    for name, value in values.items():
+        kind, default, _ = OPTIONS[name]
+        if value is None:
+            if default is not None:
+                raise ValueError(f"{name} must not be null")
+            result[name] = None
+            continue
+        multiple = isinstance(default, list)
+        if multiple and not isinstance(value, list):
+            raise ValueError(f"{name} must contain a list of paths")
+        items = value if isinstance(value, list) and multiple else [value]
+        converted = []
+        for item in items:
+            if kind is Path:
+                if not isinstance(item, (str, Path)) or not str(item):
+                    raise ValueError(f"{name} must contain nonempty paths")
+                item = (base / item).absolute()
+            elif kind in (int, float):
+                if (
+                    not isinstance(item, (int, float))
+                    or isinstance(item, bool)
+                    or item <= 0
+                    or not math.isfinite(item)
+                ):
+                    raise ValueError(f"{name} must be positive and finite")
+                if kind is int and not isinstance(item, int):
+                    raise ValueError(f"{name} must be an integer")
+            elif not isinstance(item, kind):
+                raise ValueError(f"{name} must be a {kind.__name__}")
+            if name in {"go", "govulncheck"} and isinstance(item, str) and "/" in item:
+                item = str((base / item).absolute())
+            converted.append(item)
+        result[name] = converted if multiple else converted[0]
+    if "layer_sort" in result and result["layer_sort"] not in LAYER_SORTS:
+        raise ValueError("layer-sort must be lexicographic or numeric")
+    if result.get("layer_dir") and "layers_dir" in result:
+        raise ValueError("layer-dir and layers-dir are mutually exclusive")
+    return result
+
+
+def read_settings(root: Path) -> dict[str, object]:
+    path = root / CONFIG_NAME
+    if path.is_symlink():
+        raise ValueError(f"workspace settings must not be a symlink: {path}")
+    if not path.exists():
+        return {}
+    document = atomic_read_json(path)
+    if not isinstance(document, dict):
+        raise ValueError(f"workspace settings must be an object: {path}")
+    unknown = set(document) - {name.replace("_", "-") for name in OPTIONS}
+    if unknown:
+        raise ValueError(
+            f"unknown workspace settings in {path}: {', '.join(sorted(unknown))}"
+        )
+    return normalize(
+        {key.replace("-", "_"): value for key, value in document.items()}, root
     )
-    views = parser.add_subparsers(dest="view", metavar="VIEW", required=True)
-    for view, help_text in (
-        ("overview", "show result, coverage, packages, and vulnerabilities"),
-        ("findings", "show container findings and supporting evidence"),
-        ("binaries", "show per-binary findings and declared dependencies"),
-        ("diagnostics", "show scan issues and reconciliation details"),
-        ("json", "show the complete machine-readable snapshot"),
+
+
+def resolve_settings(
+    root: Path,
+    overrides: dict[str, object] | None = None,
+    inherited: dict[str, object] | None = None,
+) -> argparse.Namespace:
+    """CLI > container sidecar > batch settings > defaults."""
+    root = root.absolute()
+    result = normalize(DEFAULTS, root)
+    explicit = normalize(
+        {
+            key: value
+            for key, value in (overrides or {}).items()
+            if key in OPTIONS and value is not None
+        },
+        Path.cwd(),
+    )
+    configured = {}
+    for values in (inherited or {}, read_settings(root), explicit):
+        if "layers_dir" in values:
+            result["layer_dir"] = []
+        if "layer_dir" in values:
+            result["layers"] = True
+        result.update(values)
+        configured.update(values)
+    return argparse.Namespace(**result, configured=configured, audit_root=root)
+
+
+def discover_audits(root: Path, targets: Path | None = None) -> list[Path]:
+    if root.is_symlink() or not root.is_dir():
+        raise ValueError(f"audit root must be a directory, not a symlink: {root}")
+    if targets is None:
+        directories = [
+            path
+            for path in sorted(root.iterdir())
+            if path.is_dir()
+            and (
+                (path / "rootfs").exists()
+                or (path / CONFIG_NAME).exists()
+                or (path / "audit.json").is_file()
+            )
+        ]
+    else:
+        names = [
+            line.strip()
+            for line in targets.read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+        if len(names) != len(set(names)):
+            raise ValueError("target list contains duplicate directories")
+        if any(Path(name).name != name or name in {".", ".."} for name in names):
+            raise ValueError("targets must be immediate child directory names")
+        directories = [root / name for name in names]
+    if not directories:
+        raise ValueError(f"no container audit directories found under {root}")
+    for path in directories:
+        if path.is_symlink() or not path.is_dir():
+            raise ValueError(
+                f"target must be an existing directory, not a symlink: {path}"
+            )
+    return directories
+
+
+def resolve_audit_settings(
+    root: Path | None = None, overrides: dict[str, object] | None = None
+) -> argparse.Namespace:
+    """Resolve saved evidence and its workspace from a directory or audit file."""
+    explicit = dict(overrides or {})
+    if root is not None and (
+        root.is_file() or (root.suffix == ".json" and not root.is_dir())
     ):
-        view_parser = views.add_parser(view, help=help_text)
-        _add_snapshot_argument(view_parser)
-        _add_output_directory_argument(view_parser)
-        _add_strict_argument(view_parser)
-        if view in {"findings", "json"}:
-            _add_grouping_argument(view_parser)
-    return parser
+        explicit["audit_file"] = explicit.get("audit_file") or root
+        root = None
+    selected = explicit.get("audit_file")
+    if selected is not None and root is None:
+        root = Path(selected).absolute().parent
+        if root.name == "history":
+            root = root.parent
+    return resolve_settings(root or Path.cwd(), explicit)
 
 
-def build_check_parser() -> argparse.ArgumentParser:
+def use_default_reports_directory(settings: argparse.Namespace) -> None:
+    """Keep generated comparisons out of the audit workspace root."""
+    if "output_dir" not in settings.configured:
+        settings.output_dir = settings.audit_root / "reports"
+
+
+def report_priorities(
+    settings: argparse.Namespace, result: AuditReport
+) -> dict[str, comparison.VulnerabilityPriority]:
+    """Find conventional comparison evidence and verify it before display."""
+    directories = []
+    if "output_dir" in settings.configured:
+        directories.append(settings.output_dir)
+    directories.append(settings.audit_root / "reports")
+    for directory in dict.fromkeys(directories):
+        path = directory / "comparison.json"
+        if path.exists() or path.is_symlink():
+            return comparison.load_verified_priorities(path, result)
+    return {}
+
+
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="pygo-audit check",
-        description="Check a stored scan snapshot for specific vulnerabilities.",
+        prog="pygo-audit",
+        description="Audit prepared containers. Roots default to cwd.",
     )
-    _add_snapshot_argument(parser)
     parser.add_argument(
-        "identifiers",
-        nargs="+",
-        metavar="ID",
-        help="CVE, GHSA, or GO vulnerability identifier",
+        "--version", action="version", version=f"%(prog)s {__version__}"
     )
-    _add_output_directory_argument(
-        parser,
-        help_text="write only the requested checks under PATH/checks",
-    )
-    _add_strict_argument(parser)
+    commands = parser.add_subparsers(dest="command", required=True, metavar="COMMAND")
+    for name, (description, names) in COMMANDS.items():
+        command = commands.add_parser(name, help=description, description=description)
+        command.add_argument(
+            "audit_root",
+            type=Path,
+            nargs="?",
+            metavar="BATCH_AUDIT_ROOT"
+            if name in {"audit", "aggregate"}
+            else "AUDIT_ROOT",
+            help=(
+                "workspace or audit JSON (default: file's workspace, otherwise cwd)"
+                if name in {"report", "check", "csaf"}
+                else "workspace (default: current working directory)"
+            ),
+        )
+        layers = (
+            command.add_mutually_exclusive_group()
+            if name in {"scan", "audit"}
+            else command
+        )
+        for option in names:
+            kind, default, help_text = OPTIONS[option]
+            shown = True if name == "audit" and option == "strict" else default
+            if option == "output_dir" and name in {"aggregate", "csaf"}:
+                shown = "reports"
+            description = help_text + (
+                f" (default: {shown})" if shown is not None and shown != [] else ""
+            )
+            spec: dict[str, object] = {"default": None, "help": description}
+            spec.update(
+                {"action": argparse.BooleanOptionalAction}
+                if kind is bool
+                else {"type": kind}
+            )
+            if option == "layer_dir":
+                spec["action"] = "append"
+            elif isinstance(default, list):
+                spec["nargs"] = "+"
+            if option == "layer_sort":
+                spec["choices"] = LAYER_SORTS
+            owner = layers if option in {"layer_dir", "layers_dir"} else command
+            owner.add_argument(f"--{option.replace('_', '-')}", **spec)
+        if name == "report":
+            command.add_argument(
+                "--view",
+                choices=report.REPORT_VIEWS,
+                default="overview",
+                help="view (default: overview)",
+            )
+        if name in {"report", "check"}:
+            command.add_argument(
+                "-v",
+                "--verbose",
+                action="count",
+                default=0,
+                help="increase text detail; repeat up to three times",
+            )
+            command.add_argument(
+                "--wide",
+                action="store_true",
+                help="remove text entry limits and hash abbreviations",
+            )
+        if name == "check":
+            command.add_argument(
+                "--id",
+                dest="identifiers",
+                nargs="+",
+                required=True,
+                metavar="ID",
+                help="CVE, GHSA, or GO identifiers",
+            )
     return parser
+
+
+def run(args: argparse.Namespace) -> int:
+    command = args.command
+    options = (
+        resolve_audit_settings(args.audit_root, vars(args))
+        if command in {"report", "check", "csaf"}
+        else resolve_settings(args.audit_root or Path.cwd(), vars(args))
+    )
+    many = command in {"audit", "aggregate"} or (
+        command == "csaf"
+        and "audit_file" not in options.configured
+        and not options.audit_file.is_file()
+        and not options.rootfs.is_dir()
+    )
+    targets = [options]
+    if many:
+        inherited = {} if command == "aggregate" else options.configured
+        if command == "audit":
+            inherited = {
+                "strict": True,
+                **inherited,
+                "cache_dir": options.cache_dir,
+                "work_dir": options.work_dir,
+            }
+        targets = [
+            resolve_settings(
+                root, {} if command == "aggregate" else vars(args), inherited
+            )
+            for root in discover_audits(
+                options.audit_root, options.targets if command == "audit" else None
+            )
+        ]
+    if command in {"scan", "audit"}:
+        for target in targets:
+            target.image = resolve_image_identity(
+                target.audit_root / "rootfs",
+                metadata_path=target.image_metadata,
+                **{
+                    field: getattr(target, name.replace("-", "_"))
+                    for name, field in SIDECAR_FIELDS.items()
+                },
+            )
+        if command == "audit":
+            return batch.run(options, targets)
+        result = scan_workspace(options, run_id=uuid4().hex)[0]
+        print(report.REPORT_VIEWS["overview"].render(result))
+        return int(bool(options.strict and result.actionable_issues))
+    if command == "csaf":
+        for target in targets:
+            use_default_reports_directory(target)
+            if "csaf" not in target.configured:
+                target.csaf = [source for source in options.csaf if source.exists()]
+        return csaf.run(targets)
+    if command == "aggregate":
+        use_default_reports_directory(options)
+        if "csaf" not in options.configured:
+            options.csaf = []
+        return aggregate.run(options, targets)
+    result = load_audit(options.audit_file)
+    policy = report_policy(args)
+    priorities = (
+        report_priorities(options, result)
+        if command == "report" and (args.view == "binary-findings" or args.output_dir)
+        else {}
+    )
+    if args.output_dir is not None:
+        if command == "check":
+            write_check_artifacts(result, options.output_dir, args.identifiers)
+        else:
+            write_report_artifacts(result, options.output_dir, priorities)
+    if command == "check":
+        output = report.render_checks(result, args.identifiers, policy)
+    else:
+        output = report.REPORT_VIEWS[args.view].render(
+            result, policy, priorities=priorities
+        )
+    print(output)
+    return int(bool(options.strict and result.actionable_issues))
 
 
 def main(argv: list[str] | None = None) -> int:
-    raw_arguments = list(argv) if argv is not None else sys.argv[1:]
-    if raw_arguments and raw_arguments[0] == "scan":
-        arguments = build_scan_parser().parse_args(raw_arguments[1:])
-        return _scan_main(arguments)
-    if raw_arguments and raw_arguments[0] == "check":
-        arguments = build_check_parser().parse_args(raw_arguments[1:])
-        return _check_main(arguments)
-    if raw_arguments and raw_arguments[0] == "report":
-        return _report_main(build_report_parser().parse_args(raw_arguments[1:]))
-    if raw_arguments and raw_arguments[0] in {"-h", "--help"}:
-        _print_command_help()
-        return 0
-    if raw_arguments and raw_arguments[0] == "--version":
-        print(f"pygo-audit {__version__}")
-        return 0
-
-    _print_command_help(file=sys.stderr)
-    return 2
-
-
-def _scan_main(arguments: argparse.Namespace) -> int:
-    if (
-        arguments.snapshot_dir is not None
-        and arguments.output_dir is not None
-        and arguments.snapshot_dir.resolve() == arguments.output_dir.resolve()
-    ):
-        print(
-            "pygo-audit: --snapshot-dir and --output-dir must be different",
-            file=sys.stderr,
-        )
-        return 2
-    if not _validate_artifact_output(arguments.output_dir):
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.command in {"report", "check"}:
+        if args.verbose > int(Verbosity.FORENSIC):
+            parser.error("-v/--verbose may be repeated at most three times")
+        if (
+            args.command == "report"
+            and report.REPORT_VIEWS[args.view].json
+            and (args.verbose or args.wide)
+        ):
+            parser.error("text verbosity options cannot be used with --view json")
+    try:
+        return run(args)
+    except (OSError, ValueError, ScanConfigurationError, ResultCacheError) as error:
+        print(f"pygo-audit {args.command}: {error}", file=sys.stderr)
         return 1
 
-    try:
-        image_identity = resolve_image_identity(
-            arguments.root,
-            metadata_path=arguments.image_metadata,
-            reference=arguments.image_reference,
-            digest=arguments.image_digest,
-            platform=arguments.platform,
-            extractor=arguments.extractor,
-        )
-    except ImageIdentityError as error:
-        print(f"pygo-audit: {error}", file=sys.stderr)
-        return 2
 
-    try:
-        report = scan_root(
-            arguments.root,
-            go_command=arguments.go,
-            govulncheck_command=(
-                None if arguments.no_vulncheck else arguments.govulncheck
-            ),
-            timeout=arguments.timeout,
-            jobs=arguments.jobs,
-        )
-    except ScanConfigurationError as error:
-        print(f"pygo-audit: {error}", file=sys.stderr)
-        return 1
-    report.image_identity = image_identity
-
-    output_failed = False
-    if arguments.snapshot_dir is not None:
-        try:
-            snapshot_path = write_snapshot(report, arguments.snapshot_dir)
-        except SnapshotError as error:
-            print(f"pygo-audit: {error}", file=sys.stderr)
-            output_failed = True
-        else:
-            print(f"Snapshot: {snapshot_path}", file=sys.stderr)
-    if arguments.output_dir is not None:
-        try:
-            write_artifacts(report, arguments.output_dir)
-        except ArtifactError as error:
-            print(f"pygo-audit: {error}", file=sys.stderr)
-            output_failed = True
-        else:
-            print(f"Artifacts: {arguments.output_dir}", file=sys.stderr)
-
-    output = render_summary(report)
-    if not _print_output(output):
-        return 0
-    if output_failed:
-        return 1
-    return _strict_status(report, arguments.strict)
-
-
-def _report_main(arguments: argparse.Namespace) -> int:
-    if not _validate_artifact_output(arguments.output_dir):
-        return 1
-    try:
-        report = load_snapshot(arguments.snapshot_path)
-    except SnapshotError as error:
-        print(f"pygo-audit: {error}", file=sys.stderr)
-        return 1
-
-    if arguments.output_dir is not None:
-        try:
-            write_artifacts(report, arguments.output_dir)
-        except ArtifactError as error:
-            print(f"pygo-audit: {error}", file=sys.stderr)
-            return 1
-        print(f"Artifacts: {arguments.output_dir}", file=sys.stderr)
-
-    output = _render_report_view(report, arguments)
-    if not _print_output(output):
-        return 0
-    return _strict_status(report, arguments.strict)
-
-
-def _check_main(arguments: argparse.Namespace) -> int:
-    if not _validate_artifact_output(arguments.output_dir):
-        return 1
-    try:
-        report = load_snapshot(arguments.snapshot_path)
-    except SnapshotError as error:
-        print(f"pygo-audit: {error}", file=sys.stderr)
-        return 1
-
-    if arguments.output_dir is not None:
-        try:
-            write_check_artifacts(
-                report,
-                arguments.output_dir,
-                arguments.identifiers,
-            )
-        except ArtifactError as error:
-            print(f"pygo-audit: {error}", file=sys.stderr)
-            return 1
-        print(f"Checks: {arguments.output_dir / 'checks'}", file=sys.stderr)
-
-    if not _print_output(render_checks(report, arguments.identifiers)):
-        return 0
-    return _strict_status(report, arguments.strict)
-
-
-def _render_report_view(report: ScanReport, arguments: argparse.Namespace) -> str:
-    if arguments.view == "overview":
-        return render_summary(report)
-    if arguments.view == "binaries":
-        return render_text(report)
-    if arguments.view == "diagnostics":
-        return render_diagnostics(report)
-    if arguments.view == "json":
-        return render_json(report, group_by=arguments.group_by)
-    if arguments.group_by:
-        return render_grouped(report, arguments.group_by)
-    return render_container(report)
-
-
-def _validate_artifact_output(output_directory: Path | None) -> bool:
-    if output_directory is None:
-        return True
-    try:
-        validate_artifact_directory(output_directory)
-    except ArtifactError as error:
-        print(f"pygo-audit: {error}", file=sys.stderr)
-        return False
-    return True
-
-
-def _strict_status(report: ScanReport, strict: bool) -> int:
-    return 1 if strict and report.actionable_issues else 0
-
-
-def _print_output(output: str) -> bool:
-    try:
-        print(output)
-    except BrokenPipeError:
-        return False
-    return True
-
-
-def _print_command_help(*, file: object = sys.stdout) -> None:
-    print(
-        """usage: pygo-audit COMMAND ...
-
-Scan and report Go dependencies and vulnerabilities in unpacked containers.
-
-commands:
-  scan ROOT                    scan an unpacked container rootfs
-  report overview SNAPSHOT     show container result and complete lists
-  report findings SNAPSHOT     show findings and supporting evidence
-  report binaries SNAPSHOT     show per-binary findings and dependencies
-  report diagnostics SNAPSHOT  show scan issues and reconciliation details
-  report json SNAPSHOT         show the complete machine-readable snapshot
-  check SNAPSHOT ID [ID ...]   show only results for requested vulnerabilities
-
-Run 'pygo-audit COMMAND --help' for command-specific options.""",
-        file=file,
-    )
-
-
-def _add_snapshot_argument(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument(
-        "snapshot_path",
-        type=Path,
-        help="snapshot JSON file or directory containing one snapshot",
-    )
-
-
-def _add_output_directory_argument(
-    parser: argparse.ArgumentParser,
-    *,
-    help_text: str = "write audit.json and all current human-readable reports",
-) -> None:
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
-        metavar="PATH",
-        help=help_text,
-    )
-
-
-def _add_grouping_argument(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument(
-        "--group-by",
-        choices=("container", "binary", "package", "vulnerability"),
-        help="group findings along the selected dimension",
-    )
-
-
-def _add_strict_argument(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument(
-        "--strict",
-        action="store_true",
-        help="exit with status 1 when the snapshot has actionable issues",
-    )
-
-
-def _positive_float(value: str) -> float:
-    try:
-        parsed = float(value)
-    except ValueError as error:
-        raise argparse.ArgumentTypeError("must be a number") from error
-    if parsed <= 0:
-        raise argparse.ArgumentTypeError("must be greater than zero")
-    return parsed
-
-
-def _positive_integer(value: str) -> int:
-    try:
-        parsed = int(value)
-    except ValueError as error:
-        raise argparse.ArgumentTypeError("must be an integer") from error
-    if parsed <= 0:
-        raise argparse.ArgumentTypeError("must be greater than zero")
-    return parsed
+def report_policy(args: argparse.Namespace) -> RenderPolicy:
+    """Translate CLI verbosity into one immutable rendering policy."""
+    return RenderPolicy(Verbosity(args.verbose), wide=args.wide)

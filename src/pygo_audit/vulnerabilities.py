@@ -11,6 +11,8 @@ from pygo_audit.models import (
     VulnerabilityScan,
 )
 
+EVIDENCE_RANK = {"module": 0, "package": 1, "symbol": 2}
+
 
 class GovulncheckOutputError(ValueError):
     """Raised when govulncheck does not return a valid JSON message stream."""
@@ -39,7 +41,9 @@ def parse_govulncheck_json(output: str) -> VulnerabilityScan:
             raw_findings.append(message["finding"])
 
     if config is None:
-        raise GovulncheckOutputError("govulncheck JSON does not contain a config message")
+        raise GovulncheckOutputError(
+            "govulncheck JSON does not contain a config message"
+        )
 
     findings_by_id: dict[str, list[VulnerabilityFinding]] = {}
     for raw_finding in raw_findings:
@@ -50,13 +54,11 @@ def parse_govulncheck_json(output: str) -> VulnerabilityScan:
         findings_by_id.setdefault(identifier, []).append(finding)
 
     scan_level = _string(config.get("scan_level"))
-    minimum_evidence = {"module": 0, "package": 1, "symbol": 2}.get(scan_level, 0)
-    evidence_rank = {"module": 0, "package": 1, "symbol": 2}
+    minimum_evidence = EVIDENCE_RANK.get(scan_level, 0)
     vulnerabilities = []
     for identifier, findings in findings_by_id.items():
         if not any(
-            evidence_rank[finding.evidence] >= minimum_evidence
-            for finding in findings
+            EVIDENCE_RANK[finding.evidence] >= minimum_evidence for finding in findings
         ):
             continue
         vulnerabilities.append(
@@ -119,11 +121,7 @@ def _normalize_finding(value: dict[str, Any]) -> VulnerabilityFinding:
 
     function = _string(frame.get("function"))
     receiver = _string(frame.get("receiver"))
-    symbol = function
-    if receiver and function:
-        symbol = f"{receiver}.{function}"
-    elif receiver:
-        symbol = receiver
+    symbol = ".".join(part for part in (receiver, function) if part)
 
     package = _string(frame.get("package"))
     if symbol:
@@ -138,23 +136,21 @@ def _normalize_finding(value: dict[str, Any]) -> VulnerabilityFinding:
         found_version=_string(frame.get("version")),
         fixed_version=_string(value.get("fixed_version")),
         package=package,
-        symbol=symbol,
         evidence=evidence,
+        symbol=symbol or None,
     )
 
 
 def _strongest_findings(
     findings: list[VulnerabilityFinding],
 ) -> list[VulnerabilityFinding]:
-    unique = {finding: None for finding in findings}
-    candidates = list(unique)
-    rank = {"module": 0, "package": 1, "symbol": 2}
+    candidates = list(dict.fromkeys(findings))
     retained = []
 
     for candidate in candidates:
-        candidate_rank = rank[candidate.evidence]
+        candidate_rank = EVIDENCE_RANK[candidate.evidence]
         subsumed = any(
-            rank[other.evidence] > candidate_rank
+            EVIDENCE_RANK[other.evidence] > candidate_rank
             and other.module == candidate.module
             and (
                 not candidate.found_version
@@ -172,8 +168,8 @@ def _strongest_findings(
             finding.module,
             finding.found_version,
             finding.package,
-            finding.symbol,
             finding.fixed_version,
+            finding.symbol or "",
         )
     )
     return retained
@@ -188,26 +184,10 @@ def _normalize_advisory(
     if not isinstance(database_specific, dict):
         database_specific = {}
 
-    references = []
-    seen_references: set[tuple[str, str]] = set()
-    for raw_reference in _list(value.get("references")):
-        if not isinstance(raw_reference, dict):
-            continue
-        reference = {
-            "type": _string(raw_reference.get("type")),
-            "url": _string(raw_reference.get("url")),
-        }
-        reference_key = (reference["type"], reference["url"])
-        if (
-            reference["type"] or reference["url"]
-        ) and reference_key not in seen_references:
-            references.append(reference)
-            seen_references.add(reference_key)
-
-    affected = []
-    for raw_affected in _list(value.get("affected")):
-        if isinstance(raw_affected, dict):
-            affected.append(_normalize_affected(raw_affected))
+    references = dict.fromkeys(
+        (_string(reference.get("type")), _string(reference.get("url")))
+        for reference in _objects(value.get("references"))
+    )
 
     return Vulnerability(
         id=identifier,
@@ -216,12 +196,14 @@ def _normalize_advisory(
         published=_string(value.get("published")),
         modified=_string(value.get("modified")),
         withdrawn=_string(value.get("withdrawn")),
-        review_status=(
-            _string(database_specific.get("review_status")) or "REVIEWED"
-        ),
+        review_status=(_string(database_specific.get("review_status")) or "REVIEWED"),
         advisory_url=_string(database_specific.get("url")),
-        references=references,
-        affected=affected,
+        references=[
+            {"type": kind, "url": url} for kind, url in references if kind or url
+        ],
+        affected=[
+            _normalize_affected(item) for item in _objects(value.get("affected"))
+        ],
         findings=findings,
     )
 
@@ -232,13 +214,9 @@ def _normalize_affected(value: dict[str, Any]) -> dict[str, Any]:
         package = {}
 
     version_ranges = []
-    for raw_range in _list(value.get("ranges")):
-        if not isinstance(raw_range, dict):
-            continue
+    for raw_range in _objects(value.get("ranges")):
         events = []
-        for raw_event in _list(raw_range.get("events")):
-            if not isinstance(raw_event, dict):
-                continue
+        for raw_event in _objects(raw_range.get("events")):
             event = {
                 key: raw_event[key]
                 for key in ("introduced", "fixed", "last_affected", "limit")
@@ -253,47 +231,43 @@ def _normalize_affected(value: dict[str, Any]) -> dict[str, Any]:
     ecosystem_specific = value.get("ecosystem_specific")
     if not isinstance(ecosystem_specific, dict):
         ecosystem_specific = {}
-    packages = []
-    for raw_import in _list(ecosystem_specific.get("imports")):
-        if not isinstance(raw_import, dict):
-            continue
-        packages.append(
-            {
-                "path": _string(raw_import.get("path")),
-                "symbols": _strings(raw_import.get("symbols")),
-                "goos": _strings(raw_import.get("goos")),
-                "goarch": _strings(raw_import.get("goarch")),
-            }
-        )
 
     return {
         "module": _string(package.get("name")),
         "ecosystem": _string(package.get("ecosystem")),
         "version_ranges": version_ranges,
-        "packages": packages,
+        "packages": [
+            {
+                "path": _string(item.get("path")),
+                "symbols": _strings(item.get("symbols")),
+                "goos": _strings(item.get("goos")),
+                "goarch": _strings(item.get("goarch")),
+            }
+            for item in _objects(ecosystem_specific.get("imports"))
+        ],
     }
 
 
 def _normalize_sbom(value: dict[str, Any]) -> dict[str, Any]:
-    modules = []
-    for raw_module in _list(value.get("modules")):
-        if not isinstance(raw_module, dict):
-            continue
-        modules.append(
-            {
-                "path": _string(raw_module.get("path")),
-                "version": _string(raw_module.get("version")),
-            }
-        )
     return {
         "go_version": _string(value.get("go_version")),
-        "modules": modules,
+        "modules": [
+            {
+                "path": _string(module.get("path")),
+                "version": _string(module.get("version")),
+            }
+            for module in _objects(value.get("modules"))
+        ],
         "roots": _strings(value.get("roots")),
     }
 
 
 def _list(value: object) -> list[object]:
     return value if isinstance(value, list) else []
+
+
+def _objects(value: object) -> list[dict[str, Any]]:
+    return [item for item in _list(value) if isinstance(item, dict)]
 
 
 def _strings(value: object) -> list[str]:
@@ -304,5 +278,4 @@ def _unique_strings(value: object) -> list[str]:
     return list(dict.fromkeys(_strings(value)))
 
 
-def _string(value: object) -> str:
-    return value if isinstance(value, str) else ""
+def _string(value: object) -> str: return value if isinstance(value, str) else ""

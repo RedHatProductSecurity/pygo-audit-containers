@@ -1,32 +1,115 @@
-"""Safely persist portable reports derived from one scan snapshot."""
+"""Safely persist portable reports derived from one audit."""
 
 from __future__ import annotations
 
 import hashlib
-import os
+import json
 from pathlib import Path
 import re
-import tempfile
-from typing import Sequence
+from tempfile import TemporaryDirectory
+from typing import Iterable, Mapping, Sequence
 
-from pygo_audit.models import ScanReport
+from pygo_audit.audit import AuditError, load_audit
+from pygo_audit.comparison import VulnerabilityPriority
+from pygo_audit.models import AuditReport
 from pygo_audit.report import (
-    render_binaries,
-    render_check_result,
-    render_diagnostics,
-    render_findings,
+    REPORT_VIEWS,
+    render_check_results,
     render_json,
-    render_overview,
 )
 from pygo_audit.report_views import evaluate_checks
+from pygo_audit.storage import atomic_write_text, directory_lock
+from pygo_audit.text_layout import FULL_POLICY
 
 
 class ArtifactError(ValueError):
-    """Raised when an artifact bundle cannot be written safely."""
+    """Raised when audit artifacts cannot be written safely."""
+
+
+REPORT_NAMES = tuple(view.filename for view in REPORT_VIEWS.values())
+AUDIT_NAME = REPORT_VIEWS["json"].filename
+TEXT_REPORT_NAMES = tuple(
+    view.filename for name, view in REPORT_VIEWS.items() if name != "json"
+)
+
+
+def history_filename(report: AuditReport) -> str:
+    identifier = re.sub(r"[^A-Za-z0-9_-]", "", report.run_id)
+    date = re.sub(r"[^0-9TZ]", "", report.scan_completed_at)
+    if not identifier or not date:
+        raise ArtifactError("archiving an audit requires run_id and scan_completed_at")
+    return f"audit-{identifier}-{date}.json"
+
+
+def prepare_output(directory: Path, reports_directory: Path | None = None) -> None:
+    """Validate destinations and prove writability before inspecting binaries."""
+    reports_directory = reports_directory or directory
+    validate_artifact_directory(directory)
+    validate_artifact_directory(reports_directory)
+    directory.mkdir(parents=True, exist_ok=True)
+    reports_directory.mkdir(parents=True, exist_ok=True)
+    report_paths = [reports_directory / name for name in TEXT_REPORT_NAMES]
+    for path in [directory / AUDIT_NAME, *report_paths]:
+        if path.is_symlink() or (path.exists() and not path.is_file()):
+            raise ArtifactError(f"report output must be a regular file: {path}")
+    with TemporaryDirectory(prefix="write-check-", dir=directory):
+        pass
+
+
+def publish_audit(
+    report: AuditReport,
+    directory: Path,
+    history: Path,
+    work: Path,
+    reports_directory: Path | None = None,
+) -> None:
+    """Stage every view, preserve the previous JSON, then publish JSON last.
+
+    The caller holds the workspace lock. Each file replacement is atomic; the
+    canonical JSON is the publication marker. Ordinary failures restore old views.
+    """
+    reports_directory = reports_directory or directory
+    prepare_output(directory, reports_directory)
+    with TemporaryDirectory(prefix="publish-", dir=work) as temporary:
+        staging = Path(temporary)
+        audit_file = staging / AUDIT_NAME
+        atomic_write_text(audit_file, _terminated(render_json(report)))
+        write_artifacts(load_audit(audit_file), staging)
+        destinations = [
+            *((reports_directory / name, staging / name) for name in TEXT_REPORT_NAMES),
+            (directory / AUDIT_NAME, staging / AUDIT_NAME),
+        ]
+        current = directory / AUDIT_NAME
+        old = current.read_text(encoding="utf-8") if current.exists() else None
+        if old is not None:
+            history.mkdir(parents=True, exist_ok=True)
+            try:
+                destination_name = history_filename(load_audit(current))
+            except AuditError, ArtifactError:
+                destination_name = (
+                    "audit-invalid-"
+                    f"{hashlib.sha256(old.encode('utf-8')).hexdigest()[:16]}.json"
+                )
+            destination = history / destination_name
+            if destination.is_symlink():
+                raise ArtifactError(f"history must not be a symlink: {destination}")
+            if destination.exists():
+                if destination.read_text(encoding="utf-8") != old:
+                    raise ArtifactError(
+                        f"history contains different content: {destination}"
+                    )
+            else:
+                atomic_write_text(destination, old)
+        _replace_payloads(
+            {
+                destination: source.read_text(encoding="utf-8")
+                for destination, source in destinations
+            }
+        )
 
 
 def validate_artifact_directory(output_directory: Path) -> None:
-    """Reject output locations that cannot safely contain an artifact bundle."""
+    """Reject output locations that cannot safely contain audit artifacts."""
     directory = Path(output_directory)
     if directory.is_symlink():
         raise ArtifactError(f"artifact output must not be a symlink: {directory}")
@@ -35,25 +118,38 @@ def validate_artifact_directory(output_directory: Path) -> None:
 
 
 def write_artifacts(
-    report: ScanReport,
+    report: AuditReport,
     output_directory: Path,
     *,
     checks: Sequence[str] = (),
 ) -> list[Path]:
-    """Write or reuse a complete bundle without overwriting differing content."""
+    """Write views of a loaded audit, replacing generated files by default."""
     payloads = {
-        Path("audit.json"): _terminated(render_json(report)),
-        Path("overview.txt"): _terminated(render_overview(report)),
-        Path("findings.txt"): _terminated(render_findings(report)),
-        Path("binaries.txt"): _terminated(render_binaries(report)),
-        Path("diagnostics.txt"): _terminated(render_diagnostics(report)),
+        Path(view.filename): _terminated(view.render(report, FULL_POLICY))
+        for view in REPORT_VIEWS.values()
     }
     payloads.update(_check_payloads(report, checks))
     return _write_payloads(Path(output_directory), payloads)
 
 
+def write_report_artifacts(
+    report: AuditReport,
+    output_directory: Path,
+    priorities: Mapping[str, VulnerabilityPriority] | None = None,
+) -> list[Path]:
+    """Write derived text views without duplicating the canonical audit JSON."""
+    payloads = {
+        Path(view.filename): _terminated(
+            view.render(report, FULL_POLICY, priorities=priorities)
+        )
+        for name, view in REPORT_VIEWS.items()
+        if name != "json"
+    }
+    return _write_payloads(Path(output_directory), payloads)
+
+
 def write_check_artifacts(
-    report: ScanReport,
+    report: AuditReport,
     output_directory: Path,
     checks: Sequence[str],
 ) -> list[Path]:
@@ -64,14 +160,41 @@ def write_check_artifacts(
     )
 
 
+def write_comparison_artifacts(
+    directory: Path,
+    name: str,
+    document: object,
+    text: str,
+    *,
+    inputs: Iterable[Path],
+) -> tuple[Path, Path]:
+    """Publish a JSON/text pair under one lock, preserving inputs and old outputs."""
+    json_path, text_path = directory / f"{name}.json", directory / f"{name}.txt"
+    input_paths = {path.resolve() for path in inputs}
+    for path in (json_path, text_path):
+        if path.is_symlink() or path.resolve() in input_paths:
+            raise ArtifactError(
+                f"{name} output must differ from its inputs and not be a symlink: {path}"
+            )
+    payloads = {
+        json_path: json.dumps(document, indent=2, ensure_ascii=True) + "\n",
+        text_path: _terminated(text),
+    }
+    validate_artifact_directory(directory)
+    directory.mkdir(parents=True, exist_ok=True)
+    with directory_lock(directory):
+        _replace_payloads(payloads)
+    return json_path, text_path
+
+
 def _check_payloads(
-    report: ScanReport,
+    report: AuditReport,
     checks: Sequence[str],
 ) -> dict[Path, str]:
     payloads: dict[Path, str] = {}
     for result in evaluate_checks(report, checks):
         relative_path = Path("checks") / _check_filename(result.identifier)
-        payload = _terminated(render_check_result(report, result))
+        payload = _terminated(render_check_results(report, [result], FULL_POLICY))
         existing = payloads.get(relative_path)
         if existing is not None and existing != payload:
             raise ArtifactError(
@@ -81,86 +204,44 @@ def _check_payloads(
     return payloads
 
 
-def _write_payloads(
-    directory: Path,
-    payloads: dict[Path, str],
-) -> list[Path]:
+def _write_payloads(directory: Path, payloads: dict[Path, str]) -> list[Path]:
     validate_artifact_directory(directory)
-    destinations = [(directory / relative, payload) for relative, payload in payloads.items()]
-
-    for destination, payload in destinations:
-        if destination.parent != directory:
-            parent = destination.parent
-            if parent.is_symlink():
-                raise ArtifactError(f"artifact directory must not be a symlink: {parent}")
-            if parent.exists() and not parent.is_dir():
-                raise ArtifactError(f"artifact parent is not a directory: {parent}")
-        if destination.is_symlink():
-            raise ArtifactError(f"artifact output must not be a symlink: {destination}")
-        if destination.exists():
-            if not destination.is_file():
-                raise ArtifactError(f"artifact output is not a file: {destination}")
-            try:
-                existing = destination.read_text(encoding="utf-8")
-            except OSError as error:
-                raise ArtifactError(
-                    f"cannot read existing artifact {destination}: {_os_error(error)}"
-                ) from error
-            if existing != payload:
-                raise ArtifactError(
-                    f"artifact output contains different content: {destination}"
-                )
-
     try:
         directory.mkdir(parents=True, exist_ok=True)
-        for destination, _ in destinations:
-            destination.parent.mkdir(parents=True, exist_ok=True)
+        return _replace_payloads(
+            {directory / name: value for name, value in payloads.items()}
+        )
     except OSError as error:
         raise ArtifactError(
-            f"cannot create artifact directory {directory}: {_os_error(error)}"
+            f"cannot write artifacts in {directory}: {error}"
         ) from error
 
-    created_paths: list[Path] = []
-    temporary_paths: list[Path] = []
+
+def _replace_payloads(payloads: Mapping[Path, str]) -> list[Path]:
+    """Replace ordered files atomically, restoring prior contents on failure."""
+    previous = {}
+    for path in payloads:
+        validate_artifact_directory(path.parent)
+        if path.is_symlink() or (path.exists() and not path.is_file()):
+            raise ArtifactError(
+                f"artifact output must be a regular file, not a symlink: {path}"
+            )
+        previous[path] = path.read_text(encoding="utf-8") if path.exists() else None
+    for path in payloads:
+        path.parent.mkdir(parents=True, exist_ok=True)
+    published = []
     try:
-        for destination, payload in destinations:
-            if destination.exists():
-                continue
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                encoding="utf-8",
-                dir=destination.parent,
-                prefix=f".{destination.name}-",
-                suffix=".tmp",
-                delete=False,
-            ) as artifact:
-                temporary_path = Path(artifact.name)
-                temporary_paths.append(temporary_path)
-                artifact.write(payload)
-                artifact.flush()
-                os.fsync(artifact.fileno())
-            try:
-                os.link(temporary_path, destination)
-            except FileExistsError as error:
-                raise ArtifactError(
-                    f"artifact output appeared while writing: {destination}"
-                ) from error
-            created_paths.append(destination)
-    except ArtifactError:
-        _remove_created(created_paths)
+        for path, content in payloads.items():
+            atomic_write_text(path, content, overwrite=True)
+            published.append(path)
+    except OSError:
+        for path in reversed(published):
+            if previous[path] is None:
+                path.unlink(missing_ok=True)
+            else:
+                atomic_write_text(path, previous[path], overwrite=True)
         raise
-    except OSError as error:
-        _remove_created(created_paths)
-        raise ArtifactError(
-            f"cannot write artifact bundle in {directory}: {_os_error(error)}"
-        ) from error
-    finally:
-        for temporary_path in temporary_paths:
-            try:
-                temporary_path.unlink(missing_ok=True)
-            except OSError:
-                pass
-    return [destination for destination, _ in destinations]
+    return list(payloads)
 
 
 def _check_filename(identifier: str) -> str:
@@ -176,15 +257,3 @@ def _check_filename(identifier: str) -> str:
 
 def _terminated(value: str) -> str:
     return value.rstrip("\n") + "\n"
-
-
-def _remove_created(paths: list[Path]) -> None:
-    for path in reversed(paths):
-        try:
-            path.unlink(missing_ok=True)
-        except OSError:
-            pass
-
-
-def _os_error(error: OSError) -> str:
-    return error.strerror or str(error)
