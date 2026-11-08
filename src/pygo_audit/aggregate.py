@@ -1,411 +1,337 @@
-"""Aggregate saved container audits into readable text and structured JSON."""
+"""Aggregate the canonical image comparisons into text, JSON, and triage CSV."""
 
 from __future__ import annotations
 
 import argparse
 from collections import Counter
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
-from dataclasses import dataclass, field
-import multiprocessing
-from pathlib import Path
-from typing import Any, Iterable
+import csv
+from dataclasses import dataclass
+import io
+from typing import Any
 
-from pygo_audit import comparison, csaf
-from pygo_audit import models
-from pygo_audit.artifacts import write_comparison_artifacts
+from pygo_audit import comparison, csaf_workflow, image_csaf, report
+from pygo_audit.artifacts import comparison_payloads
 from pygo_audit.audit import load_audit
-from pygo_audit.report_views import index_cve_evidence
-from pygo_audit.result_cache import ResultCache
-from pygo_audit.workspace import outside_subjects
-from pygo_audit.storage import json_digest
-from pygo_audit.text_layout import TextLayout
-
-CSAF_ASSESSMENTS = (
-    "exact_image_digest",
-    "component_release_architecture",
-    "component_release",
-    "component",
-    "cpe",
-    "cpe_compatible",
-    "cpe_version_family",
-    "cpe_parent",
-    "cpe_parent_compatible",
-    "cpe_parent_version_family",
-    "no_matching_product",
-    "document_has_no_matching_cve_record",
+from pygo_audit.report_sections import append_detail_footer
+from pygo_audit.report_views import normalize_cve
+from pygo_audit.text_layout import (
+    FULL_POLICY,
+    RenderPolicy,
+    SUMMARY_POLICY,
+    TextLayout,
+    Verbosity,
 )
-PRODUCT_STATUSES = {
-    "status": ("known_affected", "known_not_affected", "fixed", "under_investigation"),
-    "flag": (
-        "component_not_present",
-        "vulnerable_code_not_present",
-        "vulnerable_code_not_in_execute_path",
-        "vulnerable_code_cannot_be_controlled_by_adversary",
-    ),
-    "remediation": ("vendor_fix", "workaround", "none_available"),
-}
-RECONCILIATION_COUNTERS = {
-    "pygo_binary_reconciliation": (
-        "binary",
-        models.BinaryReconciliation.field_choices["status"],
-    ),
-    "pygo_go_version": (
-        "go",
-        tuple(
-            status
-            for status in models.BinaryReconciliation.field_choices["go_version_status"]
-            if status != "not_checked"
-        ),
-    ),
-    "pygo_finding_reconciliation": ("finding", models.MODULE_STATUSES),
-    "pygo_sbom_reconciliation": ("sbom", models.MODULE_STATUSES),
-}
-VEX_COUNTERS = {
-    "pygo_cve_vex": (
-        "comparison",
-        (
-            "agreement",
-            "resolved_difference",
-            "code_presence_conflict",
-            "mismatch",
-            "unverified",
-            "conflicting_vex",
-        ),
-    ),
-    "pygo_cve_vex_resolution": (
-        "resolution",
-        ("fixed", "code_not_present", "code_not_reachable", "code_not_controllable"),
-    ),
-}
+from pygo_audit.workspace import outside_subjects
 
 
-def counter_fields(
-    prefix: str,
-    counts: Counter[str],
-    statuses: Iterable[str],
-    *,
-    key_prefix: str = "",
-    suffix: str = "",
-) -> dict[str, int]:
-    """Emit stable counter fields, including zeroes for unobserved statuses."""
-    return {
-        f"{prefix}_{status}{suffix}": counts[f"{key_prefix}{status}"]
-        for status in statuses
-    }
+TRIAGE_COLUMNS = (
+    "CONTAINER",
+    "CVE",
+    "CVSS SCORE",
+    "PYGO ASSESSMENT",
+    "VENDOR ASSESSMENT",
+    "AGREEMENT",
+    "EVIDENCE",
+    "BINARIES",
+    "CSAF URL",
+    "CONTAINER URL",
+)
+AGGREGATE_VIEWS = ("cves", "modules", "packages")
 
 
-@dataclass(slots=True)
-class TargetAudit:
-    index: int  # One-based position in the batch output.
-    directory: Path  # Host directory holding this container's audit.
-    report: models.AuditReport  # Strictly reconstructed saved audit evidence.
-    evidence: dict[str, models.CveEvidence] = field(
-        init=False
-    )  # Original observations indexed once for every output view.
-    assessments: dict[str, dict[str, Any]] = field(
-        default_factory=dict
-    )  # CSAF identity assessments indexed by CVE.
-    audit_file: Path | None = None  # Preserve explicitly selected evidence paths.
+@dataclass(frozen=True, slots=True)
+class TriageCase:
+    container: str
+    cve: str
+    cvss_scores: tuple[float, ...]
+    local_scan: str
+    vendor_assessment: str
+    agreement: str
+    evidence: tuple[str, ...]
+    binary_count: int
+    canonical_urls: tuple[str, ...]
+    container_url: str
 
-    def __post_init__(self) -> None:
-        self.evidence = index_cve_evidence(self.report)
-
-
-def string(value: object) -> str:
-    return value if isinstance(value, str) else ""
-
-
-def short_hash(value: str) -> str:
-    if not value:
-        return ""
-    digest = value.split(":", 1)[-1]
-    return digest[:12] + "..." if len(digest) > 12 else digest
-
-
-def image_metadata(target: TargetAudit) -> dict[str, str]:
-    image = target.report.metadata.image
-    return {
-        "image_reference": image.reference,
-        "image_digest": image.digest,
-        "image_digest_short": short_hash(image.digest),
-        "platform": image.platform,
-        "image_name": image.name,
-        "component": image.component,
-        "source_git_url": image.source_git_url,
-        "product_version": image.product_version,
-        "component_version": image.component_version,
-        "product_component": image.product_component,
-        "cpe": image.cpe,
-    }
-
-
-def load_target(directory: Path, audit_path: Path, index: int = 1) -> TargetAudit:
-    return TargetAudit(index, directory, load_audit(audit_path), audit_file=audit_path)
-
-
-def assess_cve_worker(
-    cve: str,
-    document_path: Path | None,
-    identities: dict[int, models.ImageIdentity],
-) -> tuple[str, dict[int, dict[str, Any]]]:
-    """Index one local document and match it to every relevant container."""
-    fetch = csaf.read_document(cve, document_path)
-    comparison = csaf.CsafComparison(cve, fetch, ResultCache(None))
-    assessments = {
-        target_index: comparison.assess(
-            identity,
-            include_details=False,
+    def review_key(self) -> tuple[float, str, int, str]:
+        return (
+            -max(self.cvss_scores, default=-1.0),
+            self.container.casefold(),
+            comparison.review_key(self.agreement)[0],
+            self.cve,
         )
-        for target_index, identity in identities.items()
-    }
-    return cve, assessments
 
-
-def enrich_with_csaf(
-    targets: list[TargetAudit], args: argparse.Namespace
-) -> dict[str, Path]:
-    """Share each indexed local document across the relevant targets."""
-    locations = csaf.document_locations(args.csaf)
-    target_by_cve: dict[str, list[TargetAudit]] = {}
-    for target in targets:
-        for cve in target.evidence:
-            target_by_cve.setdefault(cve, []).append(target)
-
-    cves = sorted(target_by_cve)
-    executor = (
-        ThreadPoolExecutor(max_workers=1)
-        if args.jobs == 1
-        else ProcessPoolExecutor(
-            max_workers=args.jobs, mp_context=multiprocessing.get_context("spawn")
+    def cells(self) -> tuple[object, ...]:
+        return (
+            self.container,
+            self.cve,
+            "; ".join(f"{score:.1f}" for score in self.cvss_scores),
+            image_csaf.LOCAL_SCAN_LABELS[self.local_scan],
+            self.vendor_assessment,
+            comparison.AGREEMENT_LABELS[self.agreement],
+            self.evidence,
+            self.binary_count,
+            self.canonical_urls,
+            self.container_url,
         )
-    )
-    with executor as pool:
-        results = pool.map(
-            assess_cve_worker,
-            cves,
-            (locations.get(cve) for cve in cves),
-            (
-                {
-                    target.index: target.report.metadata.image
-                    for target in target_by_cve[cve]
-                }
-                for cve in cves
-            ),
-            buffersize=args.jobs,
-        )
-        for cve, assessments in results:
-            for target in target_by_cve[cve]:
-                target.assessments[cve] = assessments[target.index]
-    return locations
 
 
-def _binary_counters(target: TargetAudit) -> dict[str, Counter[str]]:
-    counters = {key: Counter() for key in ("binary", "go", "finding", "sbom")}
-    for binary in target.report.binaries:
-        reconciliation = binary.reconciliation
-        counters["binary"][reconciliation.status] += 1
-        counters["go"][reconciliation.go_version_status] += 1
-        counters["finding"].update(binary.finding_statuses)
-        counters["sbom"].update(reconciliation.sbom_statuses)
-    return counters
-
-
-def _csaf_counters(target: TargetAudit) -> dict[str, Counter[str]]:
-    assessments = Counter()
-    product_statuses = Counter()
-    for assessment in target.assessments.values():
-        assessments[string(assessment.get("assessment"))] += 1
-        if string(assessment.get("assessment")).startswith("cpe"):
-            # Platform candidate statuses do not establish a container status.
-            continue
-        for status in assessment.get("statuses", []):
-            if isinstance(status, str):
-                product_statuses[status] += 1
-    return {"assessment": assessments, "product": product_statuses}
-
-
-def _cve_comparison_counters(
-    evaluations: dict[str, dict[str, Any]],
-) -> dict[str, Counter[str]]:
-    return {
-        "comparison": Counter(item["comparison"] for item in evaluations.values()),
-        "resolution": Counter(
-            value for item in evaluations.values() for value in item["resolutions"]
-        ),
+def audit_summary(source: image_csaf.ImageAudit) -> dict[str, Any]:
+    """Retain inventory and reconciliation counts without another CSAF assessment."""
+    binaries = source.report.binaries
+    reconciliation: dict[str, Counter[str]] = {
+        name: Counter()
+        for name in ("binaries", "go_versions", "findings", "sbom_modules")
     }
-
-
-def finding_counts(target: TargetAudit) -> tuple[int, int]:
-    """Count indexed CVE observations, retaining advisories without findings."""
-    counts = Counter()
-    for evidence in target.evidence.values():
+    for binary in binaries:
+        reconciliation["binaries"][binary.reconciliation.status] += 1
+        reconciliation["go_versions"][binary.reconciliation.go_version_status] += 1
+        reconciliation["findings"].update(binary.finding_statuses)
+        reconciliation["sbom_modules"].update(binary.reconciliation.sbom_statuses)
+    observations: Counter[str] = Counter()
+    for evidence in source.evidence.values():
         for binary, vulnerability in evidence.observations:
-            counts[binary.runtime_disposition] += max(len(vulnerability.findings), 1)
-    return counts.total(), counts["unaccounted"]
-
-
-def summary_row(
-    target: TargetAudit, evaluations: dict[str, dict[str, Any]] | None = None
-) -> dict[str, object]:
-    binaries = target.report.binaries
-    binary_sha256 = {binary.sha256 for binary in binaries if binary.sha256}
-    disposition_counts = Counter(binary.runtime_disposition for binary in binaries)
-    binary_counts = _binary_counters(target)
-    csaf_counts = _csaf_counters(target)
-    if evaluations is None:
-        evaluations = {
-            cve: comparison.evaluation_dict(
-                comparison.evaluate(evidence, target.assessments.get(cve))
+            observations[binary.runtime_disposition] += max(
+                len(vulnerability.findings), 1
             )
-            for cve, evidence in target.evidence.items()
-        }
-    cve_counts = _cve_comparison_counters(evaluations)
-    finding_count, historical_finding_count = finding_counts(target)
-    row: dict[str, object] = {
-        "target_index": f"{target.index:03d}",
-        "container_name": target.directory.name,
-        "audit_directory": str(target.directory),
-        "audit_complete": "true",
-        **image_metadata(target),
-        "binary_count": len(binaries),
-        "unaccounted_historical_binary_count": disposition_counts["unaccounted"],
-        "unaccounted_historical_finding_count": historical_finding_count,
-        "unique_binary_sha256_count": len(binary_sha256),
-        "unique_cve_count": len(target.evidence),
-        "finding_row_count": finding_count,
-        "csaf_cve_count": len(target.assessments),
-        "csaf_documents_found": sum(
-            assessment.get("assessment") != "document_missing"
-            for assessment in target.assessments.values()
-        ),
-        "csaf_documents_missing": csaf_counts["assessment"].get("document_missing", 0),
-        "csaf_cpe_candidate_count": sum(
-            a.get("cpe_candidate_count", 0) for a in target.assessments.values()
-        ),
-        "csaf_cpe_known_affected": sum(
-            bool(a.get("cpe_known_affected")) for a in target.assessments.values()
-        ),
+    return {
+        "inventory": {
+            "binaries": len(binaries),
+            "unique_binary_sha256": len(
+                {binary.sha256 for binary in binaries if binary.sha256}
+            ),
+            "runtime_dispositions": dict(
+                sorted(
+                    Counter(binary.runtime_disposition for binary in binaries).items()
+                )
+            ),
+            "cve_observations": observations.total(),
+        },
+        "reconciliation": {
+            name: dict(sorted(counts.items()))
+            for name, counts in reconciliation.items()
+        },
     }
-    row.update(
-        counter_fields(
-            "runtime_disposition",
-            disposition_counts,
-            models.RUNTIME_DISPOSITIONS,
-            suffix="_count",
-        )
-    )
-    row.update(counter_fields("csaf", csaf_counts["assessment"], CSAF_ASSESSMENTS))
-    product_counts = csaf_counts["product"]
-    for category, statuses in PRODUCT_STATUSES.items():
-        prefix = "csaf" if category == "status" else f"csaf_{category}"
-        row.update(
-            counter_fields(prefix, product_counts, statuses, key_prefix=f"{category}:")
-        )
-    for groups, counters in (
-        (RECONCILIATION_COUNTERS, binary_counts),
-        (VEX_COUNTERS, cve_counts),
-    ):
-        for prefix, (name, statuses) in groups.items():
-            row.update(counter_fields(prefix, counters[name], statuses))
-    for category in ("status", "remediation"):
-        known = {f"{category}:{status}" for status in PRODUCT_STATUSES[category]}
-        row[f"csaf_{category}_other"] = sum(
-            count
-            for key, count in product_counts.items()
-            if key.startswith(f"{category}:") and key not in known
-        )
-    return row
 
 
-def build_result(targets: list[TargetAudit]) -> dict[str, Any]:
-    """Keep current evidence and comparison counts together for every container."""
-    containers = []
-    for target in targets:
-        document = csaf.build_result(
-            target.audit_file or target.directory / "audit.json",
-            target.report.metadata.image,
-            target.evidence,
-            target.assessments,
-        )
-        containers.append(
-            {
-                **document,
-                "container_name": target.directory.name,
-                "audit_sha256": json_digest(target.report.to_dict()),
-                "scan_coverage": target.report.coverage_state,
-                "audit_summary": summary_row(target, document["comparisons"]),
-            }
-        )
-    metrics = comparison.summarize(
-        item["comparison"]
+def build_result(checks: list[csaf_workflow.CompletedCheck]) -> dict[str, Any]:
+    containers = [
+        {
+            **check.data,
+            "container_name": check.workspace.root.name,
+            "container_url": check.workspace.audit.image.reference,
+            "detail_report": str(check.workspace.output_dir / "comparison.txt"),
+            "audit_summary": audit_summary(check.workspace.audit),
+        }
+        for check in checks
+    ]
+    conclusions = [
+        value
         for container in containers
-        for item in container["comparisons"].values()
-    )
+        for cve, value in container["conclusions"].items()
+        if normalize_cve(cve)
+    ]
     return {
         "counting_unit": "container_cve",
-        "summary": {"container_count": len(containers), "metrics": metrics},
+        "summary": {
+            "container_count": len(containers),
+            "unique_cves": len(
+                {
+                    cve
+                    for container in containers
+                    for cve in container["conclusions"]
+                    if normalize_cve(cve)
+                }
+            ),
+            "metrics": comparison.summarize(conclusions),
+        },
         "containers": containers,
     }
 
 
-def render_text(result: dict[str, Any]) -> str:
-    lines = TextLayout.titled("CSAF BATCH COMPARISON")
-    comparison.append_summary(lines, result["summary"]["metrics"])
-    lines.field("Containers", result["summary"]["container_count"])
-    containers = sorted(
-        result["containers"],
-        key=lambda item: (
-            -item["summary"]["metrics"]["unresolved_conflicts"],
-            -item["summary"]["metrics"]["unknown_cves"],
-            item["container_name"],
-        ),
+def triage_cases(result: dict[str, Any]) -> list[TriageCase]:
+    """Project the shared conclusions without evaluating identity or agreement again."""
+    cases = []
+    for container in result["containers"]:
+        for cve, observations in image_csaf.vulnerability_groups(container):
+            if not normalize_cve(cve):
+                continue
+            conclusion = container["conclusions"][cve]
+            artifacts = container["local_findings"][cve]
+            cases.append(
+                TriageCase(
+                    container=container["container_name"],
+                    cve=cve,
+                    cvss_scores=tuple(
+                        sorted(
+                            {
+                                score
+                                for number, document, record in observations
+                                for score in record["cvss_scores"]
+                            }
+                        )
+                    ),
+                    local_scan=conclusion["local_scan"]["status"],
+                    vendor_assessment=conclusion["vendor_assessment"],
+                    agreement=conclusion["agreement"]["comparison"],
+                    evidence=tuple(conclusion["evidence"]),
+                    binary_count=len(artifacts),
+                    canonical_urls=tuple(
+                        sorted(
+                            {
+                                url
+                                for number, document, record in observations
+                                for url in document["canonical_urls"]
+                            }
+                        )
+                    ),
+                    container_url=container["container_url"],
+                )
+            )
+    return sorted(cases, key=TriageCase.review_key)
+
+
+def csv_cell(value: object) -> str:
+    text = (
+        "; ".join(map(str, value)) if isinstance(value, (list, tuple)) else str(value)
     )
-    lines.section("CONTAINER SUMMARY")
-    for container in containers:
-        metrics = container["summary"]["metrics"]
-        lines.field(
-            container["container_name"],
-            f"coverage {comparison.format_ratio(metrics['coverage'])}; "
-            f"corroboration {comparison.format_ratio(metrics['corroboration'])}; "
-            f"conflicts {metrics['unresolved_conflicts']}; "
-            f"scan coverage {container['scan_coverage']}",
+    return (
+        "'" + text if text.startswith(("=", "+", "-", "@", "\t", "\r", "\n")) else text
+    )
+
+
+def render_csv(result: dict[str, Any]) -> str:
+    stream = io.StringIO(newline="")
+    writer = csv.writer(stream, lineterminator="\n")
+    writer.writerow(TRIAGE_COLUMNS)
+    writer.writerows(
+        tuple(csv_cell(value) for value in case.cells())
+        for case in triage_cases(result)
+    )
+    return stream.getvalue()
+
+
+def render_identifier_view(children: list[argparse.Namespace], view: str) -> str:
+    if view not in AGGREGATE_VIEWS:
+        raise ValueError(f"unsupported aggregate view: {view}")
+    renderer = report.REPORT_VIEWS[view].render
+    identifiers = {
+        identifier
+        for child in children
+        for identifier in renderer(
+            load_audit(child.audit_file), SUMMARY_POLICY
+        ).splitlines()
+        if identifier
+    }
+    return "\n".join(sorted(identifiers))
+
+
+def container_review_key(container: dict[str, Any]) -> tuple[int, str]:
+    counts = container["summary"]["metrics"]["agreement_counts"]
+    priority = next(
+        (
+            index
+            for index, kind in enumerate(comparison.AGREEMENT_ORDER)
+            if counts.get(kind)
+        ),
+        len(comparison.AGREEMENT_ORDER),
+    )
+    return priority, container["container_name"]
+
+
+def render_text(result: dict[str, Any], policy: RenderPolicy = SUMMARY_POLICY) -> str:
+    lines = TextLayout.titled("CSAF BATCH COMPARISON", policy=policy)
+    summary = result["summary"]
+    metrics = summary["metrics"]
+    lines.fields(
+        ("Containers", summary["container_count"]),
+        ("Unique CVEs", summary["unique_cves"]),
+        ("Container/CVE comparisons", metrics["comparisons"]),
+        ("Discrepancies", metrics["discrepancies"]),
+    )
+    with lines.subsection("[AGREEMENT]") as agreement:
+        agreement.columns(
+            [
+                ("AGREEMENT", "CONTAINER/CVE PAIRS"),
+                *(
+                    (
+                        comparison.AGREEMENT_LABELS[kind],
+                        metrics["agreement_counts"][kind],
+                    )
+                    for kind in comparison.AGREEMENT_ORDER
+                    if kind in metrics["agreement_counts"]
+                ),
+            ]
         )
-    for container in containers:
-        lines.section(f"CONTAINER: {container['container_name']}")
-        lines.append(csaf.render_text(container).rstrip())
+    containers = sorted(result["containers"], key=container_review_key)
+    with lines.subsection("[CONTAINERS]") as inventory:
+        inventory.columns(
+            [
+                ("CONTAINER", "SCAN COVERAGE", "CVEs", "DISCREPANCIES"),
+                *(
+                    (
+                        container["container_name"],
+                        container["summary"]["scan_coverage"]["state"],
+                        container["summary"]["metrics"]["comparisons"],
+                        container["summary"]["metrics"]["discrepancies"],
+                    )
+                    for container in inventory.limited("containers", containers)
+                ),
+            ]
+        )
+    with lines.subsection("[CVE TRIAGE]") as triage:
+        with triage.preview("comparisons", triage_cases(result)) as cases:
+            triage.columns([TRIAGE_COLUMNS[:6], *(case.cells()[:6] for case in cases)])
+    if policy.shows(Verbosity.EXPANDED):
+        for container in lines.limited("container details", containers):
+            with lines.subsection(
+                f"CONTAINER: {container['container_name']}"
+            ) as detail:
+                image_csaf.append_check(detail, container)
+    if policy.shows(Verbosity.FORENSIC):
+        with lines.subsection("[PROVENANCE]") as provenance:
+            for container in containers:
+                with provenance.subsection(
+                    f"CONTAINER: {container['container_name']}"
+                ) as context:
+                    image_csaf.append_provenance(context, container)
+    append_detail_footer(lines)
     return lines.render() + "\n"
 
 
-def aggregate(
-    targets: list[TargetAudit], output_directory: Path, args: argparse.Namespace
-) -> tuple[Path, Path]:
-    """Write batch headlines and detailed per-container comparisons."""
-    locations = enrich_with_csaf(targets, args) if args.csaf else {}
-    result = build_result(targets)
-    text = render_text(result)
-    inputs = {
-        target.audit_file or target.directory / "audit.json" for target in targets
-    }
-    inputs.update(locations.values())
-    return write_comparison_artifacts(
-        output_directory, "aggregate", result, text, inputs=inputs
-    )
-
-
-def run(settings: argparse.Namespace, children: list[argparse.Namespace]) -> int:
-    output_directory = settings.output_dir
+def run(
+    settings: argparse.Namespace,
+    children: list[argparse.Namespace],
+    policy: RenderPolicy = SUMMARY_POLICY,
+    view: str | None = None,
+) -> int:
+    if view is not None:
+        output = render_identifier_view(children, view)
+        if output:
+            print(output)
+        return 0
     outside_subjects(
-        [output_directory],
-        [path for child in children for path in (child.rootfs, child.layers_dir)],
+        [settings.output_dir],
+        [
+            path
+            for child in children
+            for path in (child.rootfs, child.layers_dir, *child.layer_dir)
+        ],
     )
-    if output_directory.is_symlink():
-        raise ValueError("output directory must not be a symlink")
-    output_directory.mkdir(parents=True, exist_ok=True)
-    targets = [
-        load_target(child.audit_root, child.audit_file, index)
-        for index, child in enumerate(children, 1)
-    ]
-    json_path, text_path = aggregate(targets, output_directory, settings)
-    print(f"Summary and details: {text_path}")
-    print(f"Structured results: {json_path}")
+    targets = csaf_workflow.load_workspaces(children)
+    checks = csaf_workflow.compare_workspaces(
+        targets, jobs=settings.jobs, recorded_only=True
+    )
+    result = build_result(checks)
+    payloads = comparison_payloads(
+        settings.output_dir,
+        "aggregate",
+        result,
+        render_text(result, FULL_POLICY),
+        csv_text=render_csv(result),
+    )
+    csaf_workflow.publish_checks(checks, payloads)
+    print(render_text(result, policy), end="")
+    print(
+        f"Summary and details: {settings.output_dir / 'aggregate.txt'}\nStructured results: {settings.output_dir / 'aggregate.json'}\nTriage CSV: {settings.output_dir / 'aggregate.csv'}"
+    )
     return 0

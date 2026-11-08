@@ -1,483 +1,526 @@
 from __future__ import annotations
 
+from contextlib import redirect_stderr, redirect_stdout
+import csv
+from dataclasses import replace
+from functools import partial
+import io
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Any
 import unittest
 from unittest.mock import patch
 
-
-from pygo_audit import aggregate, comparison, models
-from pygo_audit.audit import AuditError
-
-
-def report(
-    *binaries: models.BinaryReport, image: models.ImageIdentity = models.ImageIdentity()
-) -> models.AuditReport:
-    return models.AuditReport(
-        metadata=models.ContainerMetadata("/rootfs", image),
-        binaries=list(binaries),
-        go_command="go",
-        go_tool_version="go1.24.0",
-        producer_name="pygo-audit",
-        producer_version="0.1.0",
-    )
+from pygo_audit import aggregate, csaf, csaf_workflow, image_csaf, models
+from pygo_audit.audit import load_audit
+from pygo_audit.cli import main, resolve_settings, use_default_reports_directory
+from pygo_audit.storage import atomic_write_text
+from pygo_audit.text_layout import FULL_POLICY, RenderPolicy, Verbosity
 
 
-def symbol_evidence(cve: str) -> models.CveEvidence:
-    vulnerability = models.Vulnerability(cve, findings=[models.VulnerabilityFinding(evidence="symbol")])
+def make_workspace(
+    root: Path,
+    name: str,
+    cves: tuple[str, ...],
+    *,
+    evidence: str = "symbol",
+    identity: models.ImageIdentity | None = None,
+) -> Path:
+    directory = root / name
+    (directory / "rootfs").mkdir(parents=True)
     binary = models.BinaryReport(
-        ["/app"], 1, "go1.26", "", None, [], [], runtime_disposition="runtime",
-        vulnerability_scan=models.VulnerabilityScan(vulnerabilities=[vulnerability]),
-    )
-    return models.CveEvidence(cve, ((binary, vulnerability),))
-
-
-def report_with_cves(cves: tuple[str, ...], *, image: models.ImageIdentity = models.ImageIdentity()) -> models.AuditReport:
-    return report(models.BinaryReport(
-        ["/app"], 1, "go1.26", "", None, [], [], runtime_disposition="runtime",
-        vulnerability_scan=models.VulnerabilityScan(vulnerabilities=[models.Vulnerability(cve) for cve in cves]),
-    ), image=image)
-
-
-class AggregateAuditTests(unittest.TestCase):
-    def test_build_result_evaluates_each_cve_once(self) -> None:
-        target = aggregate.TargetAudit(
-            1, Path("example"), report_with_cves(("CVE-2026-0001", "CVE-2026-0002"))
-        )
-        with patch("pygo_audit.comparison.evaluate", wraps=comparison.evaluate) as evaluate:
-            result = aggregate.build_result([target])
-        self.assertEqual(evaluate.call_count, len(target.evidence))
-        container = result["containers"][0]
-        self.assertEqual(container["summary"]["metrics"]["unknown_cves"], 2)
-        self.assertEqual(container["audit_summary"]["pygo_cve_vex_unverified"], 2)
-
-    def test_work_queue_processes_more_cves_than_workers_for_each_target(self) -> None:
-        cves = tuple(f"CVE-2026-{index:04d}" for index in range(1, 8))
-        with TemporaryDirectory() as temporary_directory:
-            root = Path(temporary_directory)
-            for cve in cves[:-1]:
-                (root / f"{cve}.json").write_text(json.dumps({
-                    "vulnerabilities": [{
-                        "cve": cve, "product_status": {"known_affected": ["app"]},
-                    }],
-                }))
-            serial = None
-            for jobs in (1, 2):
-                targets = [
-                    aggregate.TargetAudit(
-                        index, root / str(index),
-                        report_with_cves(selected, image=models.ImageIdentity(name="app")),
-                    )
-                    for index, selected in enumerate((cves[:5], cves[2:]), 1)
-                ]
-                with self.subTest(jobs=jobs):
-                    aggregate.enrich_with_csaf(
-                        targets, aggregate.argparse.Namespace(csaf=[root], jobs=jobs)
-                    )
-                    for target in targets:
-                        self.assertEqual(set(target.assessments), set(tuple(target.evidence)))
-                        for cve, assessment in target.assessments.items():
-                            self.assertEqual(assessment["cve"], cve)
-                            self.assertEqual(
-                                assessment["assessment"],
-                                "document_missing" if cve == cves[-1] else "component",
-                            )
-                    results = [target.assessments for target in targets]
-                    if serial is None:
-                        serial = results
-                    else:
-                        self.assertEqual(results, serial)
-
-    def test_work_queue_propagates_worker_read_failures(self) -> None:
-        with TemporaryDirectory() as temporary_directory:
-            root = Path(temporary_directory)
-            cve = "CVE-2026-0001"
-            target = aggregate.TargetAudit(
-                1, root, report_with_cves((cve,)),
-            )
-            for jobs in (1, 2):
-                with (
-                    self.subTest(jobs=jobs),
-                    patch.object(aggregate.csaf, "document_locations", return_value={
-                        cve: root / "removed-after-indexing.json",
-                    }),
-                    self.assertRaisesRegex(aggregate.csaf.CsafCheckError, "cannot read CSAF"),
-                ):
-                    aggregate.enrich_with_csaf(
-                        [target], aggregate.argparse.Namespace(csaf=[root], jobs=jobs)
-                    )
-
-    def test_other_columns_only_count_unknown_tokens_in_their_category(self) -> None:
-        cve = "CVE-2026-0001"
-        statuses = [
-            "status:known_affected",
-            "flag:component_not_present",
-            "remediation:vendor_fix",
-        ]
-        target = aggregate.TargetAudit(
-            index=1,
-            directory=Path("example"),
-            report=report_with_cves((cve,)),
-            assessments={cve: {"assessment": "component", "statuses": statuses}},
-        )
-        row = aggregate.summary_row(target)
-        self.assertEqual(row["csaf_status_other"], 0)
-        self.assertEqual(row["csaf_remediation_other"], 0)
-        self.assertEqual(row["csaf_flag_component_not_present"], 1)
-        self.assertEqual(row["csaf_remediation_vendor_fix"], 1)
-        statuses.extend(
-            [
-                "status:future_status",
-                "flag:future_flag",
-                "remediation:future_remediation",
-            ]
-        )
-        row = aggregate.summary_row(target)
-        self.assertEqual(row["csaf_status_other"], 1)
-        self.assertEqual(row["csaf_remediation_other"], 1)
-
-    def test_json_preserves_counts_and_empty_cve_evidence(
-        self,
-    ) -> None:
-        binary = models.BinaryReport(
-            paths=["/historical"],
-            size=123,
-            go_version="go1.24.0",
-            main_package="main",
-            main_module=None,
-            dependencies=[],
-            build_settings=[],
-            sha256="a" * 64,
-            runtime_disposition="unaccounted",
-            vulnerability_scan=models.VulnerabilityScan(
-                status="complete",
-                vulnerabilities=[
-                    models.Vulnerability(
-                        "GO-2026-0001",
-                        aliases=[
-                            "CVE-2026-0001",
-                            "cve-2026-0001",
-                            "CVE-2026-0002",
-                            "GHSA-example",
-                        ],
-                    ),
-                ],
-            ),
-        )
-        with TemporaryDirectory() as temporary_directory:
-            root = Path(temporary_directory)
-            source = root / "audit.json"
-            source.write_text(json.dumps(report(binary).to_dict()))
-            target = aggregate.load_target(root, source)
-            row = aggregate.summary_row(target)
-            json_path, text_path = aggregate.aggregate(
-                [target], root, aggregate.argparse.Namespace(csaf=[], jobs=1)
-            )
-            document = json.loads(json_path.read_text())
-            self.assertIn("N/A (0/0)", text_path.read_text())
-        summary = document["containers"][0]["audit_summary"]
-        self.assertEqual(summary, row)
-        self.assertEqual(summary["finding_row_count"], 2)
-        self.assertEqual(summary["unaccounted_historical_finding_count"], 2)
-        self.assertEqual(document["summary"]["metrics"]["observed_cves"], 2)
-        self.assertEqual(tuple(target.evidence), ("CVE-2026-0001", "CVE-2026-0002"))
-        self.assertEqual(
-            target.evidence[tuple(target.evidence)[0]].runtime_dispositions, {"unaccounted"}
-        )
-        self.assertEqual(target.evidence[tuple(target.evidence)[0]].evidence_types, set())
-
-    def test_duplicate_identities_and_later_workers_reuse_csaf_assessments(
-        self,
-    ) -> None:
-        with TemporaryDirectory() as temporary_directory:
-            root = Path(temporary_directory)
-            source = root / "advisory.json"
-            cve = "CVE-2026-0001"
-            source.write_text(
-                json.dumps({"vulnerabilities": [{"cve": cve}]}), encoding="utf-8"
-            )
-            identities = {
-                index: models.ImageIdentity() for index in (1, 2)
-            }
-            for _ in range(2):
-                with patch.object(
-                    aggregate.csaf,
-                    "assess_indexed_document",
-                    wraps=aggregate.csaf.assess_indexed_document,
-                ) as matcher:
-                    _, results = aggregate.assess_cve_worker(cve, source, identities)
-                    self.assertEqual(results[1], results[2])
-                    matcher.assert_called_once()
-
-    def test_canonical_metadata_preserves_product_columns_and_csaf_matching(
-        self,
-    ) -> None:
-        document = report(
-            image=models.ImageIdentity(
-                product_version="v4.20.0",
-                product_component="Example",
-            )
-        ).to_dict()
-        with TemporaryDirectory() as temporary_directory:
-            root = Path(temporary_directory)
-            path = root / "audit.json"
-            path.write_text(json.dumps(document))
-            target = aggregate.load_target(root, path)
-        metadata = aggregate.image_metadata(target)
-        self.assertEqual(metadata["product_version"], "v4.20.0")
-        self.assertEqual(metadata["product_component"], "Example")
-        self.assertTrue(aggregate.csaf.release_matches("product-4.20", target.report.metadata.image))
-
-    def test_rejects_partial_audits(self) -> None:
-        with TemporaryDirectory() as temporary_directory:
-            root = Path(temporary_directory)
-            path = root / "audit.json"
-            path.write_text(json.dumps({"binaries": []}))
-            with self.assertRaises(AuditError):
-                aggregate.load_target(root, path)
-
-    def test_load_target_rejects_binary_cache_objects(self) -> None:
-        with TemporaryDirectory() as temporary_directory:
-            target = Path(temporary_directory) / "001-example"
-            target.mkdir(parents=True)
-            (target / "audit.json").write_text(
-                json.dumps(
-                    {
-                        "binary": {"runtime_disposition": {"state": "requires-observation"}},
-                        "vulnerability_validity": {"run_id": "test-run", "profile": {}},
-                    }
-                ),
-                encoding="utf-8",
-            )
-
-            with self.assertRaises(AuditError):
-                aggregate.load_target(target, target / "audit.json")
-
-    def test_cpe_candidates_are_reported_without_becoming_container_conclusions(
-        self,
-    ) -> None:
-        target = aggregate.TargetAudit(
-            index=1,
-            directory=Path("example"),
-            report=report_with_cves(("CVE-2026-0001",)),
-        )
-        target.evidence["CVE-2026-0001"] = symbol_evidence("CVE-2026-0001")
-        for scope in [
-            "cpe",
-            "cpe_compatible",
-            "cpe_version_family",
-            "cpe_parent",
-            "cpe_parent_compatible",
-            "cpe_parent_version_family",
-        ]:
-            with self.subTest(scope=scope):
-                target.assessments["CVE-2026-0001"] = {
-                    "assessment": scope,
-                    "match_level": "platform",
-                    "statuses": [
-                        "status:known_affected",
-                        "status:fixed",
-                        "flag:vulnerable_code_not_present",
+        paths=[f"/usr/bin/{name}"],
+        size=123,
+        go_version="go1.24",
+        main_package="main",
+        main_module=None,
+        dependencies=[],
+        build_settings=[],
+        sha256="a" * 64,
+        runtime_disposition="runtime",
+        vulnerability_scan=models.VulnerabilityScan(
+            status="complete",
+            vulnerabilities=[
+                models.Vulnerability(
+                    cve,
+                    findings=[
+                        models.VulnerabilityFinding(
+                            module="example.test/app",
+                            found_version="v1.0.0",
+                            fixed_version="v1.1.0",
+                            package="example.test/app/pkg",
+                            evidence=evidence,
+                            symbol="Unsafe" if evidence == "symbol" else None,
+                        )
                     ],
-                    "cpe_candidate_count": 1,
-                    "cpe_statuses": ["status:known_affected", "status:fixed"],
-                    "cpe_known_affected": True,
-                }
-                details = comparison.vex_details(target.assessments.get("CVE-2026-0001"))
-                self.assertEqual(details.comparison, "unverified")
-                self.assertEqual(details.resolutions, frozenset())
-                self.assertEqual(aggregate._csaf_counters(target)["product"], {})
-                result = aggregate.build_result([target])
-                metrics = result["summary"]["metrics"]
-                self.assertEqual(metrics["comparable_cves"], 0)
-                self.assertEqual(metrics["unknown_cves"], 1)
-                self.assertIsNone(metrics["corroboration"]["percent"])
-                summary = aggregate.summary_row(target)
-                self.assertEqual(summary["csaf_cpe_candidate_count"], 1)
-                self.assertEqual(summary["csaf_cpe_known_affected"], 1)
-                self.assertEqual(summary["csaf_known_affected"], 0)
-                self.assertEqual(summary[f"csaf_{scope}"], 1)
-
-    def test_writes_text_json_and_preserves_reconciliation_counters(self) -> None:
-        product_id = "red_hat_openshift_4.20/ose/example-rhel9_amd64"
-        finding = models.VulnerabilityFinding(
-            module="example/module",
-            package="example/package",
-            found_version="v1.0.0",
-            fixed_version="v1.1.0",
-            evidence="symbol",
-            reconciliation=models.ModuleReconciliation(
-                "representation_difference",
-                "example/module",
-                "v1.0.0",
-                detail="same release",
-            ),
-        )
-        binary = models.BinaryReport(
-            paths=["/usr/bin/example"],
-            size=123,
-            go_version="go1.24.0",
-            main_package="main",
-            main_module=models.Module("example/module"),
-            dependencies=[],
-            build_settings=[],
-            sha256="a" * 64,
-            runtime_disposition="runtime",
-            vulnerability_scan=models.VulnerabilityScan(
-                status="complete",
-                vulnerabilities=[
-                    models.Vulnerability(
-                        "GO-2026-0001", aliases=["CVE-2026-0001"], findings=[finding]
-                    ),
-                ],
-            ),
-            reconciliation=models.BinaryReconciliation(
-                status="matched_with_differences",
-                go_version_status="representation_difference",
-                sbom_modules=[
-                    models.ModuleReconciliation("unverifiable", "example/sbom-one", ""),
-                    models.ModuleReconciliation("unverifiable", "example/sbom-two", ""),
-                ],
-            ),
-        )
-        audit = report(
-            binary,
-            image=models.ImageIdentity(
-                reference="registry.example/example@sha256:" + "b" * 64,
-                digest="sha256:" + "b" * 64,
-                platform="linux/amd64",
-                name="openshift/example-rhel9",
-                component="example",
-                source_git_url="https://github.com/example/example",
-                product_version="v4.20.0",
-                component_version="abc1234",
-                product_component="example-maintainer",
-                cpe="cpe:/a:example:example:4.20",
-            ),
-        ).to_dict()
-        csaf_document = {
-            "document": {
-                "title": "Example CVE",
-                "aggregate_severity": {"text": "Moderate"},
-                "tracking": {
-                    "id": "CVE-2026-0001",
-                    "current_release_date": "2026-01-01T00:00:00Z",
-                },
-            },
-            "product_tree": {"branches": [{"product": {"product_id": product_id}}]},
-            "vulnerabilities": [
-                {
-                    "cve": "CVE-2026-0001",
-                    "product_status": {"known_affected": [product_id]},
-                }
-            ],
-        }
-        with TemporaryDirectory() as temporary_directory:
-            root = Path(temporary_directory) / "openshift-audit"
-            target = root / "001-example"
-            target.mkdir(parents=True)
-            (target / "audit.json").write_text(json.dumps(audit), encoding="utf-8")
-            csaf_path = root / "CVE-2026-0001.json"
-            csaf_path.write_text(json.dumps(csaf_document), encoding="utf-8")
-            args = aggregate.argparse.Namespace(
-                csaf=[csaf_path], jobs=1
-            )
-            json_path, text_path = aggregate.aggregate(
-                [aggregate.load_target(target, target / "audit.json")], root, args
-            )
-            args.jobs = 2
-            parallel_json, parallel_text = aggregate.aggregate(
-                [aggregate.load_target(target, target / "audit.json")], root / "parallel", args
-            )
-            self.assertEqual(parallel_json.read_bytes(), json_path.read_bytes())
-            self.assertEqual(parallel_text.read_bytes(), text_path.read_bytes())
-            document = json.loads(json_path.read_text())
-            text = text_path.read_text()
-            self.assertFalse(list(root.glob("*.csv")))
-
-        self.assertEqual(len(document["containers"]), 1)
-        container = document["containers"][0]
-        summary = container["audit_summary"]
-        self.assertEqual(container["image"]["source_git_url"], "https://github.com/example/example")
-        self.assertEqual(container["image"]["component_version"], "abc1234")
-        self.assertEqual(container["image"]["product_component"], "example-maintainer")
-        self.assertEqual(container["image"]["product_version"], "v4.20.0")
-        self.assertEqual(container["comparisons"]["CVE-2026-0001"]["comparison"], "agreement")
-        self.assertIn("VEX COVERAGE", text)
-        self.assertIn("100% (1/1)", text)
-        self.assertIn("/usr/bin/example", text)
-        self.assertIn("status:known_affected", text)
-        self.assertEqual(summary["pygo_finding_reconciliation_representation_difference"], 1)
-        self.assertEqual(summary["pygo_go_version_representation_difference"], 1)
-        self.assertEqual(summary["pygo_sbom_reconciliation_unverifiable"], 2)
-        self.assertEqual(summary["csaf_component_release_architecture"], 1)
-        self.assertEqual(summary["csaf_known_affected"], 1)
-        self.assertEqual(summary["pygo_cve_vex_agreement"], 1)
-
-    def test_distinguishes_resolved_and_unexplained_not_affected_results(self) -> None:
-        target = aggregate.TargetAudit(
-            index=1,
-            directory=Path("example"),
-            report=report_with_cves(("CVE-2026-0001",)),
-        )
-        target.assessments["CVE-2026-0001"] = {
-            "assessment": "component",
-            "statuses": ["status:known_not_affected"],
-        }
-        self.assertEqual(
-            comparison.vex_details(target.assessments.get("CVE-2026-0001")).comparison,
-            "mismatch",
-        )
-        target.assessments["CVE-2026-0001"]["statuses"].append(
-            "status:flag:vulnerable_code_not_present"
-        )
-        details = comparison.vex_details(target.assessments.get("CVE-2026-0001"))
-        self.assertEqual(details.comparison, "resolved_difference")
-        self.assertEqual(details.flags, frozenset({"vulnerable_code_not_present"}))
-        self.assertEqual(details.resolutions, frozenset({"code_not_present"}))
-        evidence = symbol_evidence("CVE-2026-0001")
-        self.assertEqual(comparison.cve_comparison(details, evidence), "code_presence_conflict")
-        target.assessments["CVE-2026-0001"]["statuses"].append("status:known_affected")
-        details = comparison.vex_details(target.assessments["CVE-2026-0001"])
-        self.assertEqual(details.comparison, "conflicting_vex")
-        self.assertEqual(comparison.cve_comparison(details, evidence), "conflicting_vex")
-
-
-class AggregatePublicationTests(unittest.TestCase):
-    def test_render_failure_keeps_existing_reports(self) -> None:
-        with TemporaryDirectory() as temporary_directory:
-            root = Path(temporary_directory)
-            paths = [root / "aggregate.json", root / "aggregate.txt"]
-            for path in paths:
-                path.write_text("previous result\n")
-            with (
-                patch.object(aggregate, "render_text", side_effect=ValueError("invalid row")),
-                self.assertRaisesRegex(ValueError, "invalid row"),
-            ):
-                aggregate.aggregate([], root, aggregate.argparse.Namespace(csaf=[], jobs=1))
-            for path in paths:
-                self.assertEqual(path.read_text(), "previous result\n")
-            self.assertEqual(set(root.iterdir()), set(paths))
-
-    def test_outputs_cannot_replace_audit_or_csaf_inputs(self) -> None:
-        with TemporaryDirectory() as temporary_directory:
-            root = Path(temporary_directory)
-            audit_path = root / "aggregate.json"
-            audit_path.write_text(json.dumps(report_with_cves(("CVE-2026-0001",)).to_dict()))
-            original = audit_path.read_bytes()
-            with self.assertRaisesRegex(ValueError, "must differ"):
-                aggregate.aggregate(
-                    [aggregate.load_target(root, audit_path)], root,
-                    aggregate.argparse.Namespace(csaf=[], jobs=1),
                 )
-            self.assertEqual(audit_path.read_bytes(), original)
-            source = root / "aggregate.txt"
-            source.write_text(json.dumps({"vulnerabilities": [{"cve": "CVE-2026-0001"}]}))
-            original = source.read_bytes()
-            with self.assertRaisesRegex(ValueError, "must differ"):
-                aggregate.aggregate([], root, aggregate.argparse.Namespace(csaf=[source], jobs=1))
-            self.assertEqual(source.read_bytes(), original)
+                for cve in cves
+            ],
+        ),
+    )
+    report = models.AuditReport(
+        metadata=models.ContainerMetadata(
+            str(directory / "rootfs"),
+            identity
+            or models.ImageIdentity(name="app", csaf_product_ids=("component",)),
+        ),
+        binaries=[binary],
+        go_command="go",
+        go_tool_version="test",
+        producer_name="pygo-audit",
+        producer_version="test",
+    )
+    (directory / "audit.json").write_text(json.dumps(report.to_dict()))
+    return directory
 
-if __name__ == "__main__":
-    unittest.main()
+
+def write_document(
+    directory: Path,
+    name: str,
+    statuses: dict[str, str],
+    flags: dict[str, str] | None = None,
+    *,
+    purl: str = "pkg:oci/app@v1.0.0",
+    scores: list[dict[str, Any]] | None = None,
+) -> Path:
+    directory.mkdir(parents=True, exist_ok=True)
+    records: list[dict[str, Any]] = []
+    for cve, status in statuses.items():
+        record: dict[str, Any] = {"cve": cve, "product_status": {status: ["component"]}}
+        if scores:
+            record["scores"] = scores
+        if flags and cve in flags:
+            record["flags"] = [{"label": flags[cve], "product_ids": ["component"]}]
+        records.append(record)
+    document = {
+        "document": {
+            "tracking": {"id": name.removesuffix(".json")},
+            "references": [
+                {"category": "self", "url": "https://vendor.example/" + name.lower()},
+            ],
+        },
+        "product_tree": {
+            "full_product_names": [
+                {
+                    "product_id": "component",
+                    "product_identification_helper": {"purl": purl},
+                }
+            ]
+        },
+        "vulnerabilities": records,
+    }
+    path = directory / name
+    path.write_text(json.dumps(document))
+    return path
+
+
+def fail_publication(
+    fail_at: Path, path: Path, content: str, *, overwrite: bool = False
+) -> None:
+    if path == fail_at:
+        raise OSError("publication failed")
+    atomic_write_text(path, content, overwrite=overwrite)
+
+
+class AggregateTests(unittest.TestCase):
+    def setUp(self) -> None:
+        temporary = TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.csaf = self.root / "csaf"
+        self.csaf.mkdir()
+
+    def run_batch(self, *flags: str) -> dict[str, Any]:
+        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()) as errors:
+            self.assertEqual(
+                main(["aggregate", str(self.root), *flags]), 0, errors.getvalue()
+            )
+        return json.loads((self.root / "reports/aggregate.json").read_text())
+
+    def test_batch_matches_standalone_and_parallel_results_without_cross_container_cves(
+        self,
+    ) -> None:
+        cves = tuple(f"CVE-2026-{index:04d}" for index in range(1, 5))
+        alpha = make_workspace(self.root, "alpha", cves[:2])
+        beta = make_workspace(self.root, "beta", cves[1:3], evidence="module")
+        paths = {
+            cve: write_document(
+                self.csaf,
+                f"source-{index}.json",
+                {cve: "known_not_affected" if index == 2 else "known_affected"},
+                {cve: "component_not_present"} if index == 2 else None,
+            )
+            for index, cve in enumerate(cves, 1)
+        }
+        audits = {
+            directory: (directory / "audit.json").read_bytes()
+            for directory in (alpha, beta)
+        }
+        with patch("pygo_audit.scanner.scan_root") as scan:
+            serial = self.run_batch("--jobs", "1", "--wide")
+            parallel = self.run_batch("--jobs", "2", "--wide")
+        scan.assert_not_called()
+        self.assertEqual(serial, parallel)
+        self.assertEqual(serial["summary"]["container_count"], 2)
+        self.assertEqual(serial["summary"]["unique_cves"], 3)
+        self.assertEqual(serial["summary"]["metrics"]["comparisons"], 4)
+        self.assertEqual(serial["summary"]["metrics"]["discrepancies"], 2)
+        for directory, selected in ((alpha, cves[:2]), (beta, cves[1:3])):
+            actual = next(
+                container
+                for container in serial["containers"]
+                if container["container_name"] == directory.name
+            )
+            source = image_csaf.prepare_image(
+                directory / "audit.json", load_audit(directory / "audit.json")
+            )
+            expected = image_csaf.check_image(
+                source.path,
+                source.report,
+                [paths[cve] for cve in selected],
+                [self.csaf],
+            )
+            self.assertEqual({key: actual[key] for key in expected}, expected)
+            self.assertEqual(set(actual["conclusions"]), set(selected))
+            self.assertEqual(actual["summary"]["documents_checked"], 2)
+            self.assertEqual((directory / "audit.json").read_bytes(), audits[directory])
+            self.assertTrue((directory / "reports/comparison.txt").is_file())
+        self.assertNotIn(cves[3], (self.root / "reports/aggregate.csv").read_text())
+
+    def test_document_work_is_shared_but_local_conclusions_are_not(self) -> None:
+        cve = "CVE-2026-0001"
+        make_workspace(self.root, "alpha", (cve,))
+        make_workspace(self.root, "beta", (cve,), evidence="module")
+        write_document(
+            self.csaf,
+            "advisory.json",
+            {cve: "known_not_affected"},
+            {cve: "component_not_present"},
+        )
+        with (
+            patch.object(csaf, "index_document", wraps=csaf.index_document) as index,
+            patch.object(
+                image_csaf, "match_candidates", wraps=image_csaf.match_candidates
+            ) as match,
+            patch.object(
+                image_csaf, "summarize_cve", wraps=image_csaf.summarize_cve
+            ) as summarize,
+        ):
+            result = self.run_batch("--jobs", "1")
+        index.assert_called_once()
+        match.assert_called_once()
+        self.assertEqual(summarize.call_count, 2)
+        states = {
+            container["container_name"]: container["conclusions"][cve]["agreement"][
+                "comparison"
+            ]
+            for container in result["containers"]
+        }
+        self.assertEqual(states, {"alpha": "no", "beta": "qualified_no"})
+        self.assertEqual(result["summary"]["unique_cves"], 1)
+        cases = aggregate.triage_cases(result)
+        self.assertEqual([case.agreement for case in cases], ["no", "qualified_no"])
+        self.assertEqual([case.evidence for case in cases], [("symbol",), ("module",)])
+
+    def test_multi_cve_sources_keep_record_numbers_and_clean_containers_have_no_cases(
+        self,
+    ) -> None:
+        first, second = "CVE-2026-0001", "CVE-2026-0002"
+        for name, selected in (("alpha", (first,)), ("beta", (second,)), ("clean", ())):
+            make_workspace(self.root, name, selected)
+        write_document(
+            self.csaf,
+            "not-a-cve-filename.json",
+            {first: "known_affected", second: "fixed"},
+        )
+        result = self.run_batch("--jobs", "1")
+        for container in result["containers"]:
+            name = container["container_name"]
+            if name == "clean":
+                self.assertEqual(container["conclusions"], {})
+                self.assertEqual(container["documents"], [])
+            else:
+                record = container["documents"][0]["vulnerabilities"][0]
+                self.assertEqual(record["id"], first if name == "alpha" else second)
+                self.assertEqual(record["record"], 1 if name == "alpha" else 2)
+        self.assertEqual(len(aggregate.triage_cases(result)), 2)
+
+    def test_cached_absence_overrides_retained_json_and_other_cves_are_not_inherited(
+        self,
+    ) -> None:
+        cve = "CVE-2026-0001"
+        make_workspace(self.root, "alpha", (cve,))
+        source = write_document(self.csaf, cve + ".json", {cve: "known_affected"})
+        self.run_batch("--jobs", "1")
+        source.with_suffix(".missing").write_text(
+            json.dumps(
+                {
+                    "url": "https://vendor.example/missing",
+                    "status": 404,
+                    "checked_at": "2000-01-01T00:00:00Z",
+                }
+            )
+        )
+        (self.csaf / "CVE-2026-9999.missing").write_text(
+            json.dumps(
+                {
+                    "url": "https://vendor.example/other",
+                    "status": 404,
+                    "checked_at": "2000-01-01T00:00:00Z",
+                }
+            )
+        )
+        result = self.run_batch("--jobs", "1")
+        container = result["containers"][0]
+        self.assertTrue(source.is_file())
+        self.assertEqual(container["documents"], [])
+        self.assertEqual(set(container["missing_documents"]), {cve})
+        self.assertEqual(container["conclusions"][cve]["match"], "no_document")
+        self.assertEqual(
+            container["conclusions"][cve]["local_scan"]["status"], "affected"
+        )
+
+    def test_current_documents_are_re_read_and_prior_comparisons_are_not_inputs(
+        self,
+    ) -> None:
+        cve = "CVE-2026-0001"
+        make_workspace(self.root, "alpha", (cve,))
+        for status, expected in (("known_affected", "yes"), ("fixed", "qualified_no")):
+            with self.subTest(status=status):
+                write_document(self.csaf, "advisory.json", {cve: status})
+                result = self.run_batch("--jobs", "1")
+                self.assertEqual(
+                    result["containers"][0]["conclusions"][cve]["agreement"][
+                        "comparison"
+                    ],
+                    expected,
+                )
+
+    def test_csv_preserves_qualifications_multiple_values_and_final_provenance(
+        self,
+    ) -> None:
+        cve = "CVE-2026-0001"
+        make_workspace(self.root, "=alpha,one", (cve,))
+        source = self.root / "=alpha,one/audit.json"
+        report = load_audit(source)
+        report.metadata.image = replace(
+            report.metadata.image,
+        reference="registry.example.test/team/app:v1",
+            platform="linux/amd64",
+            csaf_product_ids=(),
+            purls=("pkg:oci/app@v1.0.0?arch=amd64",),
+        )
+        source.write_text(json.dumps(report.to_dict()))
+        write_document(
+            self.csaf,
+            "first.json",
+            {cve: "known_affected"},
+            purl="pkg:oci/app@v1.0.0?arch=arm64",
+            scores=[{"cvss_v3": {"version": "3.1", "baseScore": 7.5}}],
+        )
+        write_document(
+            self.csaf,
+            "second.json",
+            {cve: "fixed"},
+            purl="pkg:oci/app@v1.0.0?arch=arm64",
+            scores=[{"cvss_v3": {"version": "3.1", "baseScore": 8.1}}],
+        )
+        result = self.run_batch("--jobs", "1", "-v", "--wide")
+        csv_path = self.root / "reports/aggregate.csv"
+        rows = list(csv.DictReader(io.StringIO(csv_path.read_text())))
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        self.assertEqual(tuple(row), aggregate.TRIAGE_COLUMNS)
+        self.assertEqual(row["CONTAINER"], "'=alpha,one")
+        self.assertEqual(aggregate.csv_cell(("module", "symbol")), "module; symbol")
+        self.assertEqual(
+            row["CVSS SCORE"], "7.5; 8.1"
+        )
+        self.assertEqual(row["PYGO ASSESSMENT"], "Affected")
+        self.assertEqual(row["AGREEMENT"], "Mixed")
+        self.assertEqual(row["EVIDENCE"], "symbol")
+        self.assertEqual(row["BINARIES"], "1")
+        self.assertEqual(
+            row["CSAF URL"].split("; "),
+            [
+                "https://vendor.example/first.json",
+                "https://vendor.example/second.json",
+            ],
+        )
+        self.assertEqual(
+            row["CONTAINER URL"], "registry.example.test/team/app:v1"
+        )
+        text = (self.root / "reports/aggregate.txt").read_text()
+        self.assertEqual(text.count("[PROVENANCE]"), 1)
+        self.assertGreater(text.index("[PROVENANCE]"), text.rindex("[LOCAL FINDINGS]"))
+        for level in (Verbosity.SUMMARY, Verbosity.EXPANDED, Verbosity.DETAILED):
+            preview = aggregate.render_text(result, RenderPolicy(level, wide=True))
+            self.assertNotIn("[PROVENANCE]", preview)
+            self.assertEqual(preview.count("More information:"), 1)
+        self.assertEqual(aggregate.render_text(result, FULL_POLICY), text)
+
+    def test_triage_cases_sort_by_cvss_then_container_then_agreement(self) -> None:
+        cases = [
+            aggregate.TriageCase(
+                "zeta", "CVE-2026-0001", (9.0,), "affected", "", "no", (), 0, (), ""
+            ),
+            aggregate.TriageCase(
+                "alpha",
+                "CVE-2026-0002",
+                (9.0,),
+                "affected",
+                "",
+                "qualified_no",
+                (),
+                0,
+                (),
+                "",
+            ),
+            aggregate.TriageCase(
+                "alpha", "CVE-2026-0003", (10.0,), "affected", "", "no", (), 0, (), ""
+            ),
+            aggregate.TriageCase(
+                "alpha", "CVE-2026-0004", (9.0,), "affected", "", "no", (), 0, (), ""
+            ),
+            aggregate.TriageCase(
+                "alpha", "CVE-2026-0005", (8.1,), "affected", "", "yes", (), 0, (), ""
+            ),
+            aggregate.TriageCase(
+                "alpha", "CVE-2026-0006", (), "affected", "", "no", (), 0, (), ""
+            ),
+        ]
+        ordered = sorted(cases, key=aggregate.TriageCase.review_key)
+        self.assertEqual(
+            [(case.container, case.agreement, case.cve) for case in ordered],
+            [
+                ("alpha", "no", "CVE-2026-0003"),
+                ("alpha", "no", "CVE-2026-0004"),
+                ("alpha", "qualified_no", "CVE-2026-0002"),
+                ("zeta", "no", "CVE-2026-0001"),
+                ("alpha", "yes", "CVE-2026-0005"),
+                ("alpha", "no", "CVE-2026-0006"),
+            ],
+        )
+
+    def test_binary_hashes_keep_different_contents_at_one_path_distinct(self) -> None:
+        cve = "CVE-2026-0001"
+        directory = make_workspace(self.root, "alpha", (cve,))
+        source = directory / "audit.json"
+        report = load_audit(source)
+        report.binaries.append(
+            replace(report.binaries[0], sha256="b" * 64, runtime_disposition="deleted")
+        )
+        source.write_text(json.dumps(report.to_dict()))
+        write_document(self.csaf, "advisory.json", {cve: "known_affected"})
+        result = self.run_batch("--jobs", "1")
+        artifacts = result["containers"][0]["local_findings"][cve]
+        self.assertEqual(
+            {artifact["sha256"] for artifact in artifacts}, {"a" * 64, "b" * 64}
+        )
+        self.assertEqual(aggregate.triage_cases(result)[0].binary_count, 2)
+
+    def test_all_outputs_roll_back_together_on_csv_failure(self) -> None:
+        cve = "CVE-2026-0001"
+        make_workspace(self.root, "alpha", (cve,))
+        write_document(self.csaf, "advisory.json", {cve: "known_affected"})
+        self.run_batch("--jobs", "1")
+        paths = [
+            *self.root.glob("reports/aggregate.*"),
+            *self.root.glob("alpha/reports/comparison.*"),
+        ]
+        previous = {path: path.read_bytes() for path in paths}
+        write_document(self.csaf, "advisory.json", {cve: "fixed"})
+        with (
+            patch(
+                "pygo_audit.artifacts.atomic_write_text",
+                side_effect=partial(
+                    fail_publication, self.root / "reports/aggregate.csv"
+                ),
+            ),
+            redirect_stdout(io.StringIO()),
+            redirect_stderr(io.StringIO()) as errors,
+        ):
+            self.assertEqual(main(["aggregate", str(self.root), "--jobs", "1"]), 1)
+        self.assertIn("publication failed", errors.getvalue())
+        self.assertEqual({path: path.read_bytes() for path in paths}, previous)
+
+    def test_invalid_audit_and_render_failure_preserve_existing_outputs(self) -> None:
+        cve = "CVE-2026-0001"
+        directory = make_workspace(self.root, "alpha", (cve,))
+        write_document(self.csaf, "advisory.json", {cve: "known_affected"})
+        self.run_batch("--jobs", "1")
+        paths = [
+            *self.root.glob("reports/aggregate.*"),
+            *self.root.glob("alpha/reports/comparison.*"),
+        ]
+        previous = {path: path.read_bytes() for path in paths}
+        with (
+            patch.object(
+                image_csaf, "render_text", side_effect=ValueError("invalid view")
+            ),
+            redirect_stdout(io.StringIO()),
+            redirect_stderr(io.StringIO()),
+        ):
+            self.assertEqual(main(["aggregate", str(self.root), "--jobs", "1"]), 1)
+        self.assertEqual({path: path.read_bytes() for path in paths}, previous)
+        (directory / "audit.json").write_text('{"binaries": []}')
+        with redirect_stderr(io.StringIO()):
+            self.assertEqual(main(["aggregate", str(self.root), "--jobs", "1"]), 1)
+        self.assertEqual({path: path.read_bytes() for path in paths}, previous)
+
+    def test_inputs_and_scan_subjects_cannot_become_output_files(self) -> None:
+        cve = "CVE-2026-0001"
+        directory = make_workspace(self.root, "alpha", (cve,))
+        source = write_document(self.csaf, "advisory.json", {cve: "known_affected"})
+        collision = self.csaf / "aggregate.csv"
+        collision.write_bytes(source.read_bytes())
+        before = collision.read_bytes()
+        with redirect_stderr(io.StringIO()):
+            self.assertEqual(
+                main(
+                    [
+                        "aggregate",
+                        str(self.root),
+                        "--csaf",
+                        str(collision),
+                        "--output-dir",
+                        str(self.csaf),
+                        "--jobs",
+                        "1",
+                    ]
+                ),
+                1,
+            )
+            self.assertEqual(
+                main(
+                    [
+                        "aggregate",
+                        str(self.root),
+                        "--output-dir",
+                        str(directory / "rootfs"),
+                        "--jobs",
+                        "1",
+                    ]
+                ),
+                1,
+            )
+        self.assertEqual(collision.read_bytes(), before)
+        self.assertFalse((directory / "reports/comparison.json").exists())
+
+    def test_worker_read_failure_is_visible_in_serial_and_parallel_modes(self) -> None:
+        cve = "CVE-2026-0001"
+        directory = make_workspace(self.root, "alpha", (cve,))
+        source = write_document(self.csaf, "first.json", {cve: "known_affected"})
+        write_document(self.csaf, "second.json", {cve: "fixed"})
+        settings = resolve_settings(directory, {"csaf": [self.csaf]})
+        use_default_reports_directory(settings)
+        targets = csaf_workflow.load_workspaces([settings])
+        source.unlink()
+        for jobs in (1, 2):
+            with (
+                self.subTest(jobs=jobs),
+                self.assertRaisesRegex(csaf.CsafCheckError, "cannot read CSAF"),
+            ):
+                csaf_workflow.compare_workspaces(targets, jobs=jobs, recorded_only=True)
+        self.assertFalse((directory / "reports").exists())

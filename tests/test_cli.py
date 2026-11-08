@@ -29,7 +29,7 @@ from pygo_audit.report import (
     render_overview,
 )
 from pygo_audit.text_layout import DETAILED_POLICY, FULL_POLICY
-from pygo_audit.storage import atomic_write_json, directory_lock, json_digest
+from pygo_audit.storage import atomic_write_json, directory_lock
 
 
 def report(root: Path) -> AuditReport:
@@ -155,8 +155,15 @@ class CliTests(unittest.TestCase):
         self.assertTrue(scan.call_args.kwargs["layers_ordered"])
 
     def test_sidecar_identity_and_cli_override(self):
+        labels = self.root / "rootfs/usr/share/buildinfo/labels.json"
+        labels.parent.mkdir(parents=True, exist_ok=True)
+        labels.write_text('{"name": "base", "cpe": "cpe:/a:example:base:1"}')
         (self.root / ".pygo-audit-image.json").write_text(
-            json.dumps({"image-name": "image-sidecar"})
+            json.dumps({"image": {
+                "name": "image-sidecar",
+                "vendor_image_name": "vendor/service",
+                "image_build_release": "sidecar-build",
+            }, "products": [{"name": "supplied-base", "cpes": ["cpe:/a:example:supplied:2"]}]})
         )
         (self.root / "pygo-audit.json").write_text(
             json.dumps({"image-name": "workspace", "jobs": 2})
@@ -165,11 +172,18 @@ class CliTests(unittest.TestCase):
         with patch("pygo_audit.scanner.scan_root", return_value=result) as scan:
             self.assertEqual(
                 self.invoke(
-                    "scan", str(self.root), "--image-name", "explicit", "--jobs", "3"
+                    "scan", str(self.root), "--image-name", "explicit",
+                    "--image-build-release", "explicit-build", "--jobs", "3"
                 ),
                 0,
             )
         self.assertEqual(result.metadata.image.name, "explicit")
+        saved = load_audit(self.root / "audit.json").metadata.image
+        self.assertEqual(len(saved.products), 1)
+        self.assertEqual(saved.products[0].name, "supplied-base")
+        self.assertEqual(saved.products[0].cpes, ("cpe:/a:example:supplied:2",))
+        self.assertEqual(saved.vendor_image_name, "vendor/service")
+        self.assertEqual(saved.image_build_release, "explicit-build")
         self.assertEqual(scan.call_args.kwargs["jobs"], 3)
 
     def test_strict_failure_saves_diagnostics_without_replacing_current_audit(self):
@@ -255,6 +269,9 @@ class CliTests(unittest.TestCase):
                 "vulnerability-findings",
                 "module-reconciliation",
                 "diagnostics",
+                "cves",
+                "modules",
+                "packages",
                 "json",
             ):
                 with redirect_stdout(io.StringIO()) as output:
@@ -267,8 +284,10 @@ class CliTests(unittest.TestCase):
                     else self.root / "reports" / f"{view}.txt"
                 )
                 saved_output = artifact.read_text()
-                if view == "json":
+                if view in {"json", "cves", "modules", "packages"}:
                     self.assertEqual(output.getvalue(), saved_output)
+                    if view != "json":
+                        self.assertEqual(output.getvalue(), "")
                 else:
                     self.assertEqual(
                         output.getvalue().splitlines()[0],
@@ -278,6 +297,50 @@ class CliTests(unittest.TestCase):
             self.assertEqual(
                 self.invoke("check", str(self.root), "--id", "CVE-2026-0001"), 0
             )
+
+    def test_identifier_views_write_only_complete_lists(self):
+        saved = report(self.root)
+        saved.binaries = [
+            BinaryReport(
+                paths=["/usr/bin/example"],
+                size=1,
+                go_version="go1.26",
+                main_package="example.test/app/cmd",
+                main_module=Module("example.test/app", "v1.2.3"),
+                dependencies=[
+                    Module(f"example.test/library{index:02d}", "v2.0.0")
+                    for index in range(12)
+                ],
+                build_settings=[],
+                vulnerability_scan=VulnerabilityScan(
+                    status="complete",
+                    vulnerabilities=[
+                        Vulnerability(id="GO-2026-0001", aliases=["CVE-2026-0001"]),
+                    ],
+                ),
+            )
+        ]
+        atomic_write_json(self.root / "audit.json", saved.to_dict())
+        expected = {
+            "cves": "CVE-2026-0001\n",
+            "modules": "example.test/app@v1.2.3\n"
+            + "".join(
+                f"example.test/library{index:02d}@v2.0.0\n" for index in range(12)
+            ),
+            "packages": "example.test/app/cmd@v1.2.3\n",
+        }
+        for view, content in expected.items():
+            with self.subTest(view=view), redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(main(["report", str(self.root), "--view", view]), 0)
+                self.assertEqual(output.getvalue(), content)
+            for option in ("-v", "-vv", "-vvv", "--wide"):
+                with (
+                    self.subTest(view=view, option=option),
+                    redirect_stderr(io.StringIO()),
+                ):
+                    with self.assertRaises(SystemExit) as raised:
+                        main(["report", str(self.root), "--view", view, option])
+                    self.assertEqual(raised.exception.code, 2)
 
     def test_check_verbosity_and_saved_details_use_vulnerability_layout(self):
         saved = report(self.root)
@@ -452,7 +515,7 @@ class CliTests(unittest.TestCase):
         self.assertIn("SHA-256:                " + "a" * 64, wide)
         self.assertEqual((self.root / "audit.json").read_bytes(), original_audit)
 
-    def test_binary_severity_enrichment_rejects_a_stale_comparison(self) -> None:
+    def test_binary_report_does_not_depend_on_csaf_comparison(self) -> None:
         saved = report(self.root)
         atomic_write_json(self.root / "audit.json", saved.to_dict())
         comparison = self.root / "reports" / "comparison.json"
@@ -465,21 +528,6 @@ class CliTests(unittest.TestCase):
             },
         )
 
-        with redirect_stderr(io.StringIO()) as errors:
-            self.assertEqual(
-                main(["report", str(self.root), "--view", "binary-findings"]),
-                1,
-            )
-        self.assertIn("audit SHA-256 does not match", errors.getvalue())
-
-        atomic_write_json(
-            comparison,
-            {
-                "audit_sha256": json_digest(saved.to_dict()),
-                "assessments": [],
-            },
-            overwrite=True,
-        )
         self.assertEqual(
             self.invoke("report", str(self.root), "--view", "binary-findings"),
             0,

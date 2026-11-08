@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import csv
+from pathlib import Path
+from typing import Literal
 from uuid import uuid4
 
 from pygo_audit.artifacts import validate_artifact_directory
@@ -12,6 +15,23 @@ from pygo_audit.scanner import ScanConfigurationError
 from pygo_audit.models import TargetOutcome
 from pygo_audit.storage import atomic_text_writer, atomic_write_text, directory_lock
 from pygo_audit.workspace import scan_subjects, scan_workspace, outside_subjects
+
+
+def write_progress(root: Path, results: Mapping[str, TargetOutcome]) -> None:
+    with atomic_text_writer(
+        root / "progress.tsv", overwrite=True, newline=""
+    ) as stream:
+        writer = csv.writer(stream, delimiter="\t")
+        writer.writerow(("name", "status", "audit_file", "detail"))
+        writer.writerows(
+            (
+                results[name].name,
+                results[name].status,
+                results[name].audit_file or "",
+                results[name].detail,
+            )
+            for name in sorted(results)
+        )
 
 
 def run(options: argparse.Namespace, settings: list[argparse.Namespace]) -> int:
@@ -42,17 +62,6 @@ def run(options: argparse.Namespace, settings: list[argparse.Namespace]) -> int:
     run_id = uuid4().hex
     results: dict[str, TargetOutcome] = {}
 
-    def write_progress() -> None:
-        with atomic_text_writer(
-            root / "progress.tsv", overwrite=True, newline=""
-        ) as stream:
-            writer = csv.writer(stream, delimiter="\t")
-            writer.writerow(("name", "status", "audit_file", "detail"))
-            writer.writerows(
-                (item.name, item.status, item.audit_file or "", item.detail)
-                for _, item in sorted(results.items())
-            )
-
     with directory_lock(root):
         with ThreadPoolExecutor(max_workers=options.workers) as pool:
             pending = {
@@ -67,7 +76,7 @@ def run(options: argparse.Namespace, settings: list[argparse.Namespace]) -> int:
                         outcome = TargetOutcome(name, "CANCELLED", detail="not started")
                     else:
                         report, audit_file = future.result()
-                        status = (
+                        status: Literal["FAILED", "COMPLETE"] = (
                             "FAILED"
                             if item.strict and report.actionable_issues
                             else "COMPLETE"
@@ -87,8 +96,8 @@ def run(options: argparse.Namespace, settings: list[argparse.Namespace]) -> int:
                 if outcome.status == "FAILED" and options.fail_fast:
                     for queued in pending:
                         queued.cancel()
-                write_progress()
-        lines = [outcome.summary() for _, outcome in sorted(results.items())]
+                write_progress(root, results)
+        lines = [results[name].summary() for name in sorted(results)]
         validate_artifact_directory(reports_directory)
         reports_directory.mkdir(parents=True, exist_ok=True)
         atomic_write_text(

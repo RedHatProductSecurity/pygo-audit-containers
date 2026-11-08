@@ -2,17 +2,18 @@
 
 import argparse
 import math
+import os
 from pathlib import Path
 import sys
+from typing import TypedDict
 from uuid import uuid4
 
-from pygo_audit import __version__, aggregate, batch, comparison, csaf, report
+from pygo_audit import __version__, aggregate, batch, csaf_workflow, report
 from pygo_audit.artifacts import write_check_artifacts, write_report_artifacts
 from pygo_audit.audit import load_audit
-from pygo_audit.identity import SIDECAR_FIELDS, resolve_image_identity
-from pygo_audit.models import AuditReport
+from pygo_audit.identity import IDENTITY_OPTIONS, resolve_image_identity
 from pygo_audit.result_cache import ResultCacheError
-from pygo_audit.text_layout import RenderPolicy, Verbosity
+from pygo_audit.text_layout import RenderPolicy, SUMMARY_POLICY, Verbosity
 from pygo_audit.scanner import ScanConfigurationError
 from pygo_audit.storage import atomic_read_json
 from pygo_audit.workspace import scan_workspace
@@ -44,14 +45,14 @@ OPTIONS: dict[str, tuple[type, object, str]] = {
     ),
     "vulncheck": (bool, True, "run binary vulnerability checks"),
     "timeout": (float, 30.0, "seconds per inspection command"),
-    "jobs": (int, 4, "concurrent binary inspections or aggregate CSAF workers"),
-    "workers": (int, 4, "concurrent container scans"),
+    "jobs": (int, 4, "concurrent binary inspections or CSAF comparison workers"),
+    "workers": (int, os.process_cpu_count() or 1, "concurrent container scans"),
     "strict": (bool, False, "fail on actionable scan issues; audit defaults to strict"),
     "fail_fast": (bool, False, "cancel queued containers after a failure"),
     "image_metadata": (Path, None, "container identity JSON file"),
     **{
         name.replace("-", "_"): (str, None, f"container {field.replace('_', ' ')}")
-        for name, field in SIDECAR_FIELDS.items()
+        for name, field in IDENTITY_OPTIONS.items()
     },
 }
 DEFAULTS = {name: definition[1] for name, definition in OPTIONS.items()}
@@ -60,6 +61,10 @@ SCAN_OPTIONS = [
     for name in OPTIONS
     if name not in ("audit_file", "csaf", "targets", "workers", "fail_fast")
 ]
+COMPARISON_OPTIONS = (
+    "output_dir csaf jobs targets image_metadata csaf_product_id".split()
+)
+TEXT_COMMANDS = {"report", "check", "csaf", "aggregate"}
 COMMANDS = {
     "scan": ("scan a prepared container and save findings", SCAN_OPTIONS),
     "report": (
@@ -71,26 +76,35 @@ COMMANDS = {
         SCAN_OPTIONS + "targets workers fail_fast".split(),
     ),
     "aggregate": (
-        "summarize saved container audits in text and JSON",
-        "output_dir csaf jobs".split(),
+        "summarize saved container audits in text, JSON, and triage CSV",
+        COMPARISON_OPTIONS,
     ),
     "check": (
         "check saved evidence for specific vulnerabilities",
         "audit_file output_dir strict".split(),
     ),
     "csaf": (
-        "compare saved findings with local CSAF documents",
-        "audit_file csaf output_dir".split(),
+        "check image identity against local CSAF documents",
+        ["audit_file", *COMPARISON_OPTIONS],
     ),
 }
 LAYER_SORTS = ("lexicographic", "numeric")
 
 
+class ArgumentSpec(TypedDict, total=False):
+    default: None
+    help: str
+    action: str | type[argparse.Action]
+    type: type
+    nargs: str
+    choices: tuple[str, ...]
+
+
 def normalize(values: dict[str, object], base: Path) -> dict[str, object]:
     """Validate settings and resolve paths relative to their source."""
-    result = {}
+    result: dict[str, object] = {}
     for name, value in values.items():
-        kind, default, _ = OPTIONS[name]
+        kind, default, description = OPTIONS[name]
         if value is None:
             if default is not None:
                 raise ValueError(f"{name} must not be null")
@@ -222,6 +236,8 @@ def resolve_audit_settings(
         root = None
     selected = explicit.get("audit_file")
     if selected is not None and root is None:
+        if not isinstance(selected, (str, Path)):
+            raise ValueError("audit_file must contain a nonempty path")
         root = Path(selected).absolute().parent
         if root.name == "history":
             root = root.parent
@@ -232,21 +248,6 @@ def use_default_reports_directory(settings: argparse.Namespace) -> None:
     """Keep generated comparisons out of the audit workspace root."""
     if "output_dir" not in settings.configured:
         settings.output_dir = settings.audit_root / "reports"
-
-
-def report_priorities(
-    settings: argparse.Namespace, result: AuditReport
-) -> dict[str, comparison.VulnerabilityPriority]:
-    """Find conventional comparison evidence and verify it before display."""
-    directories = []
-    if "output_dir" in settings.configured:
-        directories.append(settings.output_dir)
-    directories.append(settings.audit_root / "reports")
-    for directory in dict.fromkeys(directories):
-        path = directory / "comparison.json"
-        if path.exists() or path.is_symlink():
-            return comparison.load_verified_priorities(path, result)
-    return {}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -286,12 +287,11 @@ def build_parser() -> argparse.ArgumentParser:
             description = help_text + (
                 f" (default: {shown})" if shown is not None and shown != [] else ""
             )
-            spec: dict[str, object] = {"default": None, "help": description}
-            spec.update(
-                {"action": argparse.BooleanOptionalAction}
-                if kind is bool
-                else {"type": kind}
-            )
+            spec: ArgumentSpec = {"default": None, "help": description}
+            if kind is bool:
+                spec["action"] = argparse.BooleanOptionalAction
+            else:
+                spec["type"] = kind
             if option == "layer_dir":
                 spec["action"] = "append"
             elif isinstance(default, list):
@@ -305,9 +305,15 @@ def build_parser() -> argparse.ArgumentParser:
                 "--view",
                 choices=report.REPORT_VIEWS,
                 default="overview",
-                help="view (default: overview)",
+                help="view (default: overview); cves/modules/packages export plain lists",
             )
-        if name in {"report", "check"}:
+        elif name == "aggregate":
+            command.add_argument(
+                "--view",
+                choices=aggregate.AGGREGATE_VIEWS,
+                help="export deduplicated CVEs, modules, or packages from selected audits",
+            )
+        if name in TEXT_COMMANDS:
             command.add_argument(
                 "-v",
                 "--verbose",
@@ -318,7 +324,11 @@ def build_parser() -> argparse.ArgumentParser:
             command.add_argument(
                 "--wide",
                 action="store_true",
-                help="remove text entry limits and hash abbreviations",
+                help=(
+                    "remove candidate list limits"
+                    if name == "csaf"
+                    else "remove text entry limits and hash abbreviations"
+                ),
             )
         if name == "check":
             command.add_argument(
@@ -347,7 +357,8 @@ def run(args: argparse.Namespace) -> int:
     )
     targets = [options]
     if many:
-        inherited = {} if command == "aggregate" else options.configured
+        inherited = dict(options.configured)
+        overrides = vars(args)
         if command == "audit":
             inherited = {
                 "strict": True,
@@ -355,13 +366,21 @@ def run(args: argparse.Namespace) -> int:
                 "cache_dir": options.cache_dir,
                 "work_dir": options.work_dir,
             }
+        else:
+            inherited = {
+                name: value
+                for name, value in inherited.items()
+                if name not in {"output_dir", "audit_file", "targets"}
+            }
+            inherited["csaf"] = options.csaf
+            overrides = {
+                name: value
+                for name, value in vars(args).items()
+                if name != "output_dir"
+            }
         targets = [
-            resolve_settings(
-                root, {} if command == "aggregate" else vars(args), inherited
-            )
-            for root in discover_audits(
-                options.audit_root, options.targets if command == "audit" else None
-            )
+            resolve_settings(root, overrides, inherited)
+            for root in discover_audits(options.audit_root, options.targets)
         ]
     if command in {"scan", "audit"}:
         for target in targets:
@@ -370,59 +389,71 @@ def run(args: argparse.Namespace) -> int:
                 metadata_path=target.image_metadata,
                 **{
                     field: getattr(target, name.replace("-", "_"))
-                    for name, field in SIDECAR_FIELDS.items()
+                    for name, field in IDENTITY_OPTIONS.items()
                 },
             )
         if command == "audit":
             return batch.run(options, targets)
         result = scan_workspace(options, run_id=uuid4().hex)[0]
-        print(report.REPORT_VIEWS["overview"].render(result))
+        print(report.REPORT_VIEWS["overview"].render(result, SUMMARY_POLICY))
         return int(bool(options.strict and result.actionable_issues))
-    if command == "csaf":
+    if command in {"csaf", "aggregate"}:
+        if options.targets is not None and not many:
+            raise ValueError("targets require a batch workspace")
         for target in targets:
-            use_default_reports_directory(target)
-            if "csaf" not in target.configured:
-                target.csaf = [source for source in options.csaf if source.exists()]
-        return csaf.run(targets)
+            if (
+                command == "csaf"
+                and many
+                and (
+                    args.output_dir is not None
+                    or (
+                        "output_dir" in options.configured
+                        and "output_dir" not in target.configured
+                    )
+                )
+            ):
+                target.output_dir = options.output_dir / target.audit_root.name
+            else:
+                use_default_reports_directory(target)
+    if command == "csaf":
+        return csaf_workflow.run(
+            targets, report_policy(args), jobs=options.jobs, recorded_only=many
+        )
     if command == "aggregate":
         use_default_reports_directory(options)
-        if "csaf" not in options.configured:
-            options.csaf = []
-        return aggregate.run(options, targets)
+        return aggregate.run(
+            options, targets, policy=report_policy(args), view=args.view
+        )
     result = load_audit(options.audit_file)
     policy = report_policy(args)
-    priorities = (
-        report_priorities(options, result)
-        if command == "report" and (args.view == "binary-findings" or args.output_dir)
-        else {}
-    )
     if args.output_dir is not None:
         if command == "check":
             write_check_artifacts(result, options.output_dir, args.identifiers)
         else:
-            write_report_artifacts(result, options.output_dir, priorities)
+            write_report_artifacts(result, options.output_dir)
     if command == "check":
         output = report.render_checks(result, args.identifiers, policy)
     else:
-        output = report.REPORT_VIEWS[args.view].render(
-            result, policy, priorities=priorities
-        )
-    print(output)
+        output = report.REPORT_VIEWS[args.view].render(result, policy)
+    if output:
+        print(output)
     return int(bool(options.strict and result.actionable_issues))
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command in {"report", "check"}:
+    if args.command in TEXT_COMMANDS:
         if args.verbose > int(Verbosity.FORENSIC):
             parser.error("-v/--verbose may be repeated at most three times")
-        if (
+        machine_readable = (
             args.command == "report"
-            and report.REPORT_VIEWS[args.view].json
-            and (args.verbose or args.wide)
-        ):
-            parser.error("text verbosity options cannot be used with --view json")
+            and report.REPORT_VIEWS[args.view].machine_readable
+        ) or (args.command == "aggregate" and args.view is not None)
+        if machine_readable and (args.verbose or args.wide):
+            parser.error(
+                f"text verbosity options cannot be used with --view {args.view}"
+            )
     try:
         return run(args)
     except (OSError, ValueError, ScanConfigurationError, ResultCacheError) as error:
