@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -51,7 +52,10 @@ def main(argv: list[str] | None = None) -> int:
         metavar="BATCH_AUDIT_ROOT",
     )
     parser.add_argument("--platform", default="linux/amd64")
-    parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument(
+        "--workers", type=int, default=os.process_cpu_count() or 1,
+        help="concurrent extractions (default: available CPUs, %(default)s)",
+    )
     parser.add_argument(
         "--dry-run",
         action="store_true",

@@ -24,6 +24,7 @@ descriptor-based permission changes, matching the scanner's host requirements.
 | `prepare-audits` | Prepare child audit directories from a NAME IMAGE inventory | The extraction helper below |
 | `extract-image-layers` | Prepare a rootfs, ordered layers, and product metadata | Skopeo, `oc`, `tar`; optional host `rpm` for package facts |
 | `fetch-redhat-csaf` | Retrieve Red Hat VEX documents for observed CVEs | HTTPS access, unless checking existing files with `--offline` |
+| `fetch-cve-data` | Download JSON for a CVE list; defaults to internal OSIDB | Access to the chosen source; the default requires Red Hat internal network/VPN access |
 
 Each helper supports `--help`. Paths are relative to the working directory
 unless absolute paths are supplied. None of these helpers scans a deployed
@@ -75,7 +76,9 @@ Each logical name becomes an immediate child audit directory. No numbering is
 required. `--dry-run` validates the inventory and lists destinations without
 writes or registry access. Existing destinations are rejected before extraction;
 use a fresh workspace when extracting new image contents. `--platform` defaults
-to `linux/amd64`; `--workers` controls concurrent extractions. Failed extraction
+to `linux/amd64`; `--workers` controls concurrent extractions and defaults to the
+logical CPUs available to the process, falling back to one if unknown. An explicit
+`--workers N` overrides CPU detection. Failed extraction
 output remains available for inspection.
 
 After preparation, `pygo-audit audit` finds these child directories automatically.
@@ -104,7 +107,6 @@ creating the destination.
 ```text
 service/
 ├── .pygo-audit-image.json
-├── .pygo-audit-container.json
 ├── layers/
 │   ├── layer-000/
 │   └── layer-001/
@@ -118,8 +120,9 @@ for traversal and unsupported special files before unpacking. Ordinary
 container symlinks are retained without executing their targets.
 
 Completed regular files have owner-only read permission (`0400`); subject
-directories have owner-only read/search permission (`0500`). File execute
-bits, write access, and setuid/setgid bits are removed. Image symlinks are
+directories have owner-only read/write/search permission (`0700`), allowing
+the owner to remove an extracted workspace. File execute and write bits, and
+setuid/setgid bits are removed. Image symlinks are
 preserved without following them or changing their targets' permissions.
 Generated sidecars and reports remain writable outside these trees. These
 permissions are not an immutable boundary: the owner can change them again,
@@ -140,12 +143,12 @@ CLI never invokes extraction. Other tools can prepare `rootfs/`, optional
 
 ### Product metadata
 
-Both generated sidecars live in the audit directory, outside `rootfs/`
-and historical layers. Image-owned files with those names are retained as
-subject data; they are not overwritten or loaded as default metadata.
+The generated image identity sidecar lives in the audit directory, outside
+`rootfs/` and historical layers. An image-owned file with the same name is retained
+as subject data; it is not overwritten or loaded as default metadata.
 
 `.pygo-audit-image.json` contains the original reference, resolved digest,
-platform, logical name, component, product version, product component, source
+platform, logical name, vendor image name, build release, component, product version, product component, source
 repository, and available CPE evidence. It uses the fields documented under
 [image identity inputs](cli-reference.md#optional-image-identity-sidecar).
 
@@ -153,24 +156,33 @@ The adapter translates provider metadata into those generic field names.
 For example, an OpenShift image may supply `BUILD_VERSION`,
 `OPENSHIFT_VERSION`, `io.openshift.build.source-location`, or
 `io.openshift.maintainer.component`. These upstream names remain literal;
-the generated fields are `product-version`, `source-git-url`, and
-`product-component`.
+the generated image fields are `product_version`, `source_git_url`, and
+`product_component`.
+The `name` and `release` labels from `oc image info` are recorded separately as
+`vendor_image_name` and `image_build_release`; they do not replace the inventory's
+logical `name`.
 
-`.pygo-audit-container.json` holds facts read from the extracted filesystem:
-OS release values, RPM database locations, and package coordinates. The host
-`rpm` command queries a private working copy of the database's regular files
-in a temporary `rpm-query-*` directory beside `rootfs/`. Query-created locks
-and journals never touch the extracted database. The working copy is removed
-after success, failure, or timeout; RPM queries have a 30-second timeout.
-No image-owned commands are executed. Missing, unusable, or timed-out RPM
-tooling is recorded as a limitation rather than making extraction fail.
+The prettified JSON separates final `image` coordinates, observed layer `products`, and
+user-supplied `csaf.product_ids` pins. Each product can carry multiple CPEs and
+PURLs. Known buildinfo label files are read from every layer and the final rootfs;
+duplicate observations retain all origins. Label observations matching the final
+image's coordinates are attached to `image.sources`, avoiding a duplicate product
+entry. Other contexts stay under `products`. The helper supplies literal CPEs;
+PURL and product-ID lists start empty. The core may generate PURL lookup candidates
+from the supplied names and labels those candidates in comparison output.
+
+Vendor-specific label discovery stays in `scripts/container_metadata.py`.
+The core consumes normalized identity records without opening these label files.
+The helper skips unreadable, malformed, escaping, or over-1-MiB label files and
+never executes container-owned commands.
+
+The helper reads only `VERSION_ID`, `OPENSHIFT_VERSION`, and `CPE_NAME` from
+`os-release` as fallbacks for missing component version, product version, and CPE.
 
 Metadata reads require regular files contained inside the subject, with
 directory components pinned against symlink replacement. Contained OS-release
 links are accepted; escaping links, special files, and OS-release files larger
-than 64 KiB are skipped. RPM database files themselves must not be symlinks.
-These filesystem facts remain separate from registry identity and are not yet
-incorporated into the main report model.
+than 64 KiB are skipped.
 
 ### Layer directories and temporary manifests
 
@@ -194,15 +206,34 @@ See the [CLI reference](cli-reference.md#layers-and-context).
 
 ## Retrieve Red Hat CSAF documents
 
-Retrieval is optional and separate from comparison. To prepare documents for
-one audit or every completed target in a numbered batch:
+Retrieval is optional and separate from comparison. Export the CVEs from one
+audit and pipe them to the helper:
 
 ```console
-./scripts/fetch-redhat-csaf run/service-1.2.3 run/csaf
-./scripts/fetch-redhat-csaf run run/csaf --jobs 8
+set -o pipefail
+./pygo-audit report run/service-1.2.3 --view cves |
+  ./scripts/fetch-redhat-csaf --input-format cves - run/csaf
 ```
 
-The helper downloads only CVEs observed in the supplied evidence. It owns
+The input is a UTF-8 text file, or `-` for stdin, with one CVE per line.
+`--input-format cves` is the default and the only supported format. Audit JSON
+and audit directories are no longer inputs to this script. Blank lines and
+surrounding whitespace are ignored; identifiers are uppercased, deduplicated,
+and sorted. Invalid lines fail with a line number before any downloads or cache
+writes. An empty list succeeds without creating a cache directory. `pipefail`
+keeps an export failure visible in the pipeline's exit status.
+
+Scans save the same list as `reports/cves.txt`. Use that file directly, or combine
+lists from a completed batch; the helper deduplicates CVEs across containers:
+
+```console
+./scripts/fetch-redhat-csaf run/service-1.2.3/reports/cves.txt run/csaf
+cat run/*/reports/cves.txt |
+  ./scripts/fetch-redhat-csaf --input-format cves - run/csaf --jobs 8
+```
+
+For an existing audit without the saved list, use `report --view cves` to export
+it without rescanning. The helper downloads only the supplied CVEs. It owns
 Red Hat's VEX URL layout and writes `run/csaf/CVE-YYYY-NNNN.json` files. Those
 files are both the reusable download cache and the explicit inputs to the
 comparison command. No cache defaults to a home directory.
@@ -214,15 +245,75 @@ when processes share a destination; atomic publication keeps partial JSON out
 of the document collection. A failed or missing download is reported and gives
 a nonzero exit status.
 
+An HTTP 404 creates a `CVE-YYYY-NNNN.missing` cache marker containing the requested
+URL, HTTP status, and UTC `checked_at` timestamp. Markers have no expiry: normal
+runs report `cached missing (404; checked ...)` without another request.
+`--refresh` checks again, updates the timestamp on another 404, and removes the
+marker after a successful download. Other failures do not create missing markers.
+`--offline` reads markers without changing them. Missing results still produce a
+nonzero exit status and do not resolve the vulnerability. Markers are separate
+from the `*.json` VEX documents used by the comparison command. If a refresh
+returns 404 for a previously cached document, that document is retained, but the
+downloader reports the newer missing observation until a successful refresh.
+
+The helper uses eight concurrent workers by default; `--jobs N` changes that
+limit. Results are printed and flushed as each CVE finishes, so a slow request
+does not hide other completed downloads. Output order follows completion order.
+Cache, lock, and write errors are reported for their CVE while the remaining
+requests finish; the final exit status is nonzero if any CVE failed.
+
+Network failures and HTTP 408, 429, 500, 502, 503, and 504 responses receive up to
+four attempts, with 1-, 2-, and 4-second backoff. Each attempt retains the
+60-second network timeout. `Retry-After` supports both seconds and HTTP dates;
+the wait is at least the server's requested delay. A requested wait longer than
+60 seconds reports a failure rather than retrying early. Invalid JSON, documents
+without the requested CVE, other HTTP errors (including 404), and local file
+errors are not retried. A failed refresh preserves the previous cached document.
+
 Another provider's download tool can prepare ordinary CSAF files in the same
 directory structure. The checker does not need the provider's URL convention.
+
+## Download CVE data from a URL template
+
+`fetch-cve-data` requires only a newline-separated CVE list. The destination
+defaults to `cve-data/` in the working directory. Use `-` for standard input:
+
+```console
+./scripts/fetch-cve-data cves.txt
+cat run/*/reports/cves.txt | ./scripts/fetch-cve-data - run/osidb
+```
+
+The default source is Red Hat's internal OSIDB flaw endpoint. Run it where that
+service is accessible, such as through the appropriate VPN. Requests are ordinary
+HTTP GETs. There are no format or authentication options; a failed request is
+reported without switching sources or authentication methods.
+
+For another JSON source, supply its URL template explicitly:
+
+```console
+./scripts/fetch-cve-data cves.txt run/vendor-data \
+  --url-template 'https://advisories.example/flaws/{cve}'
+```
+
+Templates support `{cve}` (uppercase), `{cve_lower}`, and `{year}`. Downloaded
+JSON is saved with two-space indentation as `CVE-YYYY-NNNN.json`. The helper
+deduplicates the input and uses the same concurrency, cache, retry, `--refresh`,
+`--offline`, and persistent 404 handling as `fetch-redhat-csaf` above. Each cache
+records its URL template in `source.url`; a different template requires a
+different destination. Offline checks create no files or locks.
+
+The shared downloader lives in `pygo_audit.cve_data`; the scripts supply source
+presets. `fetch-redhat-csaf` retains its CSAF/CVE validation and defaults its
+destination to `csaf/`. Generic CVE data is stored as received and is not
+converted into CSAF. Keep OSIDB records separate from CSAF inputs to `csaf`.
 
 ## Hand inputs to the CLI
 
 ```console
 ./pygo-audit scan service
 ./pygo-audit audit run
-./scripts/fetch-redhat-csaf run run/csaf
+cat run/*/reports/cves.txt |
+  ./scripts/fetch-redhat-csaf --input-format cves - run/csaf
 ./pygo-audit csaf run
 ./pygo-audit aggregate run --csaf run/csaf
 ```
@@ -230,5 +321,7 @@ directory structure. The checker does not need the provider's URL convention.
 Scanning writes reports directly in each container audit directory. Batch scanning
 shares `BATCH_AUDIT_ROOT/cache/` and `work/`; preparation never needs to configure
 those defaults individually. Optional `pygo-audit.json` sidecars describe custom
-locations and settings. Explicit CLI options win over sidecars. See the
+locations and settings. Aggregation refreshes each container's comparison and adds
+`run/reports/aggregate.csv` for spreadsheet triage, alongside text and JSON.
+Explicit CLI options win over sidecars. See the
 [CLI reference](cli-reference.md) for precedence, history, and cache lifetimes.

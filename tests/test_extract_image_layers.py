@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import runpy
+import shutil
 import stat
 import subprocess
 import sys
@@ -12,6 +13,7 @@ from tempfile import TemporaryDirectory
 import tarfile
 import textwrap
 import unittest
+
 from unittest.mock import patch
 
 
@@ -58,6 +60,7 @@ class ExtractImageLayersTests(unittest.TestCase):
                     ],
                     "Labels": {
                         "name": "openshift/example",
+                        "release": "202604241817.p2.el9",
                         "com.redhat.component": "example-container",
                         "cpe": "cpe:/a:redhat:openshift:4.20::el9",
                         "io.openshift.maintainer.component": "Example",
@@ -123,8 +126,7 @@ class ExtractImageLayersTests(unittest.TestCase):
                     'CPE_NAME="cpe:/o:redhat:enterprise_linux:9::baseos"\\n'
                 )
                 if target := os.environ.get("EXTRACT_TEST_METADATA_TARGET"):
-                    for name in (".pygo-audit-image.json", ".pygo-audit-container.json"):
-                        (rootfs / name).symlink_to(target)
+                    (rootfs / ".pygo-audit-image.json").symlink_to(target)
                 if os.environ.get("EXTRACT_TEST_RESTRICTIVE_PERMISSIONS"):
                     (rootfs / "usr/bin/app").chmod(0o6777)
                     locked = rootfs / "locked"
@@ -210,23 +212,20 @@ class ExtractImageLayersTests(unittest.TestCase):
         self.assertIn("--filter-by-os", calls[0])
         sidecar = json.loads(
             (self.destination / ".pygo-audit-image.json").read_text()
-        )
-        self.assertEqual(sidecar["image-ref"], self.image)
-        self.assertEqual(sidecar["image-name"], self.destination.name)
-        self.assertEqual(sidecar["image-digest"], self.image_digest)
+        )["image"]
+        self.assertEqual(sidecar["reference"], self.image)
+        self.assertEqual(sidecar["name"], self.destination.name)
+        self.assertEqual(sidecar["vendor_image_name"], "openshift/example")
+        self.assertEqual(sidecar["image_build_release"], "202604241817.p2.el9")
+        self.assertEqual(sidecar["digest"], self.image_digest)
         self.assertEqual(sidecar["extractor"], "extract-image-layers")
         self.assertEqual(
-            sidecar["source-git-url"],
+            sidecar["source_git_url"],
             "https://github.com/example/project",
         )
-        self.assertEqual(sidecar["component-version"], "v1.2.3-4-gabcdef0")
-        self.assertEqual(sidecar["product-version"], "v4.20.0")
-        self.assertEqual(sidecar["product-component"], "Example")
-        container_facts = json.loads(
-            (self.destination / ".pygo-audit-container.json").read_text()
-        )
-        self.assertEqual(container_facts["os-release"]["OPENSHIFT_VERSION"], "4.20")
-        self.assertEqual(container_facts["rpmdb"]["package-count"], 0)
+        self.assertEqual(sidecar["component_version"], "v1.2.3-4-gabcdef0")
+        self.assertEqual(sidecar["product_version"], "v4.20.0")
+        self.assertEqual(sidecar["product_component"], "Example")
 
     def test_generated_metadata_never_overwrites_image_owned_paths(self):
         sentinel = self.root / "keep.json"
@@ -237,12 +236,12 @@ class ExtractImageLayersTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(sentinel.read_text(), '{"keep": true}')
-        for name in (".pygo-audit-image.json", ".pygo-audit-container.json"):
-            self.assertTrue((self.destination / "rootfs" / name).is_symlink())
-            self.assertTrue((self.destination / name).is_file())
-            self.assertFalse((self.destination / name).is_symlink())
+        name = ".pygo-audit-image.json"
+        self.assertTrue((self.destination / "rootfs" / name).is_symlink())
+        self.assertTrue((self.destination / name).is_file())
+        self.assertFalse((self.destination / name).is_symlink())
 
-    def test_completed_subjects_are_owner_read_only_without_following_links(self):
+    def test_completed_subjects_are_removable_without_following_links(self):
         sentinel = self.root / "keep.json"
         sentinel.write_text("unchanged", encoding="utf-8")
         sentinel.chmod(0o640)
@@ -269,7 +268,7 @@ class ExtractImageLayersTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         for subject in (self.destination / "rootfs", self.destination / "layers"):
             for current, directories, files in os.walk(subject, followlinks=False):
-                self.assertEqual(stat.S_IMODE(Path(current).stat().st_mode), 0o500)
+                self.assertEqual(stat.S_IMODE(Path(current).stat().st_mode), 0o700)
                 for name in files:
                     path = Path(current) / name
                     if not path.is_symlink():
@@ -279,8 +278,13 @@ class ExtractImageLayersTests(unittest.TestCase):
         self.assertEqual(sentinel.read_text(), "unchanged")
         self.assertEqual(stat.S_IMODE(sentinel.stat().st_mode), 0o640)
         self.assertEqual(stat.S_IMODE(self.root.stat().st_mode), 0o700)
-        for name in (".pygo-audit-image.json", ".pygo-audit-container.json"):
-            self.assertEqual(stat.S_IMODE((self.destination / name).stat().st_mode), 0o600)
+        self.assertEqual(
+            stat.S_IMODE((self.destination / ".pygo-audit-image.json").stat().st_mode),
+            0o600,
+        )
+        shutil.rmtree(self.destination)
+        self.assertFalse(self.destination.exists())
+        self.assertEqual(sentinel.read_text(), "unchanged")
 
     def test_tag_is_resolved_once_and_recorded_with_its_digest(self):
         self.image = "registry.example.test:5000/team/app:stable"
@@ -294,9 +298,9 @@ class ExtractImageLayersTests(unittest.TestCase):
         self.assertIn("docker://" + resolved, calls[1])
         self.assertEqual(calls[2][3], resolved)
         self.assertEqual(sum(call[:3] == ["oc", "image", "info"] for call in calls), 1)
-        sidecar = json.loads((self.destination / ".pygo-audit-image.json").read_text())
-        self.assertEqual(sidecar["image-ref"], self.image)
-        self.assertEqual(sidecar["image-digest"], self.image_digest)
+        sidecar = json.loads((self.destination / ".pygo-audit-image.json").read_text())["image"]
+        self.assertEqual(sidecar["reference"], self.image)
+        self.assertEqual(sidecar["digest"], self.image_digest)
 
     def test_tag_with_no_resolved_digest_is_not_extracted(self):
         self.image = "registry.example.test/team/app:stable"
@@ -333,14 +337,32 @@ class ExtractImageLayersTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         sidecar = json.loads(
             (self.destination / ".pygo-audit-image.json").read_text()
-        )
-        self.assertEqual(sidecar["image-component"], "Red Hat Enterprise Linux CoreOS")
-        self.assertEqual(sidecar["component-version"], "9.6.20260504-0")
-        self.assertEqual(sidecar["product-version"], "4.20")
+        )["image"]
+        self.assertEqual(sidecar["component"], "Red Hat Enterprise Linux CoreOS")
+        self.assertNotIn("image_build_release", sidecar)
+        self.assertEqual(sidecar["component_version"], "9.6.20260504-0")
+        self.assertEqual(sidecar["product_version"], "4.20")
         self.assertEqual(
-            sidecar["cpe"],
-            "cpe:/o:redhat:enterprise_linux:9::baseos",
+            sidecar["cpes"],
+            ["cpe:/o:redhat:enterprise_linux:9::baseos"],
         )
+
+    def test_extraction_records_layer_product_contexts_in_json(self):
+        blob = self.blobs / self.info["layers"][0]["digest"].split(":", 1)[1]
+        with tarfile.open(blob, "a") as archive:
+            labels = json.dumps({"name": "base", "cpe": "cpe:/a:example:base:9.6", "version": "9.6"}).encode()
+            for path in ("root/buildinfo/labels.json", "usr/share/buildinfo/labels.json"):
+                member = tarfile.TarInfo(path)
+                member.size = len(labels)
+                archive.addfile(member, io.BytesIO(labels))
+        result = self.run_command()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        document = json.loads((self.destination / ".pygo-audit-image.json").read_text())
+        product = document["products"][0]
+        self.assertEqual(product["cpes"], ["cpe:/a:example:base:9.6"])
+        self.assertEqual(product["version"], "9.6")
+        self.assertEqual(len(product["sources"]), 2)
+        self.assertTrue(all(path.startswith("layers/layer-000/") for path in product["sources"]))
 
     def test_existing_destination_is_untouched_without_contacting_tools(self):
         self.destination.mkdir()

@@ -18,15 +18,23 @@ import tarfile
 import tempfile
 
 
-SOURCE_ROOT = Path(__file__).resolve().parent.parent / "src"
+SCRIPT_ROOT = Path(__file__).resolve().parent
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+SOURCE_ROOT = SCRIPT_ROOT.parent / "src"
 if str(SOURCE_ROOT) not in sys.path:
     sys.path.insert(0, str(SOURCE_ROOT))
 
-from pygo_audit.container_metadata import (  # noqa: E402
-    collect_container_facts,
-    write_container_facts,
+from container_metadata import (  # noqa: E402
+    collect_product_identities,
+    read_os_release,
 )
-from pygo_audit.storage import atomic_read_json, atomic_write_json  # noqa: E402
+from pygo_audit.storage import atomic_read_json  # noqa: E402
+from pygo_audit.identity import (  # noqa: E402
+    DEFAULT_METADATA_NAME,
+    write_identity,
+)
+from pygo_audit.models import ImageIdentity  # noqa: E402
 
 
 DEFAULT_PLATFORM = "linux/amd64"
@@ -87,7 +95,9 @@ def read_manifest(cache: Path) -> dict[str, object]:
     try:
         manifest = atomic_read_json(manifest_path)
     except json.JSONDecodeError as error:
-        raise ExtractionError(f"image transport produced invalid manifest JSON: {error}") from error
+        raise ExtractionError(
+            f"image transport produced invalid manifest JSON: {error}"
+        ) from error
     if not isinstance(manifest, dict):
         raise ExtractionError("image manifest must be a JSON object")
     return manifest
@@ -110,13 +120,14 @@ def layer_digests(manifest: dict[str, object]) -> list[str]:
 
 
 def restrict_subject_permissions(subject: Path) -> None:
-    """Make subject files owner-readable and directories owner-searchable only."""
+    """Make subject files owner-readable and directories owner-accessible only."""
+
     def fail(error: OSError) -> None:
         raise error
 
     root = os.open(subject, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:
-        os.chmod(f"/proc/self/fd/{root}", 0o500)
+        os.chmod(f"/proc/self/fd/{root}", 0o700)
         for _, directories, files, directory in os.fwalk(
             ".", dir_fd=root, follow_symlinks=False, onerror=fail
         ):
@@ -129,7 +140,7 @@ def restrict_subject_permissions(subject: Path) -> None:
                         continue
                     if not stat.S_ISDIR(mode) and not stat.S_ISREG(mode):
                         raise ExtractionError(f"unsupported subject file: {name!r}")
-                    permissions = 0o500 if stat.S_ISDIR(mode) else 0o400
+                    permissions = 0o700 if stat.S_ISDIR(mode) else 0o400
                     os.chmod(f"/proc/self/fd/{descriptor}", permissions)
                 finally:
                     os.close(descriptor)
@@ -140,12 +151,7 @@ def restrict_subject_permissions(subject: Path) -> None:
 def archive_path(name: str, kind: str) -> PurePosixPath:
     """Validate a layer member path without normalizing out traversal."""
     path = PurePosixPath(name)
-    if (
-        not name
-        or "\x00" in name
-        or path.is_absolute()
-        or ".." in path.parts
-    ):
+    if not name or "\x00" in name or path.is_absolute() or ".." in path.parts:
         raise ExtractionError(f"layer archive contains unsafe {kind} path: {name!r}")
     return path
 
@@ -186,7 +192,9 @@ def validate_layer_archive(blob: Path) -> None:
     except ExtractionError:
         raise
     except (OSError, tarfile.TarError) as error:
-        raise ExtractionError(f"cannot inspect layer archive {blob}: {error}") from error
+        raise ExtractionError(
+            f"cannot inspect layer archive {blob}: {error}"
+        ) from error
 
 
 def unpack_layer(blob: Path, layer_directory: Path, digest: str) -> None:
@@ -230,21 +238,6 @@ def string_value(value: object) -> str:
     return value if isinstance(value, str) else ""
 
 
-def metadata_value(
-    labels: dict[str, str],
-    environment: dict[str, str],
-    label_key: str,
-    environment_key: str,
-) -> str:
-    return labels.get(label_key, "") or environment.get(environment_key, "")
-
-
-def assignment_value(value: str, key: str) -> str:
-    """Return the value from labels such as ``machine-os=RHCOS``."""
-    prefix = f"{key}="
-    return value[len(prefix) :] if value.startswith(prefix) else value
-
-
 def image_digest(image: str, image_info: dict[str, object]) -> str:
     digest = string_value(image_info.get("digest"))
     if DIGEST_RE.fullmatch(digest):
@@ -278,19 +271,23 @@ def collect_image_info(image: str, platform: str) -> dict[str, object]:
     try:
         image_info = json.loads(completed.stdout)
     except json.JSONDecodeError as error:
-        raise ExtractionError(f"oc image info returned invalid JSON: {error}") from error
+        raise ExtractionError(
+            f"oc image info returned invalid JSON: {error}"
+        ) from error
     if not isinstance(image_info, dict):
-        raise ExtractionError("oc image info returned a JSON value other than an object")
+        raise ExtractionError(
+            "oc image info returned a JSON value other than an object"
+        )
     return image_info
 
 
-def build_image_sidecar(
+def build_image_identity(
     image: str,
     platform: str,
     image_info: dict[str, object],
     image_name: str,
     os_release: dict[str, str] | None = None,
-) -> dict[str, str]:
+) -> ImageIdentity:
     config = image_info.get("config")
     config = config if isinstance(config, dict) else {}
     image_config = config.get("config")
@@ -315,41 +312,42 @@ def build_image_sidecar(
     build_version = labels.get("io.openshift.build.versions", "")
     component = (
         labels.get("com.redhat.component", "")
-        or assignment_value(display_name, "machine-os")
+        or display_name.removeprefix("machine-os=")
         or labels.get("com.coreos.osname", "")
     )
     component_version = (
         environment.get("SOURCE_GIT_TAG", "")
         or labels.get("org.opencontainers.image.version", "")
-        or assignment_value(build_version, "machine-os")
+        or build_version.removeprefix("machine-os=")
         or os_release.get("VERSION_ID", "")
     )
     product_version = (
-        metadata_value(labels, environment, "version", "BUILD_VERSION")
+        labels.get("version", "")
+        or environment.get("BUILD_VERSION", "")
         or environment.get("OPENSHIFT_VERSION", "")
         or os_release.get("OPENSHIFT_VERSION", "")
     )
 
     digest = image_digest(image, image_info)
     values = {
-        "image-ref": image,
-        "image-digest": digest,
+        "reference": image,
+        "digest": digest,
         "platform": platform,
         "extractor": Path(__file__).name,
-        "image-name": image_name,
-        "image-component": component,
-        "source-git-url": metadata_value(
-            labels,
-            environment,
-            "io.openshift.build.source-location",
-            "SOURCE_GIT_URL",
+        "name": image_name,
+        "vendor_image_name": labels.get("name", ""),
+        "image_build_release": labels.get("release", ""),
+        "component": component,
+        "source_git_url": labels.get("io.openshift.build.source-location", "")
+        or environment.get("SOURCE_GIT_URL", ""),
+        "product_version": product_version,
+        "component_version": component_version,
+        "product_component": labels.get("io.openshift.maintainer.component", ""),
+        "cpes": tuple(
+            filter(None, [labels.get("cpe", "") or os_release.get("CPE_NAME", "")])
         ),
-        "product-version": product_version,
-        "component-version": component_version,
-        "product-component": labels.get("io.openshift.maintainer.component", ""),
-        "cpe": labels.get("cpe", "") or os_release.get("CPE_NAME", ""),
     }
-    return {key: value for key, value in values.items() if value}
+    return ImageIdentity(**values)
 
 
 def write_image_sidecar(
@@ -358,18 +356,17 @@ def write_image_sidecar(
     rootfs: Path,
     image_info: dict[str, object],
 ) -> Path:
-    container_facts = collect_container_facts(rootfs)
     # Extraction owns rootfs contents; generated metadata belongs beside it.
-    sidecar = rootfs.parent / ".pygo-audit-image.json"
-    metadata = build_image_sidecar(
+    sidecar = rootfs.parent / DEFAULT_METADATA_NAME
+    metadata = build_image_identity(
         image,
         platform,
         image_info,
         rootfs.parent.name,
-        container_facts.os_release,
+        read_os_release(rootfs),
     )
-    atomic_write_json(sidecar, metadata, overwrite=True)
-    write_container_facts(rootfs.parent, container_facts)
+    layers = sorted((rootfs.parent / "layers").glob("layer-*"))
+    write_identity(sidecar, collect_product_identities(metadata, rootfs, layers))
     return sidecar
 
 
@@ -384,7 +381,9 @@ def extract_image(
             f"destination already exists: {destination}; choose a new directory"
         )
     if not destination.parent.is_dir():
-        raise ExtractionError(f"destination parent does not exist: {destination.parent}")
+        raise ExtractionError(
+            f"destination parent does not exist: {destination.parent}"
+        )
 
     required_commands()
     parse_platform(platform)
@@ -418,7 +417,7 @@ def extract_image(
                 raise ExtractionError(f"layer blob is missing: {blob}")
             unpack_layer(blob, layers / f"layer-{index:03d}", digest)
 
-        layers.chmod(0o500)
+        layers.chmod(0o700)
         extract_rootfs(resolved_image, platform, rootfs)
         restrict_subject_permissions(rootfs)
         sidecar = write_image_sidecar(
@@ -437,7 +436,9 @@ def make_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Extract image layers, a merged rootfs, and image metadata."
     )
-    parser.add_argument("image", metavar="IMAGE", help="registry image reference or digest")
+    parser.add_argument(
+        "image", metavar="IMAGE", help="registry image reference or digest"
+    )
     parser.add_argument(
         "destination",
         metavar="DESTINATION",

@@ -1,165 +1,24 @@
 #!/usr/bin/env python3
-"""Download Red Hat VEX documents for CVEs observed in saved pygo audits."""
+"""Download Red Hat VEX documents from a newline-separated CVE list."""
 
-from __future__ import annotations
-
-import argparse
-from concurrent.futures import ThreadPoolExecutor
-from contextlib import contextmanager
-from dataclasses import dataclass
-import fcntl
-import hashlib
-import json
 from pathlib import Path
 import sys
-from typing import Iterator
-from urllib.error import HTTPError
-from urllib.request import Request, urlopen
-
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-from pygo_audit.audit import load_audit
-from pygo_audit.csaf import CsafCheckError, load_csaf
-from pygo_audit.cli import discover_audits, resolve_audit_settings
-from pygo_audit.report_views import index_cve_evidence, normalize_cve
-from pygo_audit.storage import atomic_write_json, ensure_private_directory  # noqa: E402
+
+from pygo_audit.cve_data import DownloadSource, main as download
 
 
-BASE_URL = "https://security.access.redhat.com/data/csaf/v2/vex"
-
-
-@dataclass(frozen=True)
-class DownloadResult:
-    path: Path
-    from_cache: bool = False
-    error: str = ""
-
-
-def redhat_url(cve: str) -> str:
-    return f"{BASE_URL}/{cve.split('-')[1]}/{cve.lower()}.json"
-
-
-@contextmanager
-def cache_entry_lock(directory: Path, url: str) -> Iterator[None]:
-    """Lock one download; closing the descriptor releases the kernel lock."""
-    locks = directory / "locks"
-    lock = locks / f"{hashlib.sha256(url.encode()).hexdigest()}.lock"
-    if directory.is_symlink() or locks.is_symlink() or lock.is_symlink():
-        raise CsafCheckError("CSAF cache and lock paths must not be symlinks")
-    ensure_private_directory(directory)
-    ensure_private_directory(locks)
-    with lock.open("a", encoding="utf-8") as stream:
-        fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
-        yield
-
-
-def is_cached(path: Path, cve: str) -> bool:
-    if path.is_symlink():
-        raise CsafCheckError(f"CSAF output must not be a symlink: {path}")
-    if not path.exists():
-        return False
-    document = load_csaf(path)
-    return any(
-        isinstance(item, dict) and normalize_cve(item.get("cve")) == cve
-        for item in document["vulnerabilities"]
-    )
-
-
-def fetch_cve(
-    cve: str, directory: Path, refresh: bool = False, offline: bool = False
-) -> DownloadResult:
-    """Reuse a complete document or atomically publish a downloaded one."""
-    if directory.is_symlink():
-        raise CsafCheckError("CSAF cache directory must not be a symlink")
-    destination = directory / f"{cve}.json"
-    if offline:
-        return (
-            DownloadResult(destination, True)
-            if is_cached(destination, cve)
-            else DownloadResult(destination, error="not present in cache")
-        )
-    url = redhat_url(cve)
-    with cache_entry_lock(directory, url):
-        if not refresh and is_cached(destination, cve):
-            return DownloadResult(destination, True)
-        try:
-            with urlopen(
-                Request(url, headers={"User-Agent": "pygo-audit-redhat-csaf/1.0"}),
-                timeout=60,
-            ) as response:
-                document = json.load(response)
-        except (HTTPError, OSError, ValueError) as error:
-            return DownloadResult(destination, error=str(error))
-        records = (
-            document.get("vulnerabilities") if isinstance(document, dict) else None
-        )
-        if not isinstance(records, list) or not any(
-            isinstance(item, dict) and normalize_cve(item.get("cve")) == cve
-            for item in records
-        ):
-            return DownloadResult(
-                destination, error=f"response contains no CSAF record for {cve}"
-            )
-        atomic_write_json(destination, document, overwrite=True)
-    return DownloadResult(destination)
-
-
-def input_cves(path: Path) -> list[str]:
-    if path.is_dir():
-        current = resolve_audit_settings(path).audit_file
-        audits = [current] if current.is_file() else [resolve_audit_settings(child).audit_file for child in discover_audits(path)]
-    else:
-        audits = [path]
-    return sorted({
-        cve
-        for audit in audits
-        for cve in index_cve_evidence(load_audit(audit))
-    })
+SOURCE = DownloadSource(
+    "https://security.access.redhat.com/data/csaf/v2/vex/{year}/{cve_lower}.json",
+    "csaf",
+    "CSAF",
+    require_csaf=True,
+)
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "input", type=Path, help="audit.json, container audit directory, or batch audit directory"
-    )
-    parser.add_argument(
-        "destination", type=Path, help="directory for downloaded CVE-*.json files"
-    )
-    parser.add_argument("--jobs", type=int, default=8)
-    mode = parser.add_mutually_exclusive_group()
-    mode.add_argument(
-        "--refresh",
-        action="store_true",
-        help="replace cached documents with fresh downloads",
-    )
-    mode.add_argument(
-        "--offline",
-        action="store_true",
-        help="check existing documents without network access or cache writes",
-    )
-    args = parser.parse_args(argv)
-    if args.jobs < 1:
-        parser.error("--jobs must be positive")
-    try:
-        cves = input_cves(args.input)
-        failed = False
-        with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-            results = pool.map(
-                lambda cve: fetch_cve(
-                    cve, args.destination, args.refresh, args.offline
-                ),
-                cves,
-            )
-            for result in results:
-                print(
-                    f"{result.path}: {result.error or ('cached' if result.from_cache else 'downloaded')}"
-                )
-                failed |= bool(result.error)
-        print(f"CSAF documents checked: {len(cves)}")
-        return int(failed)
-    except (CsafCheckError, OSError, ValueError) as error:
-        print(f"fetch-redhat-csaf: {error}", file=sys.stderr)
-        return 1
+    return download(SOURCE, argv)
 
 
 if __name__ == "__main__":
