@@ -23,6 +23,26 @@ from pygo_audit.report_views import index_cve_evidence, iter_binary_vulnerabilit
 
 
 class ModelInvariantTests(unittest.TestCase):
+    def test_cgo_build_setting_preserves_unknown_values(self):
+        binary = BinaryReport(["/app"], 1, "go1.26", "main", None, [], [])
+        for values, expected in (
+            ([], None),
+            (["1"], True),
+            (["0"], False),
+            (["true"], True),
+            (["false"], False),
+            ([" 1 "], True),
+            (["1", "true"], True),
+            (["1", "0"], None),
+            (["invalid"], None),
+        ):
+            with self.subTest(values=values):
+                binary.build_settings = [
+                    BuildSetting("CGO_ENABLED", value) for value in values
+                ]
+                self.assertIs(binary.cgo_enabled, expected)
+                self.assertNotIn("cgo_enabled", binary.to_dict())
+
     def test_invalid_values_fail_during_direct_construction(self) -> None:
         cases = (
             ("key", lambda: BuildSetting("", "amd64")),
@@ -143,17 +163,16 @@ class BinaryReportTests(unittest.TestCase):
         self.assertEqual(len(evidence.observations), 2)
         self.assertIs(evidence.observations[0][0], runtime)
         self.assertIs(evidence.observations[0][1], advisory)
-        self.assertEqual(evidence.binary_paths, {"/app", "/old/app"})
-        self.assertEqual(evidence.binary_sha256, {"a" * 64, "b" * 64})
-        self.assertEqual(evidence.runtime_dispositions, {"runtime", "deleted"})
-        self.assertEqual(evidence.evidence_types, {"symbol"})
-        self.assertEqual(len(evidence.to_dict()["findings"]), 1)
+        self.assertEqual(evidence.cve, cve)
+        self.assertEqual(
+            evidence.observations, ((runtime, advisory), (historical, empty))
+        )
         other = replace(report, binaries=[historical])
         other_evidence = index_cve_evidence(other)[cve]
-        self.assertEqual(other_evidence.runtime_dispositions, {"deleted"})
-        self.assertEqual(other_evidence.evidence_types, set())
-        self.assertEqual(other_evidence.to_dict()["findings"], [])
-        self.assertEqual(evidence.runtime_dispositions, {"runtime", "deleted"})
+        self.assertEqual(other_evidence.observations, ((historical, empty),))
+        self.assertEqual(
+            evidence.observations, ((runtime, advisory), (historical, empty))
+        )
 
     def test_derived_values_follow_evidence_changes_and_are_not_serialized(
         self,
@@ -180,7 +199,9 @@ class BinaryReportTests(unittest.TestCase):
             )
         )
         binary.reconciliation.sbom_modules.extend([comparison, comparison])
-        container.binaries.append(BinaryReport(["/other"], 2, "go1.26", "", None, [], []))
+        container.binaries.append(
+            BinaryReport(["/other"], 2, "go1.26", "", None, [], [])
+        )
         self.assertEqual(binary.finding_statuses, {"mismatch": 1})
         self.assertEqual(binary.reconciliation.sbom_statuses, {"mismatch": 2})
         for field in ("go_binaries", "go_binary_paths"):
@@ -191,7 +212,9 @@ class BinaryReportTests(unittest.TestCase):
 
         image = ImageIdentity(digest="sha256:" + "a" * 64)
         self.assertEqual(image.digest_short, "a" * 12)
-        self.assertEqual(replace(image, digest="sha256:" + "b" * 64).digest_short, "b" * 12)
+        self.assertEqual(
+            replace(image, digest="sha256:" + "b" * 64).digest_short, "b" * 12
+        )
         self.assertEqual(ImageIdentity().digest_short, "")
         self.assertNotIn("digest_short", image.to_dict())
 
@@ -292,7 +315,7 @@ class AuditReportTests(unittest.TestCase):
 
         document = report.to_dict()
 
-        self.assertEqual(document["schema_version"], 3)
+        self.assertEqual(document["schema_version"], 4)
         self.assertEqual(document["go_command"], "go")
         self.assertEqual(document["go_tool_version"], "go1.26")
         self.assertEqual(document["govulncheck_status"], "disabled")
@@ -315,12 +338,18 @@ class AuditReportTests(unittest.TestCase):
                 "platform": "",
                 "extractor": "",
                 "name": "",
+                "vendor_image_name": "",
+                "image_build_release": "",
                 "component": "",
                 "source_git_url": "",
                 "product_version": "",
                 "component_version": "",
                 "product_component": "",
-                "cpe": "",
+                "cpes": [],
+                "purls": [],
+                "products": [],
+                "sources": [],
+                "csaf_product_ids": [],
             },
         )
         self.assertEqual(document["binaries"], [])
@@ -439,7 +468,6 @@ class AuditReportTests(unittest.TestCase):
         binary.runtime_disposition = "runtime"
         occurrence = report.finding_occurrences()[0]
         self.assertEqual(occurrence.runtime_disposition, "runtime")
-        self.assertEqual(occurrence.to_dict()["runtime_disposition"], "runtime")
 
     def test_coverage_and_result_do_not_treat_information_as_failure(self) -> None:
         report = AuditReport(

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from functools import partial
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -9,7 +10,6 @@ from unittest.mock import patch
 from pygo_audit.artifacts import (
     ArtifactError,
     publish_audit,
-    write_artifacts,
     write_check_artifacts,
     write_comparison_artifacts,
     write_report_artifacts,
@@ -17,10 +17,31 @@ from pygo_audit.artifacts import (
 from pygo_audit.models import AuditReport, BinaryReport, ContainerMetadata, Module
 from pygo_audit.audit import AuditError, load_audit
 from pygo_audit.storage import atomic_write_text, directory_lock
+from pygo_audit.report import REPORT_VIEWS
+
+
+def publish(report: AuditReport, directory: Path) -> list[Path]:
+    """Exercise the scan publication path when establishing prior artifacts."""
+    publish_audit(report, directory, directory / "history", directory)
+    return [directory / view.filename for view in REPORT_VIEWS.values()]
+
+
+def fail_replacement(
+    path: Path,
+    content: str,
+    *,
+    fail_at: Path,
+    message: str,
+    overwrite: bool = False,
+    checksum: bool = False,
+) -> None:
+    if path == fail_at:
+        raise OSError(message)
+    atomic_write_text(path, content, overwrite=overwrite, checksum=checksum)
 
 
 class ArtifactTests(unittest.TestCase):
-    def test_comparison_pair_failure_restores_previous_files(self) -> None:
+    def test_comparison_bundle_failure_restores_previous_files(self) -> None:
         for name in ("comparison", "aggregate"):
             for existing in (False, True):
                 with (
@@ -28,26 +49,34 @@ class ArtifactTests(unittest.TestCase):
                     TemporaryDirectory() as temporary,
                 ):
                     root = Path(temporary)
-                    paths = [root / f"{name}.json", root / f"{name}.txt"]
+                    paths = [root / f"{name}.txt"]
+                    if name == "aggregate":
+                        paths.append(root / f"{name}.csv")
+                    paths.append(root / f"{name}.json")
                     (root / "notes.txt").write_text("analyst notes\n")
                     if existing:
                         for path in paths:
                             path.write_text("previous report\n")
                     before = {path: path.read_bytes() for path in root.iterdir()}
 
-                    def publish(path, content, **options):
-                        if path == paths[1]:
-                            raise OSError("second file failed")
-                        atomic_write_text(path, content, **options)
-
                     with (
                         patch(
-                            "pygo_audit.artifacts.atomic_write_text", side_effect=publish
+                            "pygo_audit.artifacts.atomic_write_text",
+                            side_effect=partial(
+                                fail_replacement,
+                                fail_at=paths[-1],
+                                message="JSON publication failed",
+                            ),
                         ),
-                        self.assertRaisesRegex(OSError, "second file failed"),
+                        self.assertRaisesRegex(OSError, "JSON publication failed"),
                     ):
                         write_comparison_artifacts(
-                            root, name, {"new": True}, "new report", inputs=[]
+                            root,
+                            name,
+                            {"new": True},
+                            "new report",
+                            inputs=[],
+                            csv_text="new,csv\n" if name == "aggregate" else None,
                         )
                     self.assertEqual(
                         {path: path.read_bytes() for path in root.iterdir()}, before
@@ -69,20 +98,22 @@ class ArtifactTests(unittest.TestCase):
             overview = root / "overview.txt"
             overview.write_text("previous overview\n")
 
-            def publish(path, content, **options):
-                if path.name == "vulnerability-findings.txt":
-                    raise OSError("simulated replacement failure")
-                atomic_write_text(path, content, **options)
-
             with (
-                patch("pygo_audit.artifacts.atomic_write_text", side_effect=publish),
+                patch(
+                    "pygo_audit.artifacts.atomic_write_text",
+                    side_effect=partial(
+                        fail_replacement,
+                        fail_at=root / "vulnerability-findings.txt",
+                        message="simulated replacement failure",
+                    ),
+                ),
                 self.assertRaisesRegex(ArtifactError, "simulated replacement failure"),
             ):
                 write_report_artifacts(report, root)
             self.assertEqual(overview.read_text(), "previous overview\n")
             self.assertEqual(list(root.iterdir()), [overview])
 
-    def test_refresh_failure_restores_previous_current_views(self):
+    def test_refresh_failure_restores_previous_current_views(self) -> None:
         report = AuditReport(
             metadata=ContainerMetadata("/subject"),
             go_command="go",
@@ -96,20 +127,18 @@ class ArtifactTests(unittest.TestCase):
             root = Path(temporary)
             work, history = root / "work", root / "history"
             work.mkdir()
-            paths = write_artifacts(report, root)
+            paths = publish(report, root)
             old = {path: path.read_bytes() for path in paths}
             report.go_tool_version = "new"
-            failed = False
-
-            def publish(path, content, **options):
-                nonlocal failed
-                if path == root / "binary-findings.txt" and not failed:
-                    failed = True
-                    raise OSError("simulated failed replacement")
-                atomic_write_text(path, content, **options)
-
             with (
-                patch("pygo_audit.artifacts.atomic_write_text", side_effect=publish),
+                patch(
+                    "pygo_audit.artifacts.atomic_write_text",
+                    side_effect=partial(
+                        fail_replacement,
+                        fail_at=root / "binary-findings.txt",
+                        message="simulated failed replacement",
+                    ),
+                ),
                 self.assertRaises(OSError),
             ):
                 publish_audit(report, root, history, work)
@@ -130,14 +159,16 @@ class ArtifactTests(unittest.TestCase):
             sentinel = output / "analyst.txt"
             sentinel.write_text("keep me", encoding="utf-8")
 
-            def publish(destination: Path, content: str, **options: object) -> None:
-                if destination.name == "overview.txt":
-                    raise OSError("publication failed")
-                atomic_write_text(destination, content, **options)
-
-            with patch("pygo_audit.artifacts.atomic_write_text", side_effect=publish):
+            with patch(
+                "pygo_audit.artifacts.atomic_write_text",
+                side_effect=partial(
+                    fail_replacement,
+                    fail_at=output / "overview.txt",
+                    message="publication failed",
+                ),
+            ):
                 with self.assertRaisesRegex(ArtifactError, "publication failed"):
-                    write_artifacts(report, output)
+                    write_report_artifacts(report, output)
             self.assertEqual(list(output.iterdir()), [sentinel])
             self.assertEqual(sentinel.read_text(encoding="utf-8"), "keep me")
 
@@ -167,7 +198,7 @@ class ArtifactTests(unittest.TestCase):
         with TemporaryDirectory() as temporary_directory:
             output_directory = Path(temporary_directory) / "artifacts"
 
-            paths = write_artifacts(report, output_directory)
+            paths = publish(report, output_directory)
             loaded = load_audit(output_directory / "audit.json")
 
             self.assertEqual(
@@ -178,6 +209,9 @@ class ArtifactTests(unittest.TestCase):
                     "vulnerability-findings.txt",
                     "module-reconciliation.txt",
                     "diagnostics.txt",
+                    "cves.txt",
+                    "modules.txt",
+                    "packages.txt",
                     "audit.json",
                 ],
             )
@@ -212,6 +246,15 @@ class ArtifactTests(unittest.TestCase):
             self.assertIn("example.test/dependency11", modules)
             self.assertNotIn(" omitted;", modules)
             self.assertFalse((output_directory / "full.txt").exists())
+            self.assertEqual((output_directory / "cves.txt").read_bytes(), b"")
+            self.assertEqual(
+                (output_directory / "modules.txt").read_text().splitlines(),
+                [f"example.test/dependency{index:02d}@v1.0.0" for index in range(12)],
+            )
+            self.assertEqual(
+                (output_directory / "packages.txt").read_text(),
+                "example.test/cmd@unknown\n",
+            )
 
     def test_writes_derived_reports_without_copying_audit_json(self) -> None:
         report = AuditReport(
@@ -232,6 +275,9 @@ class ArtifactTests(unittest.TestCase):
                     "vulnerability-findings.txt",
                     "module-reconciliation.txt",
                     "diagnostics.txt",
+                    "cves.txt",
+                    "modules.txt",
+                    "packages.txt",
                 ],
             )
             self.assertFalse((output_directory / "audit.json").exists())
@@ -249,7 +295,7 @@ class ArtifactTests(unittest.TestCase):
             existing = output_directory / "overview.txt"
             existing.write_text("analyst-owned\n", encoding="utf-8")
 
-            write_artifacts(report, output_directory)
+            publish(report, output_directory)
 
             self.assertNotEqual(existing.read_text(encoding="utf-8"), "analyst-owned\n")
             self.assertTrue((output_directory / "audit.json").exists())
@@ -265,19 +311,19 @@ class ArtifactTests(unittest.TestCase):
         with TemporaryDirectory() as temporary_directory:
             output_directory = Path(temporary_directory) / "artifacts"
 
-            initial_paths = write_artifacts(report, output_directory)
+            initial_paths = publish(report, output_directory)
             initial_contents = {path: path.read_bytes() for path in initial_paths}
-            paths = write_artifacts(
+            paths = publish(report, output_directory) + write_check_artifacts(
                 report,
                 output_directory,
-                checks=["CVE-2026-46595", "cve-2026-46595"],
+                ["CVE-2026-46595", "cve-2026-46595"],
             )
 
             self.assertEqual(
                 {path: path.read_bytes() for path in initial_paths},
                 initial_contents,
             )
-            self.assertEqual(len(paths), 7)
+            self.assertEqual(len(paths), len(initial_paths) + 1)
             check_path = output_directory / "checks" / "CVE-2026-46595.txt"
             self.assertIn(check_path, paths)
             check_output = check_path.read_text(encoding="utf-8")
@@ -307,7 +353,7 @@ class ArtifactTests(unittest.TestCase):
             root = Path(temporary)
             work, history = root / "work", root / "history"
             work.mkdir()
-            paths = write_artifacts(report, root)
+            paths = publish(report, root)
             original = {path: path.read_bytes() for path in paths}
             report.metadata.root = ""
             with self.assertRaisesRegex(AuditError, r"audit\.metadata\.root"):

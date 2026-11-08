@@ -1,4 +1,4 @@
-"""Private result storage shared by binary scans and CSAF comparisons."""
+"""Private result storage for binary scans."""
 
 from __future__ import annotations
 

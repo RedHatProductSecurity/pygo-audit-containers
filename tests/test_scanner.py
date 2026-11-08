@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -8,9 +9,11 @@ import shlex
 import shutil
 import subprocess
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
+from pygo_audit import models, scanner
 from pygo_audit.result_cache import ResultCacheError
 from pygo_audit.scanner import (
     ELF_MAGIC,
@@ -25,6 +28,111 @@ from pygo_audit.scanner import (
 
 
 class ScannerReconciliationTests(unittest.TestCase):
+    def test_discovery_records_failed_stage_and_continues_with_other_files(self):
+        for stage in ("stat", "readlink", "open", "read", "walk"):
+            with self.subTest(stage=stage), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                good, bad = root / "good", root / "bad"
+                good.write_bytes(ELF_MAGIC)
+                if stage == "readlink":
+                    bad.symlink_to("good")
+                elif stage == "walk":
+                    bad.mkdir()
+                else:
+                    bad.write_bytes(ELF_MAGIC)
+                report = models.AuditReport(
+                    models.ContainerMetadata(str(root)), "go", "test"
+                )
+                descriptors = {}
+                original_open = scanner._open_regular_file
+                original_pread, original_readlink, original_scandir = (
+                    os.pread,
+                    os.readlink,
+                    os.scandir,
+                )
+
+                def denied(*args, **kwargs):
+                    raise PermissionError(13, "Permission denied")
+
+                def open_file(path, **kwargs):
+                    if stage == "open" and path == bad:
+                        denied()
+                    descriptor = original_open(path, **kwargs)
+                    descriptors[descriptor] = path
+                    return descriptor
+
+                def pread(descriptor, *args):
+                    if stage == "read" and descriptors[descriptor] == bad:
+                        denied()
+                    return original_pread(descriptor, *args)
+
+                def readlink(path):
+                    if stage == "readlink" and path == bad:
+                        denied()
+                    return original_readlink(path)
+
+                @contextmanager
+                def scandir(path):
+                    if stage == "walk" and path == bad:
+                        denied()
+                    with original_scandir(path) as entries:
+                        yield [
+                            SimpleNamespace(path=entry.path, stat=denied)
+                            if stage == "stat" and Path(entry.path) == bad
+                            else entry
+                            for entry in entries
+                        ]
+
+                with (
+                    patch.object(scanner, "_open_regular_file", side_effect=open_file),
+                    patch.object(os, "pread", side_effect=pread),
+                    patch.object(os, "readlink", side_effect=readlink),
+                    patch.object(os, "scandir", side_effect=scandir),
+                ):
+                    binaries = scanner._discover_elf_files(root, report)
+                self.assertEqual([binary.paths for binary in binaries], [["/good"]])
+                self.assertEqual(report.stats.unique_elf_files, 1)
+                self.assertEqual(
+                    report.issues,
+                    [models.ScanIssue("/bad", stage, "Permission denied")],
+                )
+                for descriptor in descriptors:
+                    with self.assertRaises(OSError):
+                        os.fstat(descriptor)
+
+    def test_regular_file_open_rejects_identity_changes_and_closes_descriptors(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            first, second = root / "first", root / "second"
+            first.write_bytes(ELF_MAGIC)
+            second.write_bytes(ELF_MAGIC)
+            expected = first.stat()
+            for path, reason in (
+                (second, "changed during scan"),
+                (root, "no longer regular"),
+            ):
+                descriptors = []
+                original_open = os.open
+
+                def open_file(*args, **kwargs):
+                    descriptor = original_open(*args, **kwargs)
+                    descriptors.append(descriptor)
+                    return descriptor
+
+                with (
+                    self.subTest(path=path),
+                    patch.object(os, "open", side_effect=open_file),
+                    self.assertRaisesRegex(OSError, reason),
+                ):
+                    scanner._open_regular_file(
+                        path,
+                        expected_device=expected.st_dev,
+                        expected_inode=expected.st_ino,
+                    )
+                for descriptor in descriptors:
+                    with self.assertRaises(OSError):
+                        os.fstat(descriptor)
+
     def test_symlink_resolution_stays_inside_the_subject(self) -> None:
         self.assertEqual(
             resolve_symlink_path(

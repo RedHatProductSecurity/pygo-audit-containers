@@ -96,6 +96,3 @@ class BinaryResultCache:
 
     def cache_key(self, sha256: str) -> str:
         return json_digest({"sha256": sha256, "profile": self.profile})
-
-    def object_path(self, key: str) -> Path:
-        return self.cache.object_path(key)

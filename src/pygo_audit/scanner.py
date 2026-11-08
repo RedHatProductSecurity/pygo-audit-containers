@@ -208,72 +208,51 @@ def _discover_elf_files(root: Path, report: AuditReport) -> list[_ElfFile]:
                     report.stats.entries += 1
                     entry_path = Path(entry.path)
                     display_path = _container_path(root, entry_path)
+                    stage = "stat"
                     try:
                         entry_stat = entry.stat(follow_symlinks=False)
-                    except OSError as error:
-                        report.issues.append(
-                            ScanIssue(display_path, "stat", _format_os_error(error))
-                        )
-                        continue
-
-                    mode = entry_stat.st_mode
-                    if stat.S_ISLNK(mode):
-                        report.stats.symlinks_skipped += 1
-                        try:
+                        mode = entry_stat.st_mode
+                        if stat.S_ISLNK(mode):
+                            report.stats.symlinks_skipped += 1
+                            stage = "readlink"
                             symlinks[display_path] = os.readlink(entry_path)
-                        except OSError as error:
-                            report.issues.append(
-                                ScanIssue(
-                                    display_path,
-                                    "readlink",
-                                    _format_os_error(error),
-                                )
-                            )
-                        continue
-                    if stat.S_ISDIR(mode):
-                        directory_paths.add(display_path)
-                        directories.append(entry_path)
-                        continue
-                    if not stat.S_ISREG(mode):
-                        report.stats.special_files_skipped += 1
-                        continue
+                            continue
+                        if stat.S_ISDIR(mode):
+                            directory_paths.add(display_path)
+                            directories.append(entry_path)
+                            continue
+                        if not stat.S_ISREG(mode):
+                            report.stats.special_files_skipped += 1
+                            continue
 
-                    report.stats.regular_files += 1
-                    inode_key = (entry_stat.st_dev, entry_stat.st_ino)
-                    if inode_key in seen_files:
-                        existing = seen_files[inode_key]
-                        if existing is not None:
-                            existing.paths.append(display_path)
-                            report.stats.elf_paths += 1
-                        continue
+                        report.stats.regular_files += 1
+                        inode_key = (entry_stat.st_dev, entry_stat.st_ino)
+                        if inode_key in seen_files:
+                            existing = seen_files[inode_key]
+                            if existing is not None:
+                                existing.paths.append(display_path)
+                                report.stats.elf_paths += 1
+                            continue
 
-                    report.stats.unique_regular_files += 1
-                    try:
+                        report.stats.unique_regular_files += 1
+                        seen_files[inode_key] = None
+                        stage = "open"
                         descriptor = _open_regular_file(
                             entry_path,
                             expected_device=entry_stat.st_dev,
                             expected_inode=entry_stat.st_ino,
                         )
+                        try:
+                            stage = "read"
+                            prefix = os.pread(descriptor, len(ELF_MAGIC), 0)
+                        finally:
+                            os.close(descriptor)
                     except OSError as error:
                         report.issues.append(
-                            ScanIssue(display_path, "open", _format_os_error(error))
+                            ScanIssue(display_path, stage, _format_os_error(error))
                         )
-                        seen_files[inode_key] = None
                         continue
-
-                    try:
-                        prefix = os.pread(descriptor, len(ELF_MAGIC), 0)
-                    except OSError as error:
-                        report.issues.append(
-                            ScanIssue(display_path, "read", _format_os_error(error))
-                        )
-                        seen_files[inode_key] = None
-                        continue
-                    finally:
-                        os.close(descriptor)
-
                     if prefix != ELF_MAGIC:
-                        seen_files[inode_key] = None
                         continue
 
                     elf_file = _ElfFile(

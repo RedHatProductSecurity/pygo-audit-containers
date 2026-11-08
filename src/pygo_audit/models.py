@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Collection, Iterator
-from dataclasses import dataclass, field, fields, is_dataclass
+from collections.abc import Collection
+from dataclasses import dataclass, field, fields, is_dataclass, replace
 from operator import attrgetter
 from pathlib import Path
 from typing import Any, ClassVar, Literal
@@ -78,9 +78,9 @@ class Module(JsonModel):
             return None
 
         return cls(
-            path=_string(value.get("Path")),
-            version=_string(value.get("Version")),
-            checksum=_string(value.get("Sum")),
+            path=(raw_text if isinstance(raw_text := value.get("Path"), str) else ""),
+            version=(raw_text if isinstance(raw_text := value.get("Version"), str) else ""),
+            checksum=(raw_text if isinstance(raw_text := value.get("Sum"), str) else ""),
             replace=cls.from_go_json(value.get("Replace")),
         )
 
@@ -263,10 +263,8 @@ class BinaryLayerObservation(JsonModel):
 
 
 @dataclass(slots=True, frozen=True)
-class FindingOccurrence(JsonModel):
+class FindingOccurrence:
     """One vulnerability finding tied to the binary paths that contain it."""
-
-    optional_fields = ("symbol",)
 
     vulnerability_id: str  # Primary advisory identifier for this observation.
     aliases: tuple[str, ...]  # Alternate identifiers retained from the advisory.
@@ -364,7 +362,7 @@ class BinaryReport(JsonModel):
             paths=[container_path],
             size=size,
             go_version=go_version,
-            main_package=_string(value.get("Path")),
+            main_package=(raw_text if isinstance(raw_text := value.get("Path"), str) else ""),
             main_module=Module.from_go_json(value.get("Main")),
             dependencies=dependencies,
             build_settings=settings,
@@ -413,12 +411,17 @@ class BinaryReport(JsonModel):
         return occurrences
 
     @property
-    def cgo_enabled(self) -> bool:
-        return any(
-            setting.key == "CGO_ENABLED"
-            and setting.value.strip().lower() in {"1", "true"}
+    def cgo_enabled(self) -> bool | None:
+        values = {
+            setting.value.strip().lower()
             for setting in self.build_settings
-        )
+            if setting.key == "CGO_ENABLED"
+        }
+        if values and values <= {"1", "true"}:
+            return True
+        if values and values <= {"0", "false"}:
+            return False
+        return None
 
 
 @dataclass(slots=True, frozen=True)
@@ -447,18 +450,37 @@ class ScanStats(JsonModel):
 
 
 @dataclass(slots=True, frozen=True)
+class ProductIdentity(JsonModel):
+    """A product context supplied by a user or metadata helper."""
+
+    name: str = ""
+    component: str = ""
+    version: str = ""
+    release: str = ""
+    cpes: tuple[str, ...] = ()
+    purls: tuple[str, ...] = ()
+    sources: tuple[str, ...] = ()  # Supplied provenance, not independently verified.
+
+
+@dataclass(slots=True, frozen=True)
 class ImageIdentity(JsonModel):
     reference: str = ""  # Supplied registry image reference, if known.
     digest: str = ""  # Full OCI algorithm:hex image digest.
     platform: str = ""  # Supplied OS/architecture identity.
     extractor: str = ""  # Tool or process that prepared the container filesystem.
     name: str = ""  # Supplied image name used for product matching.
+    vendor_image_name: str = ""  # Image name supplied by the vendor's image label.
+    image_build_release: str = ""  # Image build release supplied by the vendor's label.
     component: str = ""  # Supplied component identity, independent of its version.
     source_git_url: str = ""  # Source repository URL recorded in image metadata.
     product_version: str = ""  # Version of the enclosing product or release.
     component_version: str = ""  # Version of this image's component.
     product_component: str = ""  # Product-maintainer component label.
-    cpe: str = ""  # Supplied platform CPE used for advisory comparison.
+    cpes: tuple[str, ...] = ()  # Platform alternatives for this image only.
+    purls: tuple[str, ...] = ()  # Explicit package identities for this image.
+    sources: tuple[str, ...] = ()  # Supplied provenance for the final image.
+    products: tuple[ProductIdentity, ...] = ()  # Separately supplied product contexts.
+    csaf_product_ids: tuple[str, ...] = ()  # Exact, user-selected CSAF entries.
 
     @property
     def digest_short(self) -> str:
@@ -514,8 +536,8 @@ class AuditReport(JsonModel):
         ""  # UTC scan completion timestamp; empty while assembling.
     )
     run_id: str = ""  # Scan/batch lifetime identifier for vulnerability-cache reuse.
-    schema_version: Literal[3] = (
-        3  # Current audit contract; version 3 records binary aliases.
+    schema_version: Literal[4] = (
+        4  # Current audit contract includes vendor image identity labels.
     )
 
     @property
@@ -593,10 +615,11 @@ class AuditReport(JsonModel):
         return "clean"
 
     def to_dict(self) -> dict[str, object]:
-        result = JsonModel.to_dict(self)
-        result["binaries"].sort(key=lambda binary: min(binary["paths"]))
-        result["issues"].sort(key=lambda issue: (issue["path"], issue["stage"]))
-        return result
+        return JsonModel.to_dict(replace(
+            self,
+            binaries=sorted(self.binaries, key=lambda binary: min(binary.paths)),
+            issues=sorted(self.issues, key=attrgetter("path", "stage")),
+        ))
 
 
 @dataclass(slots=True, frozen=True)
@@ -607,54 +630,6 @@ class CveEvidence:
     observations: tuple[
         tuple[BinaryReport, Vulnerability], ...
     ] = ()  # Original records, including advisories with no findings.
-
-    def finding_observations(
-        self,
-    ) -> Iterator[tuple[BinaryReport, VulnerabilityFinding]]:
-        for binary, vulnerability in self.observations:
-            for finding in vulnerability.findings:
-                yield binary, finding
-
-    @property
-    def binary_paths(self) -> set[str]:
-        return {path for binary, _ in self.observations for path in binary.paths}
-
-    @property
-    def binary_sha256(self) -> set[str]:
-        return {binary.sha256 for binary, _ in self.observations if binary.sha256}
-
-    @property
-    def runtime_dispositions(self) -> frozenset[str]:
-        return frozenset(binary.runtime_disposition for binary, _ in self.observations)
-
-    @property
-    def evidence_types(self) -> frozenset[str]:
-        return frozenset(finding.evidence for _, finding in self.finding_observations())
-
-    def to_dict(self) -> dict[str, object]:
-        return {
-            "cve": self.cve,
-            "binary_paths": sorted(self.binary_paths),
-            "binary_sha256": sorted(self.binary_sha256),
-            "runtime_dispositions": sorted(self.runtime_dispositions),
-            "findings": [
-                {
-                    "binary_paths": ", ".join(sorted(binary.paths)),
-                    **{
-                        name: getattr(finding, name)
-                        for name in (
-                            "module",
-                            "package",
-                            "found_version",
-                            "fixed_version",
-                            "evidence",
-                            "reachability",
-                        )
-                    },
-                }
-                for binary, finding in self.finding_observations()
-            ],
-        }
 
 
 @dataclass(slots=True, frozen=True)
@@ -725,9 +700,6 @@ class FindingSummary:
     evidence: set[str]
     reachability: set[str]
     observation_count: int
-
-
-def _string(value: object) -> str: return value if isinstance(value, str) else ""
 
 
 finding_occurrence_sort_key = attrgetter(

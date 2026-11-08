@@ -1,4 +1,4 @@
-from contextlib import chdir, redirect_stderr, redirect_stdout
+from contextlib import chdir, redirect_stderr
 import io
 import json
 from pathlib import Path
@@ -87,7 +87,10 @@ class WorkspaceTests(unittest.TestCase):
                 self.assertEqual(len(targets), 1)
                 self.assertEqual(targets[0].audit_root, child)
                 self.assertEqual(targets[0].audit_file, child / "audit.json")
-                self.assertEqual(targets[0].output_dir, child)
+                self.assertEqual(
+                    targets[0].output_dir,
+                    child if command == "audit" else child / "reports",
+                )
                 self.assertEqual(targets[0].history_dir, child / "history")
                 if command == "audit":
                     self.assertEqual(targets[0].cache_dir, root / "cache")
@@ -105,7 +108,7 @@ class WorkspaceTests(unittest.TestCase):
             (root / "pygo-audit.json").write_text(
                 json.dumps({"audit-file": "missing.json"})
             )
-            with patch("pygo_audit.csaf.run", return_value=0) as run:
+            with patch("pygo_audit.csaf_workflow.run", return_value=0) as run:
                 self.assertEqual(cli.main(["csaf", str(root)]), 0)
             self.assertEqual(run.call_args.args[0][0].audit_file, root / "missing.json")
 
@@ -192,7 +195,9 @@ class WorkspaceTests(unittest.TestCase):
             (child / "pygo-audit.json").write_text(
                 json.dumps({"jobs": 2, "image-metadata": "container.json"})
             )
-            (child / "container.json").write_text(json.dumps({"image-name": "service"}))
+            (child / "container.json").write_text(
+                json.dumps({"image": {"name": "service"}})
+            )
             with patch("pygo_audit.batch.run", return_value=0) as run:
                 self.assertEqual(cli.main(["audit", str(root), "--jobs", "3"]), 0)
             options, targets = run.call_args.args
@@ -211,7 +216,7 @@ class WorkspaceTests(unittest.TestCase):
             child.mkdir()
             (child / "audit.json").write_text("{}")
             (root / "csaf").mkdir()
-            with patch("pygo_audit.csaf.run", return_value=0) as run:
+            with patch("pygo_audit.csaf_workflow.run", return_value=0) as run:
                 self.assertEqual(cli.main(["csaf", str(root)]), 0)
                 self.assertEqual(run.call_args.args[0][0].csaf, [root / "csaf"])
                 (root / "pygo-audit.json").write_text(json.dumps({"csaf": ["shared"]}))
@@ -226,7 +231,97 @@ class WorkspaceTests(unittest.TestCase):
                     )
                 self.assertEqual(run.call_args.args[0][0].csaf, [root / "explicit"])
 
-    def test_only_default_csaf_directory_may_be_absent(self):
+    def test_comparison_commands_share_child_precedence_and_target_selection(
+        self,
+    ) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for name in ("alpha", "beta"):
+                (root / name).mkdir()
+                (root / name / "audit.json").write_text("{}")
+            (root / "pygo-audit.json").write_text(
+                json.dumps({"csaf": ["shared"], "jobs": 2, "targets": "selected.txt"})
+            )
+            (root / "beta/pygo-audit.json").write_text(
+                json.dumps({"csaf": ["local"], "image-metadata": "identity.json"})
+            )
+            (root / "selected.txt").write_text("beta\n")
+            for command, handler in (
+                ("csaf", "csaf_workflow"),
+                ("aggregate", "aggregate"),
+            ):
+                with (
+                    self.subTest(command=command),
+                    patch(f"pygo_audit.{handler}.run", return_value=0) as run,
+                ):
+                    self.assertEqual(cli.main([command, str(root)]), 0)
+                    targets = (
+                        run.call_args.args[0]
+                        if command == "csaf"
+                        else run.call_args.args[1]
+                    )
+                    self.assertEqual(
+                        [target.audit_root.name for target in targets], ["beta"]
+                    )
+                    self.assertEqual(targets[0].csaf, [root / "beta/local"])
+                    self.assertEqual(
+                        targets[0].image_metadata, root / "beta/identity.json"
+                    )
+                    self.assertEqual(targets[0].output_dir, root / "beta/reports")
+                    self.assertEqual(
+                        cli.main(
+                            [
+                                command,
+                                str(root),
+                                "--csaf",
+                                str(root / "explicit"),
+                                "--jobs",
+                                "3",
+                            ]
+                        ),
+                        0,
+                    )
+                    targets = (
+                        run.call_args.args[0]
+                        if command == "csaf"
+                        else run.call_args.args[1]
+                    )
+                    self.assertEqual(targets[0].csaf, [root / "explicit"])
+                    self.assertEqual(targets[0].jobs, 3)
+
+    def test_batch_comparison_relocation_keeps_independent_container_outputs(
+        self,
+    ) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for name in ("alpha", "beta"):
+                (root / name).mkdir()
+                (root / name / "audit.json").write_text("{}")
+            destination = root / "review"
+            with patch("pygo_audit.csaf_workflow.run", return_value=0) as run:
+                self.assertEqual(
+                    cli.main(["csaf", str(root), "--output-dir", str(destination)]), 0
+                )
+                self.assertEqual(
+                    [target.output_dir for target in run.call_args.args[0]],
+                    [destination / "alpha", destination / "beta"],
+                )
+                self.assertTrue(run.call_args.kwargs["recorded_only"])
+            with patch("pygo_audit.aggregate.run", return_value=0) as run:
+                self.assertEqual(
+                    cli.main(
+                        ["aggregate", str(root), "--output-dir", str(destination)]
+                    ),
+                    0,
+                )
+                options, targets = run.call_args.args
+                self.assertEqual(options.output_dir, destination)
+                self.assertEqual(
+                    [target.output_dir for target in targets],
+                    [root / "alpha/reports", root / "beta/reports"],
+                )
+
+    def test_csaf_requires_documents_and_reports_missing_inputs(self):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
             report = models.AuditReport(
@@ -237,17 +332,18 @@ class WorkspaceTests(unittest.TestCase):
                 producer_version="test",
             )
             (root / "audit.json").write_text(json.dumps(report.to_dict()))
-            with redirect_stdout(io.StringIO()):
-                self.assertEqual(cli.main(["csaf", str(root)]), 0)
+            with redirect_stderr(io.StringIO()) as errors:
+                self.assertEqual(cli.main(["csaf", str(root)]), 1)
+            self.assertIn("no CSAF JSON files supplied", errors.getvalue())
             with redirect_stderr(io.StringIO()) as errors:
                 self.assertEqual(
                     cli.main(["csaf", str(root), "--csaf", str(root / "missing")]), 1
                 )
-            self.assertIn("CSAF input does not exist", errors.getvalue())
+            self.assertIn("no CSAF JSON files supplied", errors.getvalue())
             (root / "pygo-audit.json").write_text(json.dumps({"csaf": ["missing"]}))
             with redirect_stderr(io.StringIO()) as errors:
                 self.assertEqual(cli.main(["csaf", str(root)]), 1)
-            self.assertIn("CSAF input does not exist", errors.getvalue())
+            self.assertIn("no CSAF JSON files supplied", errors.getvalue())
 
     def test_explicit_audit_file_overrides_the_positional_file(self):
         with TemporaryDirectory() as temporary:
@@ -256,7 +352,7 @@ class WorkspaceTests(unittest.TestCase):
             previous = root / "previous.json"
             for path in (current, previous):
                 path.write_text("{}")
-            with patch("pygo_audit.csaf.run", return_value=0) as run:
+            with patch("pygo_audit.csaf_workflow.run", return_value=0) as run:
                 self.assertEqual(
                     cli.main(["csaf", str(current), "--audit-file", str(previous)]), 0
                 )

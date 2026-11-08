@@ -32,7 +32,7 @@ class AuditTests(unittest.TestCase):
     def test_semantic_json_digest_remains_stable(self) -> None:
         self.assertEqual(
             json_digest(self._report().to_dict()),
-            "4c1526eb9fee570ef45c5d8ebe6b64fa29c4e3cac185bcf39a436739b043c320",
+            "3e1dcd63a34a5f5e43afc40bbeb5e3858be75844cae6c1a06a6dc8c4f25ca27e",
         )
 
     def test_current_and_historical_audits_use_the_same_reader(self) -> None:
@@ -78,7 +78,7 @@ class AuditTests(unittest.TestCase):
         canonical = self._report().to_dict()
         with TemporaryDirectory() as temporary_directory:
             path = Path(temporary_directory) / "audit.json"
-            for version in (None, 1, 4, True, 3.0, "3"):
+            for version in (None, 1, 3, 5, True, 4.0, "4"):
                 document = copy.deepcopy(canonical)
                 if version is None:
                     document.pop("schema_version")
@@ -644,7 +644,7 @@ class AuditTests(unittest.TestCase):
                     product_version="v4.20.0",
                     component_version="v1.2.3-4-gabcdef0",
                     product_component="Example",
-                    cpe="cpe:/a:redhat:openshift:4.20::el9",
+                    cpes=("cpe:/a:redhat:openshift:4.20::el9",),
                 ),
             ),
             binaries=[binary],

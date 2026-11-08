@@ -34,7 +34,7 @@ def parse_govulncheck_json(output: str) -> VulnerabilityScan:
             sbom = message["SBOM"]
         elif isinstance(message.get("osv"), dict):
             advisory = message["osv"]
-            identifier = _string(advisory.get("id"))
+            identifier = (raw_text if isinstance(raw_text := advisory.get("id"), str) else "")
             if identifier:
                 advisories[identifier] = advisory
         elif isinstance(message.get("finding"), dict):
@@ -47,13 +47,13 @@ def parse_govulncheck_json(output: str) -> VulnerabilityScan:
 
     findings_by_id: dict[str, list[VulnerabilityFinding]] = {}
     for raw_finding in raw_findings:
-        identifier = _string(raw_finding.get("osv"))
+        identifier = (raw_text if isinstance(raw_text := raw_finding.get("osv"), str) else "")
         if not identifier:
             continue
         finding = _normalize_finding(raw_finding)
         findings_by_id.setdefault(identifier, []).append(finding)
 
-    scan_level = _string(config.get("scan_level"))
+    scan_level = (raw_text if isinstance(raw_text := config.get("scan_level"), str) else "")
     minimum_evidence = EVIDENCE_RANK.get(scan_level, 0)
     vulnerabilities = []
     for identifier, findings in findings_by_id.items():
@@ -73,17 +73,17 @@ def parse_govulncheck_json(output: str) -> VulnerabilityScan:
     normalized_sbom = _normalize_sbom(sbom) if sbom is not None else None
     sbom_go_version = ""
     if normalized_sbom is not None:
-        sbom_go_version = _string(normalized_sbom.get("go_version"))
+        sbom_go_version = (raw_text if isinstance(raw_text := normalized_sbom.get("go_version"), str) else "")
 
     return VulnerabilityScan(
         status="complete",
-        protocol_version=_string(config.get("protocol_version")),
-        scanner_name=_string(config.get("scanner_name")),
-        scanner_version=_string(config.get("scanner_version")),
-        database=_string(config.get("db")),
-        database_last_modified=_string(config.get("db_last_modified")),
-        go_version=_string(config.get("go_version")) or sbom_go_version,
-        scan_mode=_string(config.get("scan_mode")),
+        protocol_version=(raw_text if isinstance(raw_text := config.get("protocol_version"), str) else ""),
+        scanner_name=(raw_text if isinstance(raw_text := config.get("scanner_name"), str) else ""),
+        scanner_version=(raw_text if isinstance(raw_text := config.get("scanner_version"), str) else ""),
+        database=(raw_text if isinstance(raw_text := config.get("db"), str) else ""),
+        database_last_modified=(raw_text if isinstance(raw_text := config.get("db_last_modified"), str) else ""),
+        go_version=(raw_text if isinstance(raw_text := config.get("go_version"), str) else "") or sbom_go_version,
+        scan_mode=(raw_text if isinstance(raw_text := config.get("scan_mode"), str) else ""),
         scan_level=scan_level,
         sbom=normalized_sbom,
         vulnerabilities=vulnerabilities,
@@ -119,11 +119,11 @@ def _normalize_finding(value: dict[str, Any]) -> VulnerabilityFinding:
     if isinstance(trace, list) and trace and isinstance(trace[0], dict):
         frame = trace[0]
 
-    function = _string(frame.get("function"))
-    receiver = _string(frame.get("receiver"))
+    function = (raw_text if isinstance(raw_text := frame.get("function"), str) else "")
+    receiver = (raw_text if isinstance(raw_text := frame.get("receiver"), str) else "")
     symbol = ".".join(part for part in (receiver, function) if part)
 
-    package = _string(frame.get("package"))
+    package = (raw_text if isinstance(raw_text := frame.get("package"), str) else "")
     if symbol:
         evidence = "symbol"
     elif package:
@@ -132,9 +132,9 @@ def _normalize_finding(value: dict[str, Any]) -> VulnerabilityFinding:
         evidence = "module"
 
     return VulnerabilityFinding(
-        module=_string(frame.get("module")),
-        found_version=_string(frame.get("version")),
-        fixed_version=_string(value.get("fixed_version")),
+        module=(raw_text if isinstance(raw_text := frame.get("module"), str) else ""),
+        found_version=(raw_text if isinstance(raw_text := frame.get("version"), str) else ""),
+        fixed_version=(raw_text if isinstance(raw_text := value.get("fixed_version"), str) else ""),
         package=package,
         evidence=evidence,
         symbol=symbol or None,
@@ -185,19 +185,19 @@ def _normalize_advisory(
         database_specific = {}
 
     references = dict.fromkeys(
-        (_string(reference.get("type")), _string(reference.get("url")))
+        ((raw_text if isinstance(raw_text := reference.get("type"), str) else ""), (raw_text if isinstance(raw_text := reference.get("url"), str) else ""))
         for reference in _objects(value.get("references"))
     )
 
     return Vulnerability(
         id=identifier,
         aliases=_unique_strings(value.get("aliases")),
-        details=_string(value.get("details")),
-        published=_string(value.get("published")),
-        modified=_string(value.get("modified")),
-        withdrawn=_string(value.get("withdrawn")),
-        review_status=(_string(database_specific.get("review_status")) or "REVIEWED"),
-        advisory_url=_string(database_specific.get("url")),
+        details=(raw_text if isinstance(raw_text := value.get("details"), str) else ""),
+        published=(raw_text if isinstance(raw_text := value.get("published"), str) else ""),
+        modified=(raw_text if isinstance(raw_text := value.get("modified"), str) else ""),
+        withdrawn=(raw_text if isinstance(raw_text := value.get("withdrawn"), str) else ""),
+        review_status=((raw_text if isinstance(raw_text := database_specific.get("review_status"), str) else "") or "REVIEWED"),
+        advisory_url=(raw_text if isinstance(raw_text := database_specific.get("url"), str) else ""),
         references=[
             {"type": kind, "url": url} for kind, url in references if kind or url
         ],
@@ -225,7 +225,7 @@ def _normalize_affected(value: dict[str, Any]) -> dict[str, Any]:
             if event:
                 events.append(event)
         version_ranges.append(
-            {"type": _string(raw_range.get("type")), "events": events}
+            {"type": (raw_text if isinstance(raw_text := raw_range.get("type"), str) else ""), "events": events}
         )
 
     ecosystem_specific = value.get("ecosystem_specific")
@@ -233,12 +233,12 @@ def _normalize_affected(value: dict[str, Any]) -> dict[str, Any]:
         ecosystem_specific = {}
 
     return {
-        "module": _string(package.get("name")),
-        "ecosystem": _string(package.get("ecosystem")),
+        "module": (raw_text if isinstance(raw_text := package.get("name"), str) else ""),
+        "ecosystem": (raw_text if isinstance(raw_text := package.get("ecosystem"), str) else ""),
         "version_ranges": version_ranges,
         "packages": [
             {
-                "path": _string(item.get("path")),
+                "path": (raw_text if isinstance(raw_text := item.get("path"), str) else ""),
                 "symbols": _strings(item.get("symbols")),
                 "goos": _strings(item.get("goos")),
                 "goarch": _strings(item.get("goarch")),
@@ -250,11 +250,11 @@ def _normalize_affected(value: dict[str, Any]) -> dict[str, Any]:
 
 def _normalize_sbom(value: dict[str, Any]) -> dict[str, Any]:
     return {
-        "go_version": _string(value.get("go_version")),
+        "go_version": (raw_text if isinstance(raw_text := value.get("go_version"), str) else ""),
         "modules": [
             {
-                "path": _string(module.get("path")),
-                "version": _string(module.get("version")),
+                "path": (raw_text if isinstance(raw_text := module.get("path"), str) else ""),
+                "version": (raw_text if isinstance(raw_text := module.get("version"), str) else ""),
             }
             for module in _objects(value.get("modules"))
         ],
@@ -276,6 +276,3 @@ def _strings(value: object) -> list[str]:
 
 def _unique_strings(value: object) -> list[str]:
     return list(dict.fromkeys(_strings(value)))
-
-
-def _string(value: object) -> str: return value if isinstance(value, str) else ""

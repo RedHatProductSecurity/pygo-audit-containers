@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import ExitStack
 import hashlib
 import json
 from pathlib import Path
@@ -10,7 +11,6 @@ from tempfile import TemporaryDirectory
 from typing import Iterable, Mapping, Sequence
 
 from pygo_audit.audit import AuditError, load_audit
-from pygo_audit.comparison import VulnerabilityPriority
 from pygo_audit.models import AuditReport
 from pygo_audit.report import (
     REPORT_VIEWS,
@@ -26,7 +26,6 @@ class ArtifactError(ValueError):
     """Raised when audit artifacts cannot be written safely."""
 
 
-REPORT_NAMES = tuple(view.filename for view in REPORT_VIEWS.values())
 AUDIT_NAME = REPORT_VIEWS["json"].filename
 TEXT_REPORT_NAMES = tuple(
     view.filename for name, view in REPORT_VIEWS.items() if name != "json"
@@ -73,8 +72,8 @@ def publish_audit(
     with TemporaryDirectory(prefix="publish-", dir=work) as temporary:
         staging = Path(temporary)
         audit_file = staging / AUDIT_NAME
-        atomic_write_text(audit_file, _terminated(render_json(report)))
-        write_artifacts(load_audit(audit_file), staging)
+        atomic_write_text(audit_file, terminated(render_json(report)))
+        write_report_artifacts(load_audit(audit_file), staging)
         destinations = [
             *((reports_directory / name, staging / name) for name in TEXT_REPORT_NAMES),
             (directory / AUDIT_NAME, staging / AUDIT_NAME),
@@ -100,7 +99,7 @@ def publish_audit(
                     )
             else:
                 atomic_write_text(destination, old)
-        _replace_payloads(
+        replace_payloads(
             {
                 destination: source.read_text(encoding="utf-8")
                 for destination, source in destinations
@@ -117,35 +116,17 @@ def validate_artifact_directory(output_directory: Path) -> None:
         raise ArtifactError(f"artifact output is not a directory: {directory}")
 
 
-def write_artifacts(
-    report: AuditReport,
-    output_directory: Path,
-    *,
-    checks: Sequence[str] = (),
-) -> list[Path]:
-    """Write views of a loaded audit, replacing generated files by default."""
-    payloads = {
-        Path(view.filename): _terminated(view.render(report, FULL_POLICY))
-        for view in REPORT_VIEWS.values()
-    }
-    payloads.update(_check_payloads(report, checks))
-    return _write_payloads(Path(output_directory), payloads)
-
-
 def write_report_artifacts(
     report: AuditReport,
     output_directory: Path,
-    priorities: Mapping[str, VulnerabilityPriority] | None = None,
 ) -> list[Path]:
     """Write derived text views without duplicating the canonical audit JSON."""
     payloads = {
-        Path(view.filename): _terminated(
-            view.render(report, FULL_POLICY, priorities=priorities)
-        )
+        Path(view.filename): terminated(view.render(report, FULL_POLICY))
         for name, view in REPORT_VIEWS.items()
         if name != "json"
     }
-    return _write_payloads(Path(output_directory), payloads)
+    return write_payloads(Path(output_directory), payloads)
 
 
 def write_check_artifacts(
@@ -154,9 +135,9 @@ def write_check_artifacts(
     checks: Sequence[str],
 ) -> list[Path]:
     """Write or reuse only the requested targeted-check reports."""
-    return _write_payloads(
+    return write_payloads(
         Path(output_directory),
-        _check_payloads(report, checks),
+        check_payloads(report, checks),
     )
 
 
@@ -167,34 +148,61 @@ def write_comparison_artifacts(
     text: str,
     *,
     inputs: Iterable[Path],
+    csv_text: str | None = None,
 ) -> tuple[Path, Path]:
-    """Publish a JSON/text pair under one lock, preserving inputs and old outputs."""
+    """Publish comparison views under one lock, with canonical JSON last."""
+    payloads = comparison_payloads(directory, name, document, text, csv_text=csv_text)
+    write_artifact_group(payloads, inputs=inputs)
+    return directory / f"{name}.json", directory / f"{name}.txt"
+
+
+def comparison_payloads(
+    directory: Path,
+    name: str,
+    document: object,
+    text: str,
+    *,
+    csv_text: str | None = None,
+) -> dict[Path, str]:
+    """Stage every view before publication, placing canonical JSON last."""
     json_path, text_path = directory / f"{name}.json", directory / f"{name}.txt"
+    payloads = {text_path: terminated(text)}
+    if csv_text is not None:
+        payloads[directory / f"{name}.csv"] = terminated(csv_text)
+    payloads[json_path] = json.dumps(document, indent=2, ensure_ascii=True) + "\n"
+    return payloads
+
+
+def write_artifact_group(
+    payloads: Mapping[Path, str], *, inputs: Iterable[Path]
+) -> None:
+    """Lock destinations in order and roll back all ordinary write failures."""
+    if len({path.resolve() for path in payloads}) != len(payloads):
+        raise ArtifactError("artifact outputs must have distinct resolved paths")
     input_paths = {path.resolve() for path in inputs}
-    for path in (json_path, text_path):
+    for path in payloads:
         if path.is_symlink() or path.resolve() in input_paths:
             raise ArtifactError(
-                f"{name} output must differ from its inputs and not be a symlink: {path}"
+                f"artifact output must differ from its inputs and not be a symlink: {path}"
             )
-    payloads = {
-        json_path: json.dumps(document, indent=2, ensure_ascii=True) + "\n",
-        text_path: _terminated(text),
-    }
-    validate_artifact_directory(directory)
-    directory.mkdir(parents=True, exist_ok=True)
-    with directory_lock(directory):
-        _replace_payloads(payloads)
-    return json_path, text_path
+    directories = sorted({path.parent.resolve() for path in payloads})
+    for path in payloads:
+        validate_artifact_directory(path.parent)
+    with ExitStack() as locks:
+        for directory in directories:
+            directory.mkdir(parents=True, exist_ok=True)
+            locks.enter_context(directory_lock(directory))
+        replace_payloads(payloads)
 
 
-def _check_payloads(
+def check_payloads(
     report: AuditReport,
     checks: Sequence[str],
 ) -> dict[Path, str]:
     payloads: dict[Path, str] = {}
     for result in evaluate_checks(report, checks):
-        relative_path = Path("checks") / _check_filename(result.identifier)
-        payload = _terminated(render_check_results(report, [result], FULL_POLICY))
+        relative_path = Path("checks") / check_filename(result.identifier)
+        payload = terminated(render_check_results(report, [result], FULL_POLICY))
         existing = payloads.get(relative_path)
         if existing is not None and existing != payload:
             raise ArtifactError(
@@ -204,11 +212,11 @@ def _check_payloads(
     return payloads
 
 
-def _write_payloads(directory: Path, payloads: dict[Path, str]) -> list[Path]:
+def write_payloads(directory: Path, payloads: dict[Path, str]) -> list[Path]:
     validate_artifact_directory(directory)
     try:
         directory.mkdir(parents=True, exist_ok=True)
-        return _replace_payloads(
+        return replace_payloads(
             {directory / name: value for name, value in payloads.items()}
         )
     except OSError as error:
@@ -217,7 +225,7 @@ def _write_payloads(directory: Path, payloads: dict[Path, str]) -> list[Path]:
         ) from error
 
 
-def _replace_payloads(payloads: Mapping[Path, str]) -> list[Path]:
+def replace_payloads(payloads: Mapping[Path, str]) -> list[Path]:
     """Replace ordered files atomically, restoring prior contents on failure."""
     previous = {}
     for path in payloads:
@@ -236,15 +244,16 @@ def _replace_payloads(payloads: Mapping[Path, str]) -> list[Path]:
             published.append(path)
     except OSError:
         for path in reversed(published):
-            if previous[path] is None:
+            original = previous[path]
+            if original is None:
                 path.unlink(missing_ok=True)
             else:
-                atomic_write_text(path, previous[path], overwrite=True)
+                atomic_write_text(path, original, overwrite=True)
         raise
     return list(payloads)
 
 
-def _check_filename(identifier: str) -> str:
+def check_filename(identifier: str) -> str:
     normalized = identifier.strip().upper()
     safe = re.sub(r"[^A-Z0-9._-]+", "-", normalized).strip(".-")
     if not safe:
@@ -255,5 +264,5 @@ def _check_filename(identifier: str) -> str:
     return f"{safe}.txt"
 
 
-def _terminated(value: str) -> str:
-    return value.rstrip("\n") + "\n"
+def terminated(value: str) -> str:
+    return value.rstrip("\n") + "\n" if value else ""

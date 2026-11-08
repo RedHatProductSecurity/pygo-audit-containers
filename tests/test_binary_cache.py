@@ -31,7 +31,7 @@ class BinaryResultCacheTests(unittest.TestCase):
             directory = Path(temporary_directory)
             cache = BinaryResultCache(directory, {"mode": "binary"}, run_id="run")
             cache.store(digest, binary_result(digest))
-            path = cache.object_path(cache.cache_key(digest))
+            path = cache.cache.object_path(cache.cache_key(digest))
             document = atomic_read_json(path, checksum=True)
             document["binary"]["vulnerability_scan"]["unexpected"] = True
             atomic_write_json(path, document, overwrite=True, checksum=True)
@@ -178,7 +178,7 @@ class BinaryResultCacheTests(unittest.TestCase):
                         directory, {"mode": "binary"}, run_id="same-run"
                     )
                     cache.store(binary.sha256, binary)
-                    path = cache.object_path(cache.cache_key(binary.sha256))
+                    path = cache.cache.object_path(cache.cache_key(binary.sha256))
                     original = path.read_bytes()
                     if corruption == "unchecksummed":
                         document = atomic_read_json(path, checksum=True)
@@ -221,7 +221,7 @@ class BinaryResultCacheTests(unittest.TestCase):
                         directory, {"mode": "binary"}, run_id="same-run"
                     )
                     cache.store(binary.sha256, binary)
-                    path = cache.object_path(cache.cache_key(binary.sha256))
+                    path = cache.cache.object_path(cache.cache_key(binary.sha256))
                     document = atomic_read_json(path, checksum=True)
                     if mismatch == "sha256":
                         document["binary"]["sha256"] = "b" * 64
