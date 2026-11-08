@@ -58,6 +58,61 @@ scanner can change its model without teaching an image tool about CVEs. A CSAF
 provider can change its vocabulary without becoming the owner of binary
 discovery.
 
+## Python package responsibilities
+
+The `pygo_audit` package follows the direction data travels: CLI settings enter
+at the top, scan or comparison workflows coordinate work, and models, caches,
+and storage sit beneath them. Reports are projections of saved models.
+
+```mermaid
+flowchart TD
+    CLI[cli.py] --> Workspace[workspace.py]
+    CLI --> Batch[batch.py]
+    CLI --> Report[report.py]
+    CLI --> CSAFWorkflow[csaf_workflow.py]
+    CLI --> Aggregate[aggregate.py]
+    Batch --> Workspace
+    Workspace --> Scanner[scanner.py]
+    Scanner --> LayerScan[layer_scan.py]
+    Scanner --> BinaryCache[binary_cache.py]
+    Scanner --> Models[models.py]
+    Scanner --> Reconcile[reconciliation.py]
+    Workspace --> Artifacts[artifacts.py]
+    Report --> Views[report_views.py]
+    Report --> Text[text_report.py]
+    CSAFWorkflow --> CSAF[csaf.py]
+    CSAFWorkflow --> ImageCSAF[image_csaf.py]
+    ImageCSAF --> Compare[comparison.py]
+    ImageCSAF --> RedHat[csaf_redhat.py]
+    Aggregate --> CSAFWorkflow
+    Aggregate --> Compare
+    Artifacts --> Storage[storage.py]
+    BinaryCache --> ResultCache[result_cache.py]
+    ResultCache --> Storage
+    Scripts[scripts/] --> CVEData[cve_data.py]
+```
+
+These are dependency and call relationships, not additional layers of stored
+data. `models.py` defines canonical evidence objects. `audit.py` is the strict
+JSON boundary that reconstructs those objects. `report_views.py` derives
+reusable finding groups and counts. `report.py` chooses a renderer;
+`text_report.py` formats container views using `report_sections.py` and
+`text_layout.py`. `aggregate.py` uses the shared CSAF workflow and emits batch
+summaries and triage CSV without reimplementing matching or agreement.
+
+| Area | Modules | Responsibility |
+| --- | --- | --- |
+| Command and workspace | `cli.py`, `workspace.py`, `batch.py` | Parse and resolve settings; validate scan roots; run one scan or coordinate prepared children. |
+| Scan evidence | `scanner.py`, `layer_scan.py`, `reconciliation.py`, `vulnerabilities.py` | Discover and inspect binaries, combine rootfs/layer observations, reconcile module inventories, and normalize tool output. |
+| CSAF identity and conclusions | `csaf.py`, `image_csaf.py`, `comparison.py`, `csaf_redhat.py`, `csaf_workflow.py` | Index documents, match local products, assess local evidence separately from vendor statements, select Red Hat-specific rules, and publish comparisons. |
+| Persistence | `audit.py`, `artifacts.py`, `binary_cache.py`, `result_cache.py`, `storage.py` | Validate saved evidence, manage caches and locks, and publish outputs with rollback for ordinary write failures. |
+| Reports | `report.py`, `report_views.py`, `report_sections.py`, `text_layout.py`, `text_report.py`, `aggregate.py` | Derive display-ready groups and render saved evidence at the requested view and verbosity. |
+| Data retrieval | `cve_data.py` and `scripts/fetch-*` | Share download, validation, concurrency, and cache behavior while scripts supply provider URL presets. |
+
+The library does not import the scripts. Scripts call shared library code and
+own provider-specific URL templates, inventory, and image extraction.
+`cve_data.py` is a reusable downloader, not a `pygo-audit` CLI subcommand.
+
 The apparent contradictions are useful because the systems are making
 different kinds of statements. Pygo primarily makes syntactic observations
 about bytes, build metadata, modules, and `govulncheck` output. VEX primarily
@@ -136,6 +191,23 @@ once per invocation, and identical lookup inputs reuse identity assessments.
 Local findings and conclusions are built separately for each container. Batch
 comparisons select records by each container's recorded CVEs; standalone checks
 continue to inspect every supplied document.
+
+In code, `csaf_workflow.py` owns the comparison lifecycle. `load_workspaces`
+reads strict audit data and resolves each image identity. `inspect_source` loads
+and indexes a document once, then calls `image_csaf.inspect_document` for each
+distinct lookup identity. `compare_workspaces` selects documents and CVEs for
+each container and calls `image_csaf.build_comparison`; `publish_checks` stages
+all child outputs through `artifacts.py`. The standalone `csaf` command and
+`aggregate` therefore share matching, interpretation, and publication. The
+aggregate renderer adds batch metrics and CSV rows after per-container
+conclusions exist.
+
+`image_csaf.py` owns local-to-CSAF product matching and the per-CVE comparison
+record. `csaf.py` parses product trees, CPE relations, relationships, and
+canonical URLs. `comparison.py` interprets statements and combines their
+conclusions. `csaf_redhat.py` supplies the current Red Hat OpenShift policy for
+product and fixed-version interpretation. This keeps vendor heuristics out of
+generic document indexing and all comparison logic out of the scanner.
 
 Single-image comparison artifacts are keyed by full binary SHA-256. Locations,
 layer history, and runtime availability remain observations of that artifact;

@@ -65,31 +65,32 @@ analysis workflow.
 
 ```text
 src/pygo_audit/
-├── cli.py             options, defaults, sidecar configuration, and dispatch
-├── batch.py           scan prepared children using the same container workflow
-├── workspace.py       subject validation and scan publication
-├── csaf.py            CSAF document loading, product indexing, and CPE relations
-├── csaf_workflow.py   shared single/batch comparison orchestration and publication
-├── image_csaf.py      image matching, local conclusions, and comparison rendering
-├── csaf_redhat.py     Red Hat OpenShift version/matching policy
-├── cve_data.py        generic CVE-list downloads, source cache, and shared CLI
-├── aggregate.py       canonical comparison summaries, text, and triage CSV
-├── comparison.py      shared vendor interpretation, agreement, and count metrics
+├── cli.py             argument definitions, settings precedence, and dispatch
+├── workspace.py       subject validation and one-container scan/publication
+├── batch.py           parallel scans of prepared child workspaces
 ├── scanner.py         ELF discovery, hashing, Go metadata, govulncheck
-├── layer_scan.py      rootfs/layer composition and disposition decisions
-├── models.py          canonical report data model
+├── layer_scan.py      rootfs/layer composition and binary dispositions
 ├── reconciliation.py  declared-module versus observed-module comparison
-├── vulnerabilities.py govulncheck JSON normalization
-├── binary_cache.py    run-scoped content-addressed result cache
-├── result_cache.py    shared private storage and locking for derived results
-├── storage.py         atomic file publication and semantic JSON hashing
-├── audit.py           current and historical audit JSON validation
-├── artifacts.py       audit directory publication
-├── report_views.py    finding grouping and targeted checks
-├── report_sections.py shared subject, provenance, and status sections
-├── text_layout.py     text layout, wrapping, and bounded-entry previews
-├── text_report.py     compose human-readable views from evidence and sections
-└── report.py          public render dispatch
+├── vulnerabilities.py govulncheck result normalization
+├── models.py          canonical audit and comparison evidence types
+├── audit.py           strict audit JSON reader and model reconstruction
+├── identity.py        image-sidecar validation and identity resolution
+├── binary_cache.py    run-scoped content-addressed scan results
+├── result_cache.py    checked private storage and cache locks
+├── storage.py         atomic I/O, locks, and semantic JSON checksums
+├── artifacts.py       staging and publication of audit/report bundles
+├── csaf.py            CSAF parsing, product indexing, CPE relations, URLs
+├── image_csaf.py      matching, local evidence, conclusions, and CSAF text
+├── comparison.py      vendor status interpretation and qualified agreement
+├── csaf_redhat.py     Red Hat OpenShift matching/version policy
+├── csaf_workflow.py   shared one-container and batch comparison lifecycle
+├── aggregate.py       aggregate metrics, text, and triage CSV
+├── cve_data.py        reusable CVE downloader, validators, and cache logic
+├── report_views.py    shared finding groups, checks, and summary projections
+├── report_sections.py reusable report fields and status labels
+├── text_layout.py     headings, columns, wrapping, verbosity, and wide policy
+├── text_report.py     overview, binary, CVE, reconciliation, and diagnostic text
+└── report.py          renderer registry and machine-readable views
 
 scripts/
 ├── prepare-audits       batch directory preparation and dry-run
@@ -101,8 +102,82 @@ scripts/
 └── fetch-cve-data        internal OSIDB URL preset
 ```
 
-The library is the product. The scripts are vendor and external-tool adapters. If a
-future analyst uses a different image tool, the scanner should not notice.
+`cve_data.py` provides reusable download/cache operations; it is not a
+`pygo-audit` subcommand. `fetch-cve-data` and `fetch-redhat-csaf` supply source
+presets and call that library. The library is the product. The scripts are
+vendor and external-tool adapters. If a future analyst uses a different image
+tool, the scanner should not notice.
+
+## Module ownership and call paths
+
+The package is flat on disk, but its modules follow stable dependency
+directions:
+
+| Area | Owns | Does not own |
+| --- | --- | --- |
+| CLI and orchestration | `cli.py`, `workspace.py`, `batch.py`, `csaf_workflow.py`, `aggregate.py` | ELF parsing, VEX interpretation details, or report-format primitives. |
+| Evidence production | `scanner.py`, `layer_scan.py`, `reconciliation.py`, `vulnerabilities.py` | Registry access, report text, or advisory downloading. |
+| Canonical data and validation | `models.py`, `audit.py`, `identity.py` | Display-only summaries or provider-specific network policy. |
+| CSAF interpretation | `csaf.py`, `image_csaf.py`, `comparison.py`, `csaf_redhat.py` | Binary scanning or hidden document retrieval. |
+| Persistence and publication | `storage.py`, `result_cache.py`, `binary_cache.py`, `artifacts.py` | Findings policy or report-specific classifications. |
+| Presentation | `report_views.py`, `report_sections.py`, `text_layout.py`, `text_report.py`, `report.py` | Re-discovery of scan facts from paths or mutation of evidence models. |
+
+### Scan and audit
+
+`cli.run` resolves sidecars, workspace settings, and explicit options. For one
+container it calls `workspace.scan_workspace`; for a batch audit, `batch.run`
+submits that same workspace operation for each prepared child with a shared run
+ID and cache. `workspace.scan_workspace` validates roots and output paths,
+creates private work/cache directories, and calls `scanner.scan_root`. The
+scanner resolves tools once, discovers regular ELF files, hashes each file,
+checks its run-scoped cache entry, and sends cache misses through Go metadata
+and `govulncheck` inspection. It then reconciles module observations and calls
+`layer_scan.compose_reports` when layer scans are present. The resulting
+`AuditReport` is serialized and rendered by `artifacts.publish_audit`.
+
+The reusable boundary is `AuditReport` and its nested model types. `audit.py`
+is the only reader for saved audit JSON: it rejects invalid fields and types,
+then reconstructs models before report, check, CSAF, or aggregate code reads the
+evidence.
+
+### Reports and checks
+
+`report.py` maps view names to renderers and artifact filenames.
+`report_views.py` builds shared CVE indexes, finding summaries, binary groups,
+and reconciliation rows. `text_report.py` composes overview, binary,
+vulnerability, module-reconciliation, diagnostic, and targeted-check views.
+`report_sections.py` supplies recurring fields and labels; `text_layout.py`
+owns presentation mechanics and applies one immutable `RenderPolicy` throughout
+the render. `--wide` changes list limits and hash abbreviation, not the evidence
+or selected renderer.
+
+### CSAF and aggregate comparison
+
+The `csaf` and `aggregate` commands use the same `csaf_workflow` pipeline:
+
+```text
+cli.run
+  └─ csaf_workflow.run
+       ├─ load_workspaces: strict audit + image identity + local evidence
+       ├─ inspect_source: load/index each CSAF once per document
+       │    └─ image_csaf.inspect_document: match lookup identity to products
+       ├─ compare_workspaces: select each container's recorded CVEs
+       │    └─ image_csaf.build_comparison: local scan + candidate assessments
+       └─ publish_checks: stage child comparison JSON/text together
+```
+
+`image_csaf.py` builds candidate and local-evidence results. `comparison.py`
+interprets vendor statements and produces qualified agreement;
+`csaf_redhat.py` contains the current Red Hat OpenShift version/product policy.
+`aggregate.py` uses the same workflow and projects its conclusions into batch
+metrics, text, and one-row-per-container/CVE CSV. It does not match products or
+recompute agreement. A batch comparison considers each container's recorded
+CVEs only; standalone `csaf` inspects all supplied documents.
+
+`cve_data.py` is a separate shared downloader used by provider scripts. It owns
+URL-template validation, CVE-list parsing, concurrency, HTTP retries, source
+cache validation, and cached-404 records. Scripts own URL presets. The CSAF
+comparison workflow reads supplied local files and never calls the downloader.
 
 ## Inputs and processing
 
