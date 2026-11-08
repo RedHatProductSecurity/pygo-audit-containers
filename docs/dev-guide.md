@@ -68,9 +68,13 @@ src/pygo_audit/
 ├── cli.py             options, defaults, sidecar configuration, and dispatch
 ├── batch.py           scan prepared children using the same container workflow
 ├── workspace.py       subject validation and scan publication
-├── csaf.py            local CSAF matching and comparison
-├── aggregate.py       batch text/JSON summaries and container details
-├── comparison.py      shared VEX conclusions, metrics, and headline layout
+├── csaf.py            CSAF document loading, product indexing, and CPE relations
+├── csaf_workflow.py   shared single/batch comparison orchestration and publication
+├── image_csaf.py      image matching, local conclusions, and comparison rendering
+├── csaf_redhat.py     Red Hat OpenShift version/matching policy
+├── cve_data.py        generic CVE-list downloads, source cache, and shared CLI
+├── aggregate.py       canonical comparison summaries, text, and triage CSV
+├── comparison.py      shared vendor interpretation, agreement, and count metrics
 ├── scanner.py         ELF discovery, hashing, Go metadata, govulncheck
 ├── layer_scan.py      rootfs/layer composition and disposition decisions
 ├── models.py          canonical report data model
@@ -90,9 +94,11 @@ src/pygo_audit/
 scripts/
 ├── prepare-audits       batch directory preparation and dry-run
 ├── extract-image-layers  image/filesystem adapter and product sidecar generation
+├── container_metadata.py image identity fallbacks and product label collection
 ├── gather-openshift-targets
 │                        OpenShift release inventory adapter
-└── fetch-redhat-csaf     Red Hat document retrieval and download cache
+├── fetch-redhat-csaf     public Red Hat VEX URL preset and CSAF validation
+└── fetch-cve-data        internal OSIDB URL preset
 ```
 
 The library is the product. The scripts are vendor and external-tool adapters. If a
@@ -115,10 +121,10 @@ scan inputs
     ├── optional ordered --layer-dir values
     │
     ▼
-scanner._discover_elf_files
+ELF file discovery
     │  magic check; inode deduplication; symlinks skipped
     ▼
-scanner._inspect_elf_file
+ELF inspection and content identity
     │  one streaming pass for content identity
     │  cache lookup before Go/govulncheck subprocesses
     ▼
@@ -138,12 +144,9 @@ The flat sidecar is optional. Its keys mirror scan options:
 options override it. Identity validation happens before scanning so a report
 does not quietly attach evidence to the wrong image.
 
-The extractor writes both `.pygo-audit*` sidecars in the audit directory,
-outside `rootfs/` and historical layers. The container-facts sidecar is
-separate from image identity: it records facts read from the extracted rootfs,
-including `os-release` values and RPM package coordinates. Missing RPM tooling
-is recorded as an evidence limitation rather than treated as an extraction
-failure.
+The extractor writes `.pygo-audit-image.json` in the audit directory, outside
+`rootfs/` and historical layers. It reads only `VERSION_ID`, `OPENSHIFT_VERSION`,
+and `CPE_NAME` from `os-release` as fallbacks for missing image identity values.
 
 `rootfs/` is the normal subject. Repeated `--layer-dir` values are an optional
 second observation stream. The scanner scans them with the same model and
@@ -159,12 +162,24 @@ semantic conclusions: affected product, vulnerable behavior, reachability,
 remediation, or code absence. They are orthogonal descriptions, not duplicate
 implementations of one schema.
 
-The comparison layer should therefore preserve both conclusions. If VEX says a
+The shared comparison layer preserves both conclusions. It examines product
+identity independently of Go findings. If VEX says a
 vulnerability affects the product but pygo cannot find the compiled code, that
 matters. If pygo finds the code but VEX says the vulnerable code is absent,
 that matters too. If different wording still leads to the same concrete
 conclusion — the vulnerable compiled code is definitely not in the supplied
 filesystem — record agreement rather than punishing vocabulary.
+
+`image_csaf.select_policy` selects a function using a typed `PolicyContext`:
+publisher namespace, candidate product ID, local/candidate product contexts,
+and relevant version declarations. Each product context carries vendor/product,
+component, architecture, CPEs, PURLs, and raw version evidence with its subject and
+source. The current policy requires Red Hat OpenShift identity on both sides.
+Future policies can use the same context without changing the scanner or adding
+a registration framework. Normalization and inference belong in the vendor policy;
+metadata extraction and provider URL presets remain in helper scripts. Generic
+JSON downloading is shared in `cve_data.py`. Do not infer a
+component fix from its enclosing platform CPE or use an audit directory as a version.
 
 ## Reachability is a tool-owned conclusion
 
@@ -211,10 +226,14 @@ metadata. Cache shapes are private and asserted in tests; production has no sche
 versions or migration paths. Stable build facts can survive process lifetimes;
 vulnerability knowledge cannot.
 
-CSAF assessment keys cover run ID, advisory content, CVE, image identity, and detail
-mode. Source locations and local findings are assembled from
-the current audit. Comparison and aggregation use in-memory reuse; downloaded
-advisory documents remain reusable files managed by the retrieval script.
+`csaf_workflow.load_workspaces` prepares saved audits and lookup inputs once.
+Each comparison worker reads and indexes one current CSAF document, then reuses
+matching for identical lookup inputs within that invocation. The batch selects
+only each target's recorded CVEs using document content. Normalized document
+assessments are copied for each target; `image_csaf.build_comparison` combines
+them with that target's evidence. Nothing reads previous comparison artifacts or
+fetches alternate evidence. Downloaded advisories remain files managed by the
+retrieval command.
 
 Generated paths must resolve outside subjects. Defaults live under the applicable
 audit root, including Go subprocess cache/config/temp paths beneath `work/`.
@@ -227,9 +246,11 @@ a workspace lock. Strict failed scans retain diagnostic output under `work/` and
 leave current findings intact. Individual files are atomic; multi-file publication
 is not a filesystem transaction.
 
-`artifacts.write_comparison_artifacts` publishes CSAF and aggregate JSON/text pairs
-with the same replacement and rollback routine. It checks that outputs differ
-from inputs and holds the output directory lock during publication.
+`artifacts.comparison_payloads` stages text, optional CSV, then canonical JSON.
+`csaf_workflow.publish_checks` combines all child and aggregate payloads into one
+`artifacts.write_artifact_group` call. It rejects output/input collisions across
+targets, locks destination directories in sorted order, and uses the shared
+replacement routine to roll back ordinary write failures across the whole group.
 
 ## Strong types at the edges
 
@@ -265,25 +286,32 @@ visibility plus the independent wide/cardinality choice. `report_views.py`
 groups repeated observations into shared finding summaries. Renderers group those
 summaries by module and package as needed, using the same `group_items` helper.
 These derived views do not change the serialized audit contract.
-Every generated file under `reports/` uses forensic-wide rendering;
-`audit.json` remains the canonical evidence.
+Saved human-readable views under `reports/` use forensic-wide rendering.
+The `cves`, `modules`, and `packages` views use a shared identifier renderer with
+no presentation limits, headings, or footer. Their `.txt` artifacts use the same
+registry as other report views. CVEs reuse `index_cve_evidence`; module and package
+paths come from recorded build metadata and scanner observations, not advisory-only
+affected-package lists. Module/package identifiers retain `path@version` pairs.
+Package version resolution stays within each binary, preferring finding versions
+and otherwise applying its module replacements; missing or ambiguous versions
+remain `unknown`. `audit.json` remains the canonical evidence.
 
 Rendering checks for missing identity, incomplete coverage, or historical binaries
 inspect the saved report. They must not read current workspace settings, which may
 differ from the settings used to produce that audit. The CLI selects the view and
 detail level; each `TextLayout` carries its `RenderPolicy` through shared sections.
 
-`comparison.py` supplies the same container/CVE classification to CSAF and aggregate
-reports. Its normalized `VexDetails` result includes the final code-presence
-comparison without a separate evaluation wrapper. Coverage counts usable conclusions;
-corroboration counts agreements
-among them. Unknown and conflicting VEX conclusions stay outside that second
-denominator. Batch metrics count container/CVE pairs and sum counts before
-calculating percentages. Undefined percentages are JSON `null` and text `N/A`.
-`aggregate.py` retains inventory/reconciliation counters in `audit_summary`,
-using model status choices and shared CSAF counter categories to retain zero counts.
-Its text and JSON views use the same
-comparison result. CSV serialization is no longer part of aggregation.
+`comparison.py` interprets vendor statements and computes qualified agreement for
+the shared image comparison. `VexDetails` normalizes raw statuses and flags; it
+does not hold another classification. `comparison.summarize` counts canonical
+conclusions for both per-container and batch `summary.metrics`.
+`aggregate.py` groups inventory and reconciliation counts under `audit_summary`
+and projects those same comparison conclusions into text and CSV. It neither
+matches products nor calculates agreement again. Counter maps preserve observed
+labels; missing labels mean zero. Identity remains under `image`. Spreadsheet
+rows count container/CVE pairs, preserve qualified labels, and link to complete
+evidence instead of copying large product-ID lists into cells. Text verbosity
+selects shared sections; it never changes matching, counts, or CSV contents.
 
 Use this checklist so the model remains the single source of truth:
 

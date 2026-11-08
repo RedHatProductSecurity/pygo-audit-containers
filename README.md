@@ -6,7 +6,9 @@ current findings, preserves previous audits, and compares evidence with local
 CSAF/VEX documents. It never executes subject binaries or invokes image extraction.
 
 The library works with filesystems supplied by any extraction tool. Scripts own
-registry inventory, image extraction, directory preparation, and advisory retrieval.
+registry inventory, image extraction, directory preparation, and provider URL
+presets. `scripts/fetch-cve-data` downloads JSON through the shared
+`pygo_audit.cve_data` library.
 
 ## Documentation
 
@@ -49,7 +51,7 @@ untrusted black-box data. Work as a non-root user in a disposable directory,
 verify image digests and platforms, never execute files from the subject tree,
 and keep network access explicit. Files examined SHOULD have the minimum
 permissions needed by the scan account (PoLP). The supplied extractor makes
-completed subject files `0400` and directories `0500`, without following image
+completed subject files `0400` and directories `0700`, without following image
 symlinks. For stronger isolation, use a read-only mount. `pygo-audit scan`
 does not alter subject permissions or execute subject binaries.
 
@@ -67,7 +69,8 @@ Repeat `-v` up to three times for expanded, detailed, and forensic text;
 
 The extractor prepares `service/rootfs`, optional historical directories under
 `service/layers/`, and metadata sidecars. Scanning always saves
-`service/audit.json` and exhaustive text views under `service/reports/`.
+`service/audit.json` and exhaustive text views under `service/reports/`, including
+plain `cves.txt`, `modules.txt`, and `packages.txt` identifier lists.
 Previous findings go to `service/history/audit-<ID>-<date>.json` on replacement.
 
 `scan` defaults to the current audit directory, inspecting its `rootfs/` and
@@ -101,22 +104,43 @@ of disposable caches.
 ## Local advisory comparison
 
 ```console
-./scripts/fetch-redhat-csaf run run/csaf
+./pygo-audit report service --view cves |
+  ./scripts/fetch-redhat-csaf --input-format cves - service/csaf
+./pygo-audit csaf service
+
+# Combine the saved CVE lists from a completed batch.
+cat run/*/reports/cves.txt |
+  ./scripts/fetch-redhat-csaf --input-format cves - run/csaf
 ./pygo-audit csaf run
 ./pygo-audit aggregate run --csaf run/csaf
 ```
 
-CSAF comparison writes `comparison.json` and `comparison.txt` under each audit's
-`reports/` directory.
-It keeps advisory product-identity assessments separate from observed local
-binary evidence. Product matching alone does not establish component presence.
-Both views show VEX coverage and affected-status corroboration with explicit
-counts, followed by conflict-first CVE details. Aggregation writes `aggregate.txt`
-and `aggregate.json` under the batch `reports/` directory; it no longer generates
-CSV files.
-Only pygo-observed CVEs enter these comparisons. Missing
-documents and uncertain product matches remain visible. Comparison never downloads
-or rescans; advisory retrieval is an explicit script operation.
+The `cves`, `modules`, and `packages` report views emit sorted, unique identifiers,
+one per line without headers or truncation. Modules and packages use `path@version`
+(`@unknown` when unavailable); packages use their containing module's version.
+Modules include recorded replacements. Packages include only paths recorded in
+the audit, not a complete package inventory.
+
+The CSAF check writes `comparison.json` and `comparison.txt` under each audit's
+`reports/` directory. For one container it checks every supplied document and reports
+component PURL/product CPE matches, unconfirmed candidates, and linked platform
+evidence. Each CVE also links to recorded binary artifacts and their locations.
+The summary shows the independent local scan result (Affected, Not Affected, or
+Undetermined), match confidence, agreement with vendor qualifications, and the
+discovered CSAF product ID candidates for each CVE.
+Local findings list unique binaries, runtime availability, and evidence kinds by
+default. Reachability, locations, and modules expand inside that section at `-v`,
+packages and CGO at `-vv`, and exact symbols at `-vvv`. Exact matches discard weaker
+candidates. Individual candidates report
+Yes, Qualified yes, No, Qualified no, or Undetermined; the overall CVE result can
+also report Mixed when accepted candidates reach opposing conclusions.
+Batch `csaf` and `aggregate` use the same matching, conclusions, and detail layout,
+limited to each container's recorded CVEs. Aggregation refreshes those per-container
+reports and writes `aggregate.txt`, `aggregate.json`, and `aggregate.csv` under the
+batch `reports/` directory. The spreadsheet has one row per container/CVE pair,
+sorted by descending highest CVSS score, then container, agreement priority, and
+CVE, with canonical advisory URLs and recorded image references. Neither command
+downloads advisories or rescans binaries.
 
 ## Installation and checks
 

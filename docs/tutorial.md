@@ -38,7 +38,6 @@ Its output is:
 ```text
 sandbox/example/
 ├── .pygo-audit-image.json
-├── .pygo-audit-container.json
 ├── layers/
 │   ├── layer-000/
 │   └── layer-001/
@@ -150,46 +149,40 @@ Prepare local Red Hat documents using the vendor helper, then compare them
 with the saved audit:
 
 ```console
-./scripts/fetch-redhat-csaf sandbox/example/audit.json sandbox/csaf
+./pygo-audit report sandbox/example --view cves |
+  ./scripts/fetch-redhat-csaf --input-format cves - sandbox/csaf
 ./pygo-audit csaf sandbox/example --csaf sandbox/csaf
 ```
 
 For an entire completed batch:
 
 ```console
-./scripts/fetch-redhat-csaf sandbox/product-audit sandbox/csaf
+cat sandbox/product-audit/*/reports/cves.txt |
+  ./scripts/fetch-redhat-csaf --input-format cves - sandbox/csaf
 ./pygo-audit aggregate sandbox/product-audit --csaf sandbox/csaf --jobs 4
 ```
 
-Retrieval and caching belong to the script. Comparison and aggregation read
-local files and work without network access. The aggregate uses pygo's CVE
-set as the audit universe; VEX-only CVEs do not enter the comparison totals. See the
+Retrieval and caching belong to the script. The single-image check examines
+every supplied document for the image and compares applicable vendor statements
+with saved local findings, keeping tentative and conflicting conclusions explicit.
+Batch `csaf` and `aggregate` use that same comparison, scoped to each container's
+own recorded CVEs. Aggregation refreshes child comparisons and writes text, JSON,
+and `reports/aggregate.csv` for spreadsheet triage. These comparisons read local
+files and work without network access. See the
 [command reference](cli-reference.md) for file formats and directory contracts.
 
 ## Chapter 7: investigate without overclaiming
 
-Use the [findings guide](findings-guide.md) as the decision tree. The short
-version:
+Use the [findings guide](findings-guide.md) as the decision tree. Start with
+`aggregate.csv`: the highest CVSS scores appear first, with qualified labels preserved.
+Undetermined identifies missing documents or evidence that cannot support a
+comparison; it does not mean agreement. Follow the detail report for the candidate's
+identity, raw statements, qualifications, and the local binary evidence.
 
-```text
-pygo finds vulnerable + VEX says vulnerable
-    → agreement
-
-pygo finds vulnerable + VEX says fixed/not-present/not-reachable
-    → resolved difference; review the explanation
-
-pygo finds symbol evidence + VEX says code not present
-    → prominent code-presence conflict
-
-VEX says known_not_affected with no explanatory flag
-    → unverified; investigate
-
-layer binary absent from rootfs with no whiteout/replacement
-    → unaccounted historical content; inspect extraction evidence
-```
-
-The tool compares semantic and syntactic conclusions rather than punishing
-language differences. “Fixed” and “vulnerable code not present” can both mean
-“not vulnerable in this image,” but “pygo vulnerable / VEX known_not_affected
-without explanation” deserves a human. The same is true in the other
-direction when VEX says affected and pygo cannot find the compiled code.
+For example, vulnerable code plus a vendor declaration that it is unreachable can
+be Qualified yes. A vendor fix claim plus an old embedded version can be Qualified
+no because the version alone cannot disprove a backport. Mixed means accepted
+candidates reach opposing conclusions. A binary from an earlier layer remains a
+finding with its runtime availability recorded; an unaccounted disposition needs
+review of the extraction evidence. The single-container and batch views apply
+these same rules.

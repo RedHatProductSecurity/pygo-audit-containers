@@ -3,56 +3,55 @@
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Iterable, Mapping, Sequence
 from operator import attrgetter
 from pathlib import PurePosixPath
-
-from pygo_audit.comparison import VulnerabilityPriority
+from collections.abc import Iterable, Sequence
 from pygo_audit.models import (
     AuditReport,
     BinaryLayerObservation,
     BinaryReport,
-    DependencyReconciliationRow,
     FindingOccurrence,
-    FindingSummary,
     ImageIdentity,
+    FindingSummary,
+    DependencyReconciliationRow,
     Module,
     ModuleReconciliation,
     ReconciliationDiagnostic,
     ScanIssue,
 )
 from pygo_audit.report_sections import (
-    append_check_context,
+    runtime_disposition_label,
     append_coverage_warning,
-    append_detail_footer,
     append_diagnostic_counts,
-    append_report_context,
     finish_report,
     append_unaccounted_historical_summary,
-    check_status_label,
     coverage_label,
-    runtime_disposition_label,
     result_label,
+    CGO_LABELS,
+    append_report_context,
+    append_check_context,
+    append_detail_footer,
+    check_status_label,
 )
 from pygo_audit.report_views import (
+    finding_summaries,
+    group_items,
+    summarize_findings,
     CheckResult,
     binary_occurrence_groups,
+    evaluate_checks,
+    vulnerability_occurrences,
+    normalize_cve,
     component_label,
     dependency_reconciliation_rows,
     dependency_row_status,
-    evaluate_checks,
-    finding_summaries,
-    group_items,
-    vulnerability_occurrences,
-    normalize_cve,
     reconciliation_diagnostics,
-    summarize_findings,
 )
 from pygo_audit.text_layout import (
-    SUMMARY_POLICY,
-    RenderPolicy,
     TextLayout,
     Verbosity,
+    SUMMARY_POLICY,
+    RenderPolicy,
     count_phrase,
 )
 
@@ -63,7 +62,7 @@ def render_overview(report: AuditReport, policy: RenderPolicy = SUMMARY_POLICY) 
     cves = {
         identifier for identifier in vulnerabilities if identifier.startswith("CVE-")
     }
-    cgo_binaries = sum(binary.cgo_enabled for binary in report.binaries)
+    cgo_binaries = sum(binary.cgo_enabled is True for binary in report.binaries)
     lines = TextLayout.titled("PYGO-AUDIT OVERVIEW", policy=policy)
     append_overview_subject(lines, report)
     lines.section(f"RESULT: {coverage_label(report)}")
@@ -118,13 +117,20 @@ def append_overview_subject(lines: TextLayout, report: AuditReport) -> None:
 
 def append_image_identity(lines: TextLayout, identity: ImageIdentity) -> None:
     for label, attribute in (
-        ("CPE", "cpe"),
+        ("CPE", "cpes"),
         ("Product component", "product_component"),
         ("Product version", "product_version"),
         ("Component", "component"),
         ("Component version", "component_version"),
+        ("Vendor image name", "vendor_image_name"),
+        ("Image build release", "image_build_release"),
     ):
-        lines.field(label, getattr(identity, attribute))
+        lines.field(
+            label,
+            ", ".join(identity.cpes)
+            if attribute == "cpes"
+            else getattr(identity, attribute),
+        )
     if lines.policy.shows(Verbosity.EXPANDED):
         lines.field("Digest", identity.digest)
         lines.field("Source Git URL", identity.source_git_url)
@@ -150,14 +156,16 @@ def append_overview_binaries(lines: TextLayout, report: AuditReport) -> None:
     if not binaries:
         lines.append("  None detected.")
         return
-    visible, omitted = lines.policy.preview(binaries)
-    rows = []
-    for binary in visible:
-        runtime = "RUNTIME" if binary.runtime_disposition == "runtime" else "HISTORICAL"
-        rows.extend(binary_location_rows(binary.paths, runtime, binary.layer_history))
-    lines.columns(rows)
-    if omitted:
-        lines.field("Additional binaries", lines.policy.omission(omitted))
+    with lines.preview("binaries", binaries) as visible:
+        rows = []
+        for binary in visible:
+            runtime = (
+                "RUNTIME" if binary.runtime_disposition == "runtime" else "HISTORICAL"
+            )
+            rows.extend(
+                binary_location_rows(binary.paths, runtime, binary.layer_history)
+            )
+        lines.columns(rows)
 
 
 def binary_location_rows(
@@ -185,8 +193,6 @@ def binary_location_rows(
 def render_binaries(
     report: AuditReport,
     policy: RenderPolicy = SUMMARY_POLICY,
-    *,
-    priorities: Mapping[str, VulnerabilityPriority] | None = None,
 ) -> str:
     binaries = sorted(report.binaries, key=lambda binary: min(binary.paths))
     title = "PYGO-AUDIT BINARY FINDINGS"
@@ -208,7 +214,7 @@ def render_binaries(
         lines.append("  No recognized Go binaries found.")
     for binary in lines.limited("binaries", binaries):
         if policy.shows(Verbosity.EXPANDED):
-            append_binary_findings(lines, binary, priorities or {})
+            append_binary_findings(lines, binary)
         else:
             append_binary_inventory_summary(lines, binary)
     if policy.shows(Verbosity.DETAILED):
@@ -234,7 +240,7 @@ def append_binary_inventory_summary(lines: TextLayout, binary: BinaryReport) -> 
         ("Size", f"{binary.size / 1_000_000:.2f} MB"),
         ("Location", rootfs_location(paths[0])),
         ("Runtime disposition", runtime_disposition_label(binary.runtime_disposition)),
-        ("CGO", "ENABLED" if binary.cgo_enabled else "disabled"),
+        ("CGO", CGO_LABELS[binary.cgo_enabled]),
         ("Number vulnerabilities", len({item.identifier for item in summaries})),
         ("Number affected packages", len({item.package for item in summaries})),
         ("Recorded modules", len(modules)),
@@ -245,18 +251,17 @@ def append_binary_inventory_summary(lines: TextLayout, binary: BinaryReport) -> 
 def append_binary_findings(
     lines: TextLayout,
     binary: BinaryReport,
-    priorities: Mapping[str, VulnerabilityPriority],
 ) -> None:
     findings = summarize_findings(binary.finding_occurrences())
     lines.section(f"BINARY: {PurePosixPath(binary.paths[0]).name}")
     append_binary_identity(lines, binary)
-    lines.field("CGO", "ENABLED" if binary.cgo_enabled else "disabled")
+    lines.field("CGO", CGO_LABELS[binary.cgo_enabled])
     lines.field("Scan status", binary.vulnerability_scan.status.upper())
 
     if lines.policy.shows(Verbosity.EXPANDED) and binary.vulnerability_scan.error:
         lines.field("Scan error", binary.vulnerability_scan.error, wrap=True)
     if not lines.policy.shows(Verbosity.DETAILED) and findings:
-        append_binary_finding_summary(lines, findings, priorities)
+        append_binary_finding_summary(lines, findings)
 
     if lines.policy.shows(Verbosity.DETAILED):
         lines.section("VULNERABILITY EVIDENCE", rule_width=None)
@@ -284,7 +289,7 @@ def render_module_reconciliation(
         lines.field("Main package", binary.main_package or "(unknown)", wrap=True)
         lines.field("Main module", module_label(binary.main_module))
         lines.field("Compiled with", binary.go_version)
-        lines.field("CGO", "ENABLED" if binary.cgo_enabled else "disabled")
+        lines.field("CGO", CGO_LABELS[binary.cgo_enabled])
         lines.field("Dependencies", str(len(binary.dependencies)))
         if policy.shows(Verbosity.DETAILED):
             append_build_settings(lines, binary)
@@ -349,9 +354,8 @@ def rootfs_location(path: str) -> str:
 def append_binary_finding_summary(
     lines: TextLayout,
     findings: Sequence[FindingSummary],
-    priorities: Mapping[str, VulnerabilityPriority],
 ) -> None:
-    """Show the most active packages and highest-priority vulnerabilities."""
+    """Show the most active packages and recorded vulnerabilities."""
     package_counts: Counter[str] = Counter()
     for finding in findings:
         package_counts[finding.package] += finding.observation_count
@@ -365,28 +369,9 @@ def append_binary_finding_summary(
         ),
     )
 
-    identifiers = {finding.identifier for finding in findings}
-    ranked = [
-        priorities.get(identifier.upper())
-        or VulnerabilityPriority(identifier, None, "", "")
-        for identifier in identifiers
-    ]
-    ranked.sort(key=lambda item: item.sort_key)
-    lines.section(f"VULNERABILITIES ({len(ranked)})", rule_width=None)
-    lines.preview_bullets("vulnerabilities", (priority_label(item) for item in ranked))
-
-
-def priority_label(priority: VulnerabilityPriority) -> str:
-    score = (
-        f"CVSS {priority.cvss_score:.1f}"
-        if priority.cvss_score is not None
-        else "CVSS N/A"
-    )
-    severity = priority.severity or "severity unknown"
-    source = (
-        f", {priority.score_source.replace('_', ' ')}" if priority.score_source else ""
-    )
-    return f"{priority.identifier} ({score}, {severity}{source})"
+    identifiers = sorted({finding.identifier for finding in findings})
+    lines.section(f"VULNERABILITIES ({len(identifiers)})", rule_width=None)
+    lines.preview_bullets("vulnerabilities", identifiers)
 
 
 def render_diagnostics(
@@ -566,30 +551,28 @@ def append_affected_binaries(
 ) -> None:
     binary_groups = binary_occurrence_groups(occurrences)
     lines.section(f"BINARIES ({len(binary_groups)})", rule_width=rule_width)
-    visible, omitted = lines.policy.preview(binary_groups)
-    rows = []
-    for group in visible:
-        if lines.policy.shows(Verbosity.DETAILED):
-            append_binary_evidence(lines, group)
-            continue
-        binary = group[0]
-        evidence = sorted({item.evidence or "(not recorded)" for item in group})
-        locations = binary_location_rows(
-            binary.binary_paths,
-            runtime_disposition_label(binary.runtime_disposition),
-            binary.layer_history,
-        )
-        rows.extend(
-            (name, runtime, kind, location)
-            for name, runtime, location in locations
-            for kind in evidence
-        )
-    if rows:
-        lines.columns(
-            [("Binary:layer", "Runtime", "Evidence", "Location"), *rows],
-        )
-    if omitted:
-        lines.field("Additional binaries", lines.policy.omission(omitted))
+    with lines.preview("binaries", binary_groups) as visible:
+        rows: list[tuple[str, str, str, str]] = []
+        for group in visible:
+            if lines.policy.shows(Verbosity.DETAILED):
+                append_binary_evidence(lines, group)
+                continue
+            binary = group[0]
+            evidence = sorted({item.evidence or "(not recorded)" for item in group})
+            locations = binary_location_rows(
+                binary.binary_paths,
+                runtime_disposition_label(binary.runtime_disposition),
+                binary.layer_history,
+            )
+            rows.extend(
+                (name, runtime, kind, location)
+                for name, runtime, location in locations
+                for kind in evidence
+            )
+        if rows:
+            lines.columns(
+                [("Binary:layer", "Runtime", "Evidence", "Location"), *rows],
+            )
 
 
 def append_binary_evidence(
@@ -665,9 +648,8 @@ def append_vulnerability_modules(
                 wrap=True,
             )
         packages = group_items(findings, attrgetter("package"))
-        visible_packages, omitted_packages = lines.policy.preview(packages)
         if lines.policy.shows(Verbosity.FORENSIC):
-            for package, package_findings in visible_packages:
+            for package, package_findings in lines.limited("packages", packages):
                 lines.section(
                     f"PACKAGE: {package or '(not reported)'}",
                     rule_width=60,
@@ -686,12 +668,12 @@ def append_vulnerability_modules(
         else:
             package_names = [package for package, _ in packages if package]
             lines.append(f"Packages ({len(package_names)})")
-            names, omitted_packages = lines.policy.preview(package_names)
-            lines.bullets(names)
-            if any(not package for package, _ in packages):
-                lines.field("Package evidence", "Not reported for some module findings")
-        if omitted_packages:
-            lines.field("Additional packages", lines.policy.omission(omitted_packages))
+            with lines.preview("packages", package_names) as names:
+                lines.bullets(names)
+                if any(not package for package, _ in packages):
+                    lines.field(
+                        "Package evidence", "Not reported for some module findings"
+                    )
 
 
 def append_check(
@@ -705,21 +687,18 @@ def append_check(
     if result.status == "detected":
         if lines.policy.shows(Verbosity.EXPANDED):
             append_vulnerability_details(lines, result.identifier, result.matches)
-    elif result.status == "not_detected":
-        lines.append("")
-        lines.append(
-            "  No matching finding was detected in this audit with complete scan "
-            "coverage."
-        )
-    elif result.status == "no_go_binaries":
-        lines.append("")
-        lines.append("  No recognized Go binaries were available for evaluation.")
     else:
         lines.append("")
-        lines.append(
-            "  No matching finding was detected in this audit, but scan coverage is "
+        message = (
+            "  No matching finding was detected in this audit with complete scan "
+            "coverage."
+            if result.status == "not_detected"
+            else "  No recognized Go binaries were available for evaluation."
+            if result.status == "no_go_binaries"
+            else "  No matching finding was detected in this audit, but scan coverage is "
             "incomplete."
         )
+        lines.append(message)
 
 
 def append_binary_vulnerability_evidence(
@@ -826,11 +805,25 @@ def append_binary_location(lines: TextLayout, occurrence: FindingOccurrence) -> 
 def append_layer_observations(
     lines: TextLayout,
     history: Iterable[BinaryLayerObservation],
+    *,
+    multiline: bool = False,
 ) -> None:
     """Show where a binary and its aliases were observed in supplied layers."""
     history = list(history)
-    lines.append(f"Layer observations ({len(history)})")
+    if not multiline:
+        lines.append(f"Layer observations ({len(history)})")
     for event in lines.limited("layer events", history):
+        if multiline:
+            with lines.subsection(
+                f"layer-{event.layer_index:03d} {event.status.upper()}"
+            ) as layer:
+                layer.list_field(
+                    "Files", [rootfs_location(path) for path in event.paths]
+                )
+                layer.list_field(
+                    "Symlinks", [rootfs_location(path) for path in event.symlinks]
+                )
+            continue
         paths = ", ".join(rootfs_location(path) for path in event.paths) or "(none)"
         aliases = (
             ", ".join(rootfs_location(path) for path in event.symlinks) or "(none)"
@@ -910,16 +903,13 @@ def append_dependency_reconciliation(lines: TextLayout, binary: BinaryReport) ->
             item[0].entry.effective_path,
         ),
     )
-    focused = [
-        item
-        for item in pairs
-        if item[0].vulnerable_findings or item[1] not in normal_statuses
-    ]
-    matched = [
-        item
-        for item in pairs
-        if item[1] in normal_statuses and not item[0].vulnerable_findings
-    ]
+    focused: list[tuple[DependencyReconciliationRow, str]] = []
+    matched: list[tuple[DependencyReconciliationRow, str]] = []
+    for pair in pairs:
+        if pair[0].vulnerable_findings or pair[1] not in normal_statuses:
+            focused.append(pair)
+        else:
+            matched.append(pair)
     if (
         not focused
         and not unmatched_observations
@@ -1154,15 +1144,13 @@ def append_diagnostic_locations(
             "OTHER LOCATIONS" if lines.policy.shows(Verbosity.DETAILED) else "LOCATIONS"
         )
         lines.section(f"{label} ({len(unmatched)})", rule_width=60)
-        visible, omitted = lines.policy.preview(unmatched)
-        rows = [
-            (scope, rootfs_location(path))
-            for scope, path in map(diagnostic_location, visible)
-        ]
-        lines.columns([("Scope", "Location"), *rows])
-        if lines.policy.shows(Verbosity.DETAILED):
-            lines.append(
-                "  These locations could not be linked to a unique recorded binary."
-            )
-        if omitted:
-            lines.field("Additional locations", lines.policy.omission(omitted))
+        with lines.preview("locations", unmatched) as visible:
+            rows = [
+                (scope, rootfs_location(path))
+                for scope, path in map(diagnostic_location, visible)
+            ]
+            lines.columns([("Scope", "Location"), *rows])
+            if lines.policy.shows(Verbosity.DETAILED):
+                lines.append(
+                    "  These locations could not be linked to a unique recorded binary."
+                )

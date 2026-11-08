@@ -1,26 +1,33 @@
 # Internal audit JSON contract
 
 `audit.json` and `history/audit-*.json` contain the `AuditReport` dataclass
-graph with `schema_version: 3`. The field declarations in `models.py` define
+graph with `schema_version: 4`. The field declarations in `models.py` define
 the stored shape; `audit.load_audit` reconstructs and validates those models.
 Each document describes one container. Metadata, binaries, issues, statistics,
 and scan/toolchain provenance are top-level fields. A batch keeps independent
 per-container audit files; its progress records track execution outcomes and
 published paths without copying the evidence.
 
+Image identity records the vendor image name, image build release, CPE and PURL
+lists, separate layer product contexts, and explicit CSAF product-ID pins. Older audit
+files must be regenerated; the reader accepts only the current contract.
+
 The saved audit supplies all scan evidence shown in reports. Publication saves
 staged JSON, validates it, and renders text from the reconstructed models.
 Successful and strict failed scans use this same path; terminal summaries also
 reload the saved audit. Current configuration, identity sidecars, caches, and
 extracted files do not supplement recorded evidence when rendering. CSAF
-comparisons additionally consume the advisory documents supplied to that command.
+comparisons additionally consume supplied advisory documents and can explicitly
+select an identity JSON override or a product-ID pin; their effective identity and
+override source are recorded separately from the unchanged audit fingerprint. Extraction stores
+RPM observations separately in the container metadata sidecar.
 
 ## Field rules
 
 - Every declared evidence field is required, including constructor defaults,
   empty strings/collections, and nullable fields. `Module.replace` is always
   present; an absent replacement is null. An unknown image is an `ImageIdentity`
-  object with empty string fields.
+  object with empty string and collection fields.
 - JSON keys match dataclass field names. Nested dataclasses are objects;
   lists and tuples are arrays. Properties and report-processing dataclasses
   are not serialized.
@@ -113,7 +120,7 @@ Workspace sidecars and external tool output have separate input parsers.
 It retains advisories without findings and deduplicates repeated CVE aliases
 within each advisory. Paths, hashes, runtime dispositions, evidence precision,
 and reconciliation counts are derived from those records. CSAF comparisons,
-aggregate text/JSON reports, and advisory selection use the same index. It is not stored in
+aggregate text/JSON/CSV reports, and advisory selection use the same index. It is not stored in
 `audit.json`, and image identity assessments remain separate from local evidence.
 
 `TargetOutcome` records a batch target's name, execution status, actual published
@@ -121,3 +128,17 @@ aggregate text/JSON reports, and advisory selection use the same index. It is no
 their evidence under `work/`. Errors without a published audit and cancelled
 targets have no audit path. These records supply `progress.tsv` and
 `reports/container-summary.txt`; vulnerability findings alone do not mean execution failed.
+
+Image identity uses `cpes` and `purls` lists for the final container,
+`products` for separately supplied contexts, and `csaf_product_ids` for explicit
+user selections. `sources` retains supplied final-image provenance. Each product records `name`, `component`, `version`, `release`,
+`cpes`, `purls`, and `sources`. The JSON sidecar groups these under `image`,
+`products`, and `csaf`; saved audits retain the typed `ImageIdentity` record.
+A rootfs or layer CPE is evidence about its recorded context, not an assertion
+that every binary in the final image belongs to that product.
+
+The core does not discover image identity from vendor label files. Helper scripts
+prepare the sidecar, and scans save the supplied identity. Comparisons keep
+supplied `purls` and `cpes` separate from generated `derived_purls`; each generated
+candidate records its source field. Derived candidates do not change audit
+evidence or imply a canonical CSAF product ID.

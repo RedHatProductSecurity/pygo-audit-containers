@@ -19,7 +19,8 @@ Use any extractor, or the supplied helper:
 ```
 
 The scanner runs binary-mode govulncheck on each distinct Go binary and always
-saves `audit.json` plus five text views under `service/reports/`. It includes layers
+saves `audit.json` plus five human-readable views and the plain `cves.txt`,
+`modules.txt`, and `packages.txt` lists under `service/reports/`. It includes layers
 when present; use `--no-layers` to skip them. It never runs image-owned programs.
 Repeat `scan` to refresh vulnerability findings. Previous JSON findings are
 preserved as `history/audit-<ID>-<date>.json`.
@@ -40,15 +41,25 @@ share `run/cache/` and `run/work/`. Both workspace arguments default to cwd.
 ## Local CSAF comparison
 
 ```console
-./scripts/fetch-redhat-csaf run run/csaf
+./pygo-audit report service --view cves |
+  ./scripts/fetch-redhat-csaf --input-format cves - service/csaf
+./pygo-audit csaf service
+
+# Or use the saved lists from a completed batch.
+cat run/*/reports/cves.txt |
+  ./scripts/fetch-redhat-csaf --input-format cves - run/csaf
 ./pygo-audit csaf run
 ./pygo-audit aggregate run --csaf run/csaf
 ```
 
-Each container receives `reports/comparison.json` and `reports/comparison.txt`;
-`reports/aggregate.txt` and `reports/aggregate.json` are written in `run/`.
-Missing documents and uncertain
-matches must be reviewed.
+Each container receives `reports/comparison.json` and `reports/comparison.txt`.
+Aggregation also writes `reports/aggregate.txt`, `reports/aggregate.json`, and
+`reports/aggregate.csv` in `run/`. Open the CSV for one row per container/CVE pair,
+sorted by descending highest CVSS score, then container, agreement priority, and
+CVE. Both batch commands use the single-container comparison, scoped to each
+container's own recorded CVEs;
+standalone `csaf service` checks every supplied document. Uncertain matches retain
+their qualifications.
 A saved audit reflects the vulnerability knowledge at scan time; comparing newer
 advisories does not rescan binaries.
 

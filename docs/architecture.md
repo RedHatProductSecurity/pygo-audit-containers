@@ -36,7 +36,7 @@
                local CSAF files prepared by vendor adapters
 ```
 
-The generated image and container-facts sidecars live beside `rootfs/`, outside
+The generated image identity sidecar lives beside `rootfs/`, outside
 all subject trees. The default metadata lookup never reads an image-owned
 sidecar inside the filesystem. Scripts prepare the directory tree; `scan` and
 `audit` never invoke an extractor. `cli.py` owns option definitions, defaults,
@@ -48,7 +48,9 @@ The boundary is intentional. `pygo-audit` consumes directories, not image
 registries. The extractor produces directories, not audit conclusions. CSAF
 matching consumes serialized audit JSON and local documents. The package's
 batch and aggregate commands coordinate these generic workflows; scripts own
-vendor discovery, advisory retrieval, and metadata preparation.
+vendor discovery, provider URL presets, and metadata preparation. The
+`fetch-cve-data` script calls the shared downloader with its OSIDB URL preset.
+Scanning and comparison do not fetch documents.
 
 That is orthogonality in practice: each part has one job and exposes a small
 contract. A registry tool can change without changing the scanner. The
@@ -120,10 +122,25 @@ are misses. No cache contains subject files or substitutes for audit history.
 Cache/work/output paths must resolve outside the supplied subjects. Defaults never
 fall back to home directories; implicit Go tool state is redirected beneath work/.
 
-CSAF comparison retains supplied documents as evidence, while derived matching
-assessments live only for a comparison invocation. Matching by image identity and
-observed local binary evidence remain separately represented. Reused identity
-assessments are combined with each audit's current observations.
+The CSAF image check examines each supplied document using image identity from
+the audit. It summarizes local evidence, product matching, and agreement with
+vendor statements per CVE. Exact matches discard weaker candidates; otherwise
+fuzzy matches remain tentative. Local findings, interpreted vendor assessments,
+and agreement are separate results. Statements retain their own flags before
+their comparison conclusions are combined. A small selector chooses an applicable
+vendor/product policy from typed identity and version evidence; Red Hat OpenShift
+rules live in `csaf_redhat.py`. Policies preserve raw statements and record their
+inferences without changing scan findings. `csaf_workflow.py` orchestrates this
+same operation for one container and batches. Shared documents are read/indexed
+once per invocation, and identical lookup inputs reuse identity assessments.
+Local findings and conclusions are built separately for each container. Batch
+comparisons select records by each container's recorded CVEs; standalone checks
+continue to inspect every supplied document.
+
+Single-image comparison artifacts are keyed by full binary SHA-256. Locations,
+layer history, and runtime availability remain observations of that artifact;
+deleted/replaced binaries participate in the same comparison. Different bytes at
+the same path remain distinct artifacts.
 
 Report publication stages views, archives the previous canonical JSON, and replaces
 current files atomically one at a time, with JSON last. Ordinary failures roll back
@@ -131,9 +148,11 @@ views; process interruption may require regenerating views from `audit.json`.
 A per-workspace lock rejects simultaneous publishers. Strict failed scans save
 diagnostics under `work/` without replacing the current report.
 
-CSAF and aggregate JSON/text pairs use the same artifact replacement routine.
-Their publisher protects audit and advisory inputs, locks the output directory,
-and restores previous files or removes newly created outputs after a write failure.
+CSAF JSON/text pairs and aggregate JSON/text/CSV bundles use the same artifact
+replacement routine. All container and batch views are staged before publication.
+Their publisher protects every target's audit, identity override, and advisory
+inputs, locks destination directories in a fixed order, and restores previous
+files or removes newly created outputs after an ordinary write failure.
 
 Publication locks an existing output directory with standard-library
 `fcntl.flock`, leaving no artifact. Publishers fail immediately on contention.
@@ -195,11 +214,13 @@ AuditReport (one container)
 ```
 
 The JSON is the canonical intermediate representation. Text reports are views,
-not alternate databases. Aggregation publishes `reports/aggregate.json` and a readable
-`reports/aggregate.txt` with batch metrics, per-container summaries, and conflict-first
-CVE details. Shared comparison logic calculates VEX coverage and affected-status
-corroboration; incomplete or ambiguous VEX remains explicit. Batch rates use
-summed counts rather than averaged percentages. Full scan evidence remains in `audit.json`.
+not alternate databases. Aggregation preserves canonical container comparisons in
+`reports/aggregate.json`, renders their shared details in `reports/aggregate.txt`,
+and projects one container/CVE per row into `reports/aggregate.csv` for triage.
+Totals count the existing agreement, local scan, match, and vendor conclusions;
+the aggregate does not evaluate them again. Triage rows sort by descending highest
+CVSS score, then container, agreement priority, and CVE. Missing or ambiguous
+evidence retains its qualifications. Full scan evidence remains in `audit.json`.
 JSON keys match the evidence dataclass fields. Computed properties such as
 runtime counts, CGO status, and dependency summaries are not duplicated in storage.
 

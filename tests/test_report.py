@@ -4,7 +4,6 @@ import json
 import unittest
 from dataclasses import replace
 
-from pygo_audit.comparison import VulnerabilityPriority
 from pygo_audit.models import (
     AuditReport,
     BinaryLayerObservation,
@@ -22,11 +21,11 @@ from pygo_audit.models import (
     VulnerabilityScan,
 )
 from pygo_audit.report import (
+    REPORT_VIEWS,
     render_binaries,
     render_checks,
     render_diagnostics,
     render_by_vulnerability,
-    render_full_report,
     render_json,
     render_module_reconciliation,
     render_overview,
@@ -45,6 +44,154 @@ from pygo_audit.text_layout import (
 
 
 class AuditReportTests(unittest.TestCase):
+    def test_cve_export_includes_aliases_and_advisories_without_findings(self) -> None:
+        binary = self._binary("/bin/main", "example.test/library", cgo=False)
+        binary.vulnerability_scan.vulnerabilities.extend(
+            Vulnerability(
+                id=f"GO-2026-{index:04d}",
+                aliases=[f" cve-2026-{index:04d} ", "GHSA-aaaa-bbbb-cccc"],
+            )
+            for index in reversed(range(12))
+        )
+        binary.vulnerability_scan.vulnerabilities.append(
+            Vulnerability(id="CVE-2026-12345", aliases=["CVE-2026-0001"])
+        )
+        report = AuditReport(
+            metadata=ContainerMetadata("/tmp/root"),
+            binaries=[binary, binary],
+            go_command="go",
+            go_tool_version="test",
+        )
+        self.assertEqual(
+            REPORT_VIEWS["cves"].render(report).splitlines(),
+            [*(f"CVE-2026-{index:04d}" for index in range(12)), "CVE-2026-12345"],
+        )
+
+    def test_inventory_exports_use_recorded_paths_and_exclude_advisory_claims(self):
+        binary = self._binary("/bin/main", "example.test/library/decoder", cgo=False)
+        binary.main_package = "example.test/app/cmd"
+        binary.main_module = Module("example.test/app", "v1.0.0")
+        binary.dependencies = [
+            Module(
+                "example.test/library", "v1.0.0", replace=Module("example.test/fork")
+            ),
+            Module("example.test/unaffected", "v2.0.0"),
+            Module("example.test/library", "v2.0.0"),
+        ]
+        binary.vulnerability_scan.sbom = {
+            "go_version": "go1.26",
+            "modules": [{"path": "example.test/scanner-only", "version": "v1.0.0"}],
+            "roots": [binary.main_package, "example.test/other/cmd", ""],
+        }
+        binary.reconciliation.effective_module_inventory = [
+            ModuleInventoryEntry("stdlib", "stdlib", "go1.26", "stdlib", "go1.26")
+        ]
+        binary.vulnerability_scan.vulnerabilities[0].affected = [
+            {"module": "advisory-only", "packages": [{"path": "advisory-only/pkg"}]}
+        ]
+        other = self._binary("/bin/other", "example.test/finding-only/pkg", cgo=False)
+        other.main_package = ""
+        other.vulnerability_scan.vulnerabilities[0].findings = [
+            VulnerabilityFinding(
+                module="example.test/finding-only",
+                package="example.test/finding-only/pkg",
+            ),
+            VulnerabilityFinding(),
+        ]
+        report = AuditReport(
+            metadata=ContainerMetadata("/tmp/root"),
+            binaries=[binary, other],
+            go_command="go",
+            go_tool_version="test",
+        )
+        self.assertEqual(
+            REPORT_VIEWS["modules"].render(report).splitlines(),
+            [
+                "example.test/app@v1.0.0",
+                "example.test/finding-only@unknown",
+                "example.test/fork@unknown",
+                "example.test/library@v1.0.0",
+                "example.test/library@v2.0.0",
+                "example.test/scanner-only@v1.0.0",
+                "example.test/unaffected@v2.0.0",
+                "stdlib@go1.26",
+            ],
+        )
+        self.assertEqual(
+            REPORT_VIEWS["packages"].render(report).splitlines(),
+            [
+                "example.test/app/cmd@v1.0.0",
+                "example.test/finding-only/pkg@unknown",
+                "example.test/library/decoder@v1.0.0",
+                "example.test/other/cmd@unknown",
+            ],
+        )
+
+    def test_package_versions_stay_with_their_binary_and_apply_replacements(self):
+        binaries = []
+        for version in ("v1.0.0", "v2.0.0"):
+            binary = self._binary("/bin/main", "", cgo=False)
+            binary.main_package = "example.test/app/cmd"
+            binary.main_module = Module("example.test/app", version)
+            binary.dependencies = [
+                Module(
+                    "example.test/lib",
+                    "v0.1.0",
+                    replace=Module("example.test/fork", version),
+                ),
+                Module("example.test/lib/sub", "v3.0.0"),
+                Module("example.test/local", "v0.1.0", replace=Module("../local")),
+                Module("example.test/conflict", "v1.0.0"),
+            ]
+            binary.vulnerability_scan.sbom = {
+                "go_version": "go1.26",
+                "modules": [{"path": "example.test/conflict", "version": "v2.0.0"}],
+                "roots": [
+                    "example.test/lib/decoder",
+                    "example.test/lib/sub/pkg",
+                    "example.test/libextra/pkg",
+                    "example.test/local/pkg",
+                    "example.test/conflict/pkg",
+                ],
+            }
+            binary.vulnerability_scan.vulnerabilities[0].findings = [
+                VulnerabilityFinding(
+                    module="example.test/lib", package="example.test/lib/parser"
+                ),
+                VulnerabilityFinding(
+                    module="stdlib", package="net/http", found_version="v1.26.0"
+                ),
+                VulnerabilityFinding(
+                    module="example.test/conflict",
+                    package="example.test/conflict/observed",
+                    found_version="v2.0.0",
+                ),
+            ]
+            binaries.append(binary)
+        report = AuditReport(
+            metadata=ContainerMetadata("/tmp/root"),
+            binaries=binaries,
+            go_command="go",
+            go_tool_version="test",
+        )
+        self.assertEqual(
+            REPORT_VIEWS["packages"].render(report).splitlines(),
+            [
+                "example.test/app/cmd@v1.0.0",
+                "example.test/app/cmd@v2.0.0",
+                "example.test/conflict/observed@v2.0.0",
+                "example.test/conflict/pkg@unknown",
+                "example.test/lib/decoder@v1.0.0",
+                "example.test/lib/decoder@v2.0.0",
+                "example.test/lib/parser@v1.0.0",
+                "example.test/lib/parser@v2.0.0",
+                "example.test/lib/sub/pkg@v3.0.0",
+                "example.test/libextra/pkg@unknown",
+                "example.test/local/pkg@unknown",
+                "net/http@v1.26.0",
+            ],
+        )
+
     def test_shared_preview_reports_omitted_items(self) -> None:
         self.assertEqual(preview_items(range(12)), (list(range(10)), 2))
         self.assertEqual(preview_items(range(3), None), ([0, 1, 2], 0))
@@ -79,6 +226,28 @@ class AuditReportTests(unittest.TestCase):
         lines.columns((("short", "RUNTIME", "one"), ("much-longer", "HISTORICAL", "two")))
         self.assertEqual(lines[0].index("RUNTIME"), lines[1].index("HISTORICAL"))
         self.assertEqual(lines[0].index("one"), lines[1].index("two"))
+
+    def test_multiline_values_preserve_identifiers_and_table_alignment(self):
+        identifiers = ["component;with,punctuation", "platform:component (variant)"]
+        lines = TextLayout(policy=FULL_POLICY)
+        lines.list_field("IDs", identifiers)
+        self.assertEqual(lines, ["IDs:", *("  - " + value for value in identifiers)])
+        lines = TextLayout(policy=RenderPolicy(entry_limit=1))
+        lines.list_field("IDs", identifiers)
+        self.assertIn(identifiers[0], lines[0])
+        self.assertIn("1 omitted", lines[-1])
+        rows = [
+            ("BINARY", "CGO", "LOCATION"),
+            ("app", ("Enabled", "Unknown"), ("one/path", "two/path", "three/path")),
+            ("empty", (), ()),
+        ]
+        lines = TextLayout(policy=FULL_POLICY)
+        lines.columns(rows)
+        self.assertEqual(len(lines), 5)
+        self.assertEqual(lines[1].index("Enabled"), lines[2].index("Unknown"))
+        self.assertEqual({lines[index].index(path) for index, path in enumerate(("one/path", "two/path", "three/path"), 1)}, {lines[0].index("LOCATION")})
+        self.assertEqual(lines[3].strip(), "three/path")
+        self.assertEqual(lines[4], "empty")
 
     def test_wrapped_layout_preserves_long_tokens_and_normalizes_multiline_values(
         self,
@@ -214,19 +383,7 @@ class AuditReportTests(unittest.TestCase):
             go_command="go",
             go_tool_version="go",
         )
-        priorities = {
-            "CVE-2026-0000": VulnerabilityPriority(
-                "CVE-2026-0000", 9.8, "Low", "highest_available"
-            ),
-            "CVE-2026-0001": VulnerabilityPriority(
-                "CVE-2026-0001", 7.5, "Moderate", "matched_product"
-            ),
-            "CVE-2026-0002": VulnerabilityPriority(
-                "CVE-2026-0002", 7.5, "Important", "matched_product"
-            ),
-        }
-
-        output = render_binaries(report, EXPANDED_POLICY, priorities=priorities)
+        output = render_binaries(report, EXPANDED_POLICY)
         packages = output.split("AFFECTED PACKAGES (12)", 1)[1].split(
             "VULNERABILITIES (12)", 1
         )[0]
@@ -236,16 +393,16 @@ class AuditReportTests(unittest.TestCase):
         self.assertIn("Additional packages:    2 omitted", packages)
         self.assertIn("Additional packages:    2 omitted", packages)
         self.assertLess(
-            vulnerabilities.index("CVE-2026-0000 (CVSS 9.8"),
-            vulnerabilities.index("CVE-2026-0002 (CVSS 7.5"),
+            vulnerabilities.index("CVE-2026-0000"),
+            vulnerabilities.index("CVE-2026-0001"),
         )
         self.assertLess(
-            vulnerabilities.index("CVE-2026-0002 (CVSS 7.5, Important"),
-            vulnerabilities.index("CVE-2026-0001 (CVSS 7.5, Moderate"),
+            vulnerabilities.index("CVE-2026-0001"),
+            vulnerabilities.index("CVE-2026-0002"),
         )
         self.assertIn("Additional vulnerabilities: 2 omitted", vulnerabilities)
         wide = render_binaries(
-            report, RenderPolicy(Verbosity.EXPANDED, wide=True), priorities=priorities
+            report, RenderPolicy(Verbosity.EXPANDED, wide=True)
         )
         self.assertIn("example.test/package10", wide)
         self.assertNotIn(" omitted;", wide)
@@ -269,7 +426,7 @@ class AuditReportTests(unittest.TestCase):
         self.assertIn("SHA-256:                aaaaaaaaaaaa...", forensic)
         self.assertNotIn("example.test/dependency10", forensic)
 
-        wide = render_full_report(report)
+        wide = "\n\n".join(view.render(report, FULL_POLICY) for view in REPORT_VIEWS.values())
         self.assertNotIn(" omitted;", wide)
         self.assertIn("SHA-256:                " + "a" * 64, wide)
         self.assertIn("example.test/dependency11", wide)
@@ -1065,7 +1222,7 @@ class AuditReportTests(unittest.TestCase):
                     product_version="v4.20.0",
                     component_version="v1.2.3-4-gabcdef0",
                     product_component="Example",
-                    cpe="cpe:/a:redhat:openshift:4.20::el9",
+                    cpes=("cpe:/a:redhat:openshift:4.20::el9",),
                 ),
             ),
             go_command="go",
@@ -1318,7 +1475,7 @@ class AuditReportTests(unittest.TestCase):
         self.assertNotIn("matches the effective go version -m", forensic)
         self.assertIn("example.test/dependency11", wide)
 
-    def test_json_queries_retain_machine_readable_check_evidence(self) -> None:
+    def test_json_view_exports_the_canonical_audit(self) -> None:
         report = AuditReport(
             metadata=ContainerMetadata("/tmp/root"),
             go_command="go",
@@ -1328,21 +1485,7 @@ class AuditReportTests(unittest.TestCase):
             self._binary("/bin/one", "example.test/library/decoder", cgo=False)
         )
 
-        self.assertNotIn("query", json.loads(render_json(report)))
-
-        document = json.loads(
-            render_json(
-                report,
-                checks=["CVE-2026-0001", "CVE-2026-9999"],
-            )
-        )
-
-        self.assertEqual(set(document["query"]), {"result", "coverage", "checks"})
-        detected, absent = document["query"]["checks"]
-        self.assertEqual(detected["status"], "detected")
-        self.assertEqual(detected["matches"][0]["binary_paths"], ["/bin/one"])
-        self.assertEqual(detected["matches"][0]["fixed_version"], "v1.1.0")
-        self.assertEqual(absent["status"], "not_detected")
+        self.assertEqual(json.loads(render_json(report)), report.to_dict())
 
     @staticmethod
     def _binary(path: str, package: str, *, cgo: bool) -> BinaryReport:

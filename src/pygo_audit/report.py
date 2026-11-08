@@ -1,15 +1,18 @@
-"""Stable public API for JSON and human-readable report rendering."""
+"""Public API for human-readable reports and machine-readable exports."""
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
+from functools import partial
 import json
-from typing import Mapping, Sequence
 
 from pygo_audit.models import AuditReport
-from pygo_audit.comparison import VulnerabilityPriority
-from pygo_audit.report_views import evaluate_checks
+from pygo_audit.report_views import (
+    index_cve_evidence,
+    module_identifiers,
+    package_identifiers,
+)
 from pygo_audit.text_report import (
     render_binaries,
     render_by_vulnerability,
@@ -19,87 +22,57 @@ from pygo_audit.text_report import (
     render_module_reconciliation,
     render_overview,
 )
-from pygo_audit.text_layout import RenderPolicy, SUMMARY_POLICY, FULL_POLICY
+from pygo_audit.text_layout import RenderPolicy, SUMMARY_POLICY
 
 
 @dataclass(slots=True, frozen=True)
 class ReportView:
     """Bind one CLI view to its deterministic artifact renderer."""
 
-    name: str
     filename: str
-    renderer: Callable[[AuditReport, RenderPolicy], str]
-    json: bool = False
-
-    def render(
-        self,
-        report: AuditReport,
-        policy: RenderPolicy = SUMMARY_POLICY,
-        *,
-        priorities: Mapping[str, VulnerabilityPriority] | None = None,
-    ) -> str:
-        if self.name == "binary-findings":
-            return render_binaries(report, policy, priorities=priorities)
-        return self.renderer(report, policy)
+    render: Callable[[AuditReport, RenderPolicy], str]
+    machine_readable: bool = False
 
 
 def render_json(
     report: AuditReport,
-    *,
-    checks: Sequence[str] = (),
+    policy: RenderPolicy = SUMMARY_POLICY,
 ) -> str:
-    document = report.to_dict()
-    if checks:
-        document["query"] = {
-            "result": report.result_state,
-            "coverage": {
-                "state": report.coverage_state,
-                "complete": report.complete_vulnerability_scans,
-                "incomplete": report.incomplete_vulnerability_scans,
-            },
-            "checks": [result.to_dict() for result in evaluate_checks(report, checks)],
-        }
-    return json.dumps(document, indent=2, ensure_ascii=True)
+    return json.dumps(report.to_dict(), indent=2, ensure_ascii=True)
 
 
-def render_json_view(report: AuditReport, policy: RenderPolicy) -> str:
-    return render_json(report)
+def render_identifiers(
+    report: AuditReport,
+    policy: RenderPolicy = SUMMARY_POLICY,
+    *,
+    select: Callable[[AuditReport], Iterable[str]],
+) -> str:
+    """Export one unique identifier per line, without presentation limits."""
+    return "\n".join(sorted(set(select(report)) - {""}))
 
 
 REPORT_VIEWS = {
-    view.name: view
-    for view in (
-        ReportView("overview", "overview.txt", render_overview),
-        ReportView("binary-findings", "binary-findings.txt", render_binaries),
-        ReportView(
-            "vulnerability-findings",
-            "vulnerability-findings.txt",
-            render_by_vulnerability,
-        ),
-        ReportView(
-            "module-reconciliation",
-            "module-reconciliation.txt",
-            render_module_reconciliation,
-        ),
-        ReportView("diagnostics", "diagnostics.txt", render_diagnostics),
-        ReportView(
-            "json", "audit.json", render_json_view, json=True
-        ),  # Publish canonical evidence last.
+    name: ReportView(f"{name}.txt", renderer)
+    for name, renderer in (
+        ("overview", render_overview),
+        ("binary-findings", render_binaries),
+        ("vulnerability-findings", render_by_vulnerability),
+        ("module-reconciliation", render_module_reconciliation),
+        ("diagnostics", render_diagnostics),
     )
 }
-
-
-def render_full_report(report: AuditReport) -> str:
-    """Compose exhaustive text views using the same registry as saved reports."""
-    return "\n\n".join(
-        view.render(report, FULL_POLICY)
-        for view in REPORT_VIEWS.values()
-        if not view.json
+REPORT_VIEWS.update(
+    (name, ReportView(f"{name}.txt", partial(render_identifiers, select=select), True))
+    for name, select in (
+        ("cves", index_cve_evidence),
+        ("modules", module_identifiers),
+        ("packages", package_identifiers),
     )
+)
+REPORT_VIEWS["json"] = ReportView("audit.json", render_json, True)  # Publish last.
 
 
 __all__ = [
-    "render_full_report",
     "REPORT_VIEWS",
     "render_binaries",
     "render_by_vulnerability",

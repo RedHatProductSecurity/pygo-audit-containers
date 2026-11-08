@@ -15,13 +15,12 @@ from pygo_audit.models import (
     DependencyReconciliationRow,
     FindingOccurrence,
     FindingSummary,
-    JsonModel,
     ModuleReconciliation,
     ReconciliationDiagnostic,
     Vulnerability,
 )
 
-CVE_RE = re.compile(r"^CVE-(\d{4})-(\d+)$", re.IGNORECASE)
+CVE_RE = re.compile(r"^CVE-([0-9]{4})-([0-9]{4,})$", re.IGNORECASE)
 
 
 def normalize_cve(value: object) -> str | None:
@@ -60,11 +59,84 @@ def iter_binary_vulnerabilities(
             yield binary, vulnerability
 
 
+def binary_module_versions(
+    binary: BinaryReport, *, effective: bool = False
+) -> Iterator[tuple[str, str]]:
+    """Pair recorded paths with versions; optionally apply build replacements."""
+    for module in (binary.main_module, *binary.dependencies):
+        replacement = module
+        while replacement is not None and replacement.replace is not None:
+            replacement = replacement.replace
+        while module is not None:
+            yield module.path, (replacement if effective else module).version
+            module = module.replace
+    for entry in binary.reconciliation.effective_module_inventory:
+        yield (
+            entry.declared_path,
+            (entry.effective_version if effective else entry.declared_version),
+        )
+        yield entry.effective_path, entry.effective_version
+    for observed in (binary.vulnerability_scan.sbom or {}).get("modules", []):
+        yield observed["path"], observed["version"]
+    for vulnerability in binary.vulnerability_scan.vulnerabilities:
+        for finding in vulnerability.findings:
+            yield finding.module, finding.found_version
+
+
+def module_identifiers(report: AuditReport) -> Iterator[str]:
+    """Keep each recorded module path/version pair, including replacements."""
+    for binary in report.binaries:
+        for path, version in binary_module_versions(binary):
+            if path:
+                yield component_label(path, version or "unknown")
+
+
+def package_identifiers(report: AuditReport) -> Iterator[str]:
+    """Version observed packages using evidence from their own binary."""
+    for binary in report.binaries:
+        versions = defaultdict(set)
+        for path, version in binary_module_versions(binary, effective=True):
+            if path:
+                versions[path].add(version)
+
+        packages = [
+            (
+                binary.main_package,
+                "",
+                binary.main_module.path if binary.main_module else "",
+            ),
+            *(
+                (root, "", "")
+                for root in (binary.vulnerability_scan.sbom or {}).get("roots", [])
+            ),
+            *(
+                (finding.package, finding.found_version, finding.module)
+                for vulnerability in binary.vulnerability_scan.vulnerabilities
+                for finding in vulnerability.findings
+            ),
+        ]
+        for package, version, module in packages:
+            if not package:
+                continue
+            if not version:
+                owner = module or max(
+                    (
+                        path
+                        for path in versions
+                        if package == path or package.startswith(path + "/")
+                    ),
+                    key=len,
+                    default="",
+                )
+                candidates = versions.get(owner, set()) - {""}
+                version = next(iter(candidates)) if len(candidates) == 1 else "unknown"
+            yield component_label(package, version)
+
+
 @dataclass(slots=True, frozen=True)
-class CheckResult(JsonModel):
+class CheckResult:
     identifier: str  # Requested advisory identifier, retaining user spelling.
     status: str  # Detected, not detected, no binaries, or indeterminate.
-    coverage: str  # Recorded scan coverage used to interpret missing matches.
     matches: tuple[
         FindingOccurrence, ...
     ]  # Saved finding observations matching the requested identifier.
@@ -92,7 +164,6 @@ def evaluate_checks(
         CheckResult(
             identifier,
             "detected" if matches[identifier.upper()] else missing_status,
-            coverage,
             tuple(matches[identifier.upper()]),
         )
         for identifier in requested
@@ -127,7 +198,7 @@ def binary_occurrence_groups(
         )
         grouped.setdefault(key, []).append(occurrence)
     return [
-        tuple(sorted(values, key=_finding_result_key))
+        tuple(values)
         for _, values in sorted(
             grouped.items(),
             key=lambda item: (
@@ -137,20 +208,6 @@ def binary_occurrence_groups(
             ),
         )
     ]
-
-
-def _finding_result_key(occurrence: FindingOccurrence) -> tuple[object, ...]:
-    return (
-        occurrence.vulnerability_id,
-        tuple(sorted(occurrence.aliases)),
-        occurrence.advisory_url,
-        occurrence.module,
-        occurrence.current_version,
-        occurrence.fixed_version,
-        occurrence.package,
-        occurrence.evidence,
-        occurrence.reachability,
-    )
 
 
 def group_items[Item, Key](

@@ -9,6 +9,15 @@ from pygo_audit.report_views import (
 from pygo_audit.storage import json_digest
 from pygo_audit.text_layout import TextLayout, Verbosity, count_phrase
 
+CGO_LABELS = {True: "Enabled", False: "Disabled", None: "Unknown"}
+RUNTIME_LABELS = {
+    "runtime": ("RUNTIME", "YES"),
+    "deleted": ("DELETED FROM FINAL IMAGE", "NO"),
+    "replaced": ("REPLACED IN FINAL IMAGE", "NO"),
+    "unaccounted": ("UNACCOUNTED HISTORICAL", "UNDETERMINED"),
+    "unknown": ("UNVERIFIED", "UNDETERMINED"),
+}
+
 
 def append_check_context(lines: TextLayout, report: AuditReport) -> None:
     lines.section("PROVENANCE")
@@ -116,8 +125,10 @@ def append_image_identity_fields(
         lines.field(reference_label, identity.reference)
     fields = [
         ("Image name", "name"),
+        ("Vendor image name", "vendor_image_name"),
+        ("Image build release", "image_build_release"),
         ("Component", "component"),
-        ("CPE", "cpe"),
+        ("CPE", "cpes"),
         ("Product version", "product_version"),
         ("Component version", "component_version"),
         ("Source Git URL", "source_git_url"),
@@ -128,7 +139,11 @@ def append_image_identity_fields(
         ("Extractor", "extractor"),
     ]
     for label, attribute in fields:
-        value = getattr(identity, attribute)
+        value = (
+            ", ".join(identity.cpes)
+            if attribute == "cpes"
+            else getattr(identity, attribute)
+        )
         if value:
             lines.field(label, value)
 
@@ -195,13 +210,11 @@ def coverage_label(report: AuditReport) -> str:
 
 
 def runtime_disposition_label(value: str) -> str:
-    return {
-        "runtime": "RUNTIME",
-        "deleted": "DELETED FROM FINAL IMAGE",
-        "replaced": "REPLACED IN FINAL IMAGE",
-        "unaccounted": "UNACCOUNTED HISTORICAL",
-        "unknown": "UNVERIFIED",
-    }.get(value, value.upper())
+    return RUNTIME_LABELS[value][0] if value in RUNTIME_LABELS else value.upper()
+
+
+def runtime_availability_label(value: str) -> str:
+    return RUNTIME_LABELS[value][1]
 
 
 def result_label(result: str) -> str:

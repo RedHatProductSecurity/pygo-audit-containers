@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import textwrap
 from collections.abc import Iterable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import IntEnum
+from itertools import zip_longest
 
 DEFAULT_PREVIEW_LIMIT = 10
 
@@ -74,11 +76,13 @@ class TextLayout(list[str]):
         rule_width: int | None = width,
         rule_char: str = "-",
     ) -> None:
-        """Add a heading; None fits its separator to the title."""
+        """Add a heading; None fits its rule to the title and zero omits it."""
         if self and self[-1]:
             self.append("")
-        width = min(rule_width or len(title), self.width)
-        self.extend((title, rule_char * width))
+        width = min(len(title) if rule_width is None else rule_width, self.width)
+        self.append(title)
+        if width:
+            self.append(rule_char * width)
 
     def field(
         self,
@@ -105,6 +109,21 @@ class TextLayout(list[str]):
         self.append(prefix + segments[0])
         self.extend(" " * len(prefix) + segment for segment in segments[1:])
 
+    def banner(self, title: str) -> None:
+        """Give a primary result a distinct, full-width boundary."""
+        if self and self[-1]:
+            self.append("")
+        self.extend(("=" * self.width, title, "=" * self.width))
+
+    @contextmanager
+    def subsection(self, title: str, *, indent: int = 2) -> Iterator[TextLayout]:
+        """Nest content under a heading without using separator length as hierarchy."""
+        self.section(title, rule_width=0)
+        child = TextLayout(policy=self.policy)
+        child.width = max(8, self.width - indent)
+        yield child
+        self.extend(" " * indent + line if line else "" for line in child)
+
     def fields(
         self,
         *rows: tuple[str, object],
@@ -124,13 +143,10 @@ class TextLayout(list[str]):
         wrap: bool = False,
     ) -> None:
         """Render a bounded list and its omitted count consistently."""
-        visible, omitted = self.policy.preview(values)
-        self.field(label, ", ".join(map(str, visible)) or empty, wrap=wrap)
-        if omitted:
-            self.field(
-                omitted_label or f"Additional {label.lower()}",
-                self.policy.omission(omitted),
-            )
+        with self.preview(
+            label.lower(), values, omitted_label=omitted_label
+        ) as visible:
+            self.field(label, ", ".join(map(str, visible)) or empty, wrap=wrap)
 
     def bullets(
         self,
@@ -156,6 +172,17 @@ class TextLayout(list[str]):
                 or [prefix.rstrip()]
             )
 
+    def list_field(
+        self, label: str, values: Iterable[str], *, empty: str = "(none)"
+    ) -> None:
+        """Keep one value compact and list multiple values on separate lines."""
+        with self.preview(label.lower(), values) as visible:
+            if len(visible) > 1:
+                self.append(f"{label}:")
+                self.bullets(visible)
+            else:
+                self.field(label, visible[0] if visible else empty)
+
     def preview_bullets(
         self,
         label: str,
@@ -169,19 +196,40 @@ class TextLayout(list[str]):
 
     def limited[Item](self, label: str, values: Iterable[Item]) -> Iterator[Item]:
         """Yield visible entries, then append their omission notice."""
+        with self.preview(label, values) as visible:
+            yield from visible
+
+    @contextmanager
+    def preview[Item](
+        self, label: str, values: Iterable[Item], *, omitted_label: str | None = None
+    ) -> Iterator[list[Item]]:
+        """Keep a grouped list's omission notice after its table or nested sections."""
         visible, omitted = self.policy.preview(values)
-        yield from visible
+        yield visible
         if omitted:
-            self.field(f"Additional {label}", self.policy.omission(omitted))
+            self.field(
+                omitted_label or f"Additional {label}", self.policy.omission(omitted)
+            )
 
     def columns(self, rows: Iterable[Iterable[object]], *, gap: int = 2) -> None:
-        """Append rows with bounded, adaptively shortened columns."""
-        values = [tuple(single_line(str(value)) for value in row) for row in rows]
+        """Append aligned columns, stacking list-valued cells within each row."""
+        values = [
+            [
+                [single_line(str(part)) for part in value] or [""]
+                if isinstance(value, (list, tuple))
+                else [single_line(str(value))]
+                for value in row
+            ]
+            for row in rows
+        ]
         if not values:
             return
         column_count = max(len(row) for row in values)
-        values = [row + ("",) * (column_count - len(row)) for row in values]
-        widths = [max(len(row[index]) for row in values) for index in range(column_count)]
+        values = [row + [[""]] * (column_count - len(row)) for row in values]
+        widths = [
+            max(len(part) for row in values for part in row[index])
+            for index in range(column_count)
+        ]
         available = self.width - gap * (column_count - 1)
         while not self.policy.wide and sum(widths) > available:
             index = max(range(column_count), key=lambda item: widths[item])
@@ -189,15 +237,16 @@ class TextLayout(list[str]):
                 break
             widths[index] -= 1
         for row in values:
-            cells = [shrink_middle(value, widths[index]) for index, value in enumerate(row)]
-            self.append(
-                (" " * gap)
-                .join(
-                    cell.ljust(widths[index]) if index < column_count - 1 else cell
-                    for index, cell in enumerate(cells)
+            for parts in zip_longest(*row, fillvalue=""):
+                cells = [shrink_middle(value, widths[index]) for index, value in enumerate(parts)]
+                self.append(
+                    (" " * gap)
+                    .join(
+                        cell.ljust(widths[index]) if index < column_count - 1 else cell
+                        for index, cell in enumerate(cells)
+                    )
+                    .rstrip()
                 )
-                .rstrip()
-            )
 
     def render(self) -> str:
         return "\n".join(self).rstrip()
