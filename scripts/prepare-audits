@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from functools import partial
 import os
 from pathlib import Path
 import re
@@ -17,6 +18,13 @@ import sys
 class Target:
     name: str
     image: str
+
+
+@dataclass(frozen=True)
+class PreparationResult:
+    target: Target
+    exit_code: int
+    error: str
 
 
 def parse_targets(path: Path) -> list[Target]:
@@ -41,6 +49,50 @@ def parse_targets(path: Path) -> list[Target]:
     return targets
 
 
+def extract_target(
+    target: Target, root: Path, extractor: Path, platform: str
+) -> PreparationResult:
+    try:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(extractor),
+                target.image,
+                str(root / target.name),
+                "--platform",
+                platform,
+            ],
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+    except OSError as error:
+        return PreparationResult(target, 127, str(error))
+    return PreparationResult(target, result.returncode, result.stderr or "")
+
+
+def report_results(results: list[PreparationResult]) -> int:
+    failures = [result for result in results if result.exit_code]
+    print(
+        f"Prepared {len(results) - len(failures)} of {len(results)} container images."
+    )
+    if failures:
+        print("Extraction failures:", file=sys.stderr)
+    for result in failures:
+        print(
+            f"\n{result.target.name} ({result.target.image}), "
+            f"exit status {result.exit_code}:",
+            file=sys.stderr,
+        )
+        print(
+            result.error.rstrip() or "(extractor returned no error output)",
+            file=sys.stderr,
+        )
+    return int(bool(failures))
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("targets", type=Path, help="UTF-8 NAME IMAGE inventory")
@@ -53,7 +105,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--platform", default="linux/amd64")
     parser.add_argument(
-        "--workers", type=int, default=os.process_cpu_count() or 1,
+        "--workers",
+        type=int,
+        default=os.process_cpu_count() or 1,
         help="concurrent extractions (default: available CPUs, %(default)s)",
     )
     parser.add_argument(
@@ -79,22 +133,19 @@ def main(argv: list[str] | None = None) -> int:
         root.mkdir(parents=True, exist_ok=True)
         extractor = Path(__file__).with_name("extract-image-layers")
 
-        def prepare(target: Target) -> int:
-            return subprocess.run(
-                [
-                    sys.executable,
-                    str(extractor),
-                    target.image,
-                    str(root / target.name),
-                    "--platform",
-                    args.platform,
-                ],
-                check=False,
-            ).returncode
-
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
-            statuses = list(pool.map(prepare, targets))
-        return int(any(statuses))
+            results = list(
+                pool.map(
+                    partial(
+                        extract_target,
+                        root=root,
+                        extractor=extractor,
+                        platform=args.platform,
+                    ),
+                    targets,
+                )
+            )
+        return report_results(results)
     except (OSError, ValueError) as error:
         print(f"prepare-audits: {error}", file=sys.stderr)
         return 1

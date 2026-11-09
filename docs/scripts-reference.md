@@ -24,7 +24,6 @@ descriptor-based permission changes, matching the scanner's host requirements.
 | `prepare-audits` | Prepare child audit directories from a NAME IMAGE inventory | The extraction helper below |
 | `extract-image-layers` | Prepare a rootfs, ordered layers, and product metadata | Skopeo, `oc`, `tar`; optional host `rpm` for package facts |
 | `fetch-redhat-csaf` | Retrieve Red Hat VEX documents for observed CVEs | HTTPS access, unless checking existing files with `--offline` |
-| `fetch-cve-data` | Download JSON for a CVE list; defaults to internal OSIDB | Access to the chosen source; the default requires Red Hat internal network/VPN access |
 
 Each helper supports `--help`. Paths are relative to the working directory
 unless absolute paths are supplied. None of these helpers scans a deployed
@@ -62,7 +61,7 @@ blank lines, and `#` comment lines, with any filename or extension.
 ```console
 ./scripts/prepare-audits openshift-targets.txt run --dry-run
 ./scripts/prepare-audits openshift-targets.txt run --workers 4
-./pygo-audit audit run --workers 4 --jobs 2
+./pygo-audit audit run --workers 4 --jobs 2 --output-dir upload
 ```
 
 `prepare-audits TARGETS [BATCH_AUDIT_ROOT]` owns image extraction and directory
@@ -79,12 +78,19 @@ use a fresh workspace when extracting new image contents. `--platform` defaults
 to `linux/amd64`; `--workers` controls concurrent extractions and defaults to the
 logical CPUs available to the process, falling back to one if unknown. An explicit
 `--workers N` overrides CPU detection. Failed extraction
-output remains available for inspection.
+output remains available for inspection. After all workers finish,
+`prepare-audits` lists each failed container's exit status and captured error
+output. Skopeo's per-blob copy progress is suppressed.
 
 After preparation, `pygo-audit audit` finds these child directories automatically.
 Its optional `--targets` file is a different input: one existing child directory
 name per line, selecting a subset to scan. It contains no registry references.
 See the [CLI reference](cli-reference.md#batch-workspaces).
+
+For a portable bundle, batch `audit --output-dir DIR` mirrors each container's
+audit JSON and generated reports into `DIR/<container-name>/`; the canonical audit
+and shared cache remain in the batch workspace. Batch CSAF and aggregate commands
+use the same per-container output-directory convention.
 
 ## Extract an image
 
@@ -134,8 +140,10 @@ project use `REGISTRY_AUTH_FILE`. Do not place credentials in the subject
 filesystem or generated audit reports.
 
 Extraction staging is private, lives inside the destination, and is removed
-when its context ends. A failed extraction retains partial output for review.
-Choose a new destination after inspecting an interrupted or failed run.
+when its context ends. A failed extraction retains partial output for review;
+its extracted directories and files still receive the same owner-only
+permissions. Choose a new destination after inspecting an interrupted or failed
+run.
 
 `prepare-audits` invokes the sibling `extract-image-layers` helper. The package
 CLI never invokes extraction. Other tools can prepare `rootfs/`, optional
@@ -273,55 +281,24 @@ errors are not retried. A failed refresh preserves the previous cached document.
 Another provider's download tool can prepare ordinary CSAF files in the same
 directory structure. The checker does not need the provider's URL convention.
 
-## Download CVE data from a URL template
-
-`fetch-cve-data` requires only a newline-separated CVE list. The destination
-defaults to `cve-data/` in the working directory. Use `-` for standard input:
-
-```console
-./scripts/fetch-cve-data cves.txt
-cat run/*/reports/cves.txt | ./scripts/fetch-cve-data - run/osidb
-```
-
-The default source is Red Hat's internal OSIDB flaw endpoint. Run it where that
-service is accessible, such as through the appropriate VPN. Requests are ordinary
-HTTP GETs. There are no format or authentication options; a failed request is
-reported without switching sources or authentication methods.
-
-For another JSON source, supply its URL template explicitly:
-
-```console
-./scripts/fetch-cve-data cves.txt run/vendor-data \
-  --url-template 'https://advisories.example/flaws/{cve}'
-```
-
-Templates support `{cve}` (uppercase), `{cve_lower}`, and `{year}`. Downloaded
-JSON is saved with two-space indentation as `CVE-YYYY-NNNN.json`. The helper
-deduplicates the input and uses the same concurrency, cache, retry, `--refresh`,
-`--offline`, and persistent 404 handling as `fetch-redhat-csaf` above. Each cache
-records its URL template in `source.url`; a different template requires a
-different destination. Offline checks create no files or locks.
-
-The shared downloader lives in `pygo_audit.cve_data`; the scripts supply source
-presets. `fetch-redhat-csaf` retains its CSAF/CVE validation and defaults its
-destination to `csaf/`. Generic CVE data is stored as received and is not
-converted into CSAF. Keep OSIDB records separate from CSAF inputs to `csaf`.
-
 ## Hand inputs to the CLI
 
 ```console
 ./pygo-audit scan service
-./pygo-audit audit run
+./pygo-audit audit run --output-dir upload
 cat run/*/reports/cves.txt |
   ./scripts/fetch-redhat-csaf --input-format cves - run/csaf
-./pygo-audit csaf run
-./pygo-audit aggregate run --csaf run/csaf
+./pygo-audit csaf run --output-dir upload
+./pygo-audit aggregate run --csaf run/csaf --output-dir upload
 ```
 
 Scanning writes reports directly in each container audit directory. Batch scanning
 shares `BATCH_AUDIT_ROOT/cache/` and `work/`; preparation never needs to configure
 those defaults individually. Optional `pygo-audit.json` sidecars describe custom
 locations and settings. Aggregation refreshes each container's comparison and adds
-`run/reports/aggregate.csv` for spreadsheet triage, alongside text and JSON.
+`aggregate.txt`, `cve-aggregates.txt`, `container-aggregates.txt`,
+`aggregate.json`, and `pygo-audit-triage.csv` under `upload/`. The upload directory
+also contains per-container copies of the audit JSON and scan views with the
+comparison pair in the same container subdirectory.
 Explicit CLI options win over sidecars. See the
 [CLI reference](cli-reference.md) for precedence, history, and cache lifetimes.

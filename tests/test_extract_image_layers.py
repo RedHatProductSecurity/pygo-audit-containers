@@ -87,6 +87,11 @@ class ExtractImageLayersTests(unittest.TestCase):
                 log.write(json.dumps(["skopeo", *args]) + "\\n")
             if "copy" not in args:
                 sys.exit(2)
+            if "--quiet" not in args:
+                print("Copying blob fake", file=sys.stderr)
+            if os.environ.get("EXTRACT_TEST_FAIL_COPY"):
+                print("registry copy failed", file=sys.stderr)
+                sys.exit(3)
             destination = Path(next(value[4:] for value in args if value.startswith("dir:")))
             destination.mkdir(parents=True, exist_ok=True)
             source_manifest = Path(os.environ["EXTRACT_TEST_MANIFEST"])
@@ -140,11 +145,13 @@ class ExtractImageLayersTests(unittest.TestCase):
             "tar",
             """\
             import os
+            import subprocess
             import sys
 
             if os.environ.get("EXTRACT_TEST_FAIL_LAYER") == "1" and any(
                 "layer-001" in argument for argument in sys.argv
             ):
+                subprocess.run(["/usr/bin/tar", *sys.argv[1:]], check=False)
                 print("simulated layer extraction failure", file=sys.stderr)
                 sys.exit(7)
             os.execv("/usr/bin/tar", ["tar", *sys.argv[1:]])
@@ -204,12 +211,14 @@ class ExtractImageLayersTests(unittest.TestCase):
         )
         self.assertIn("--override-os", calls[1])
         self.assertIn("--override-arch", calls[1])
+        self.assertIn("--quiet", calls[1])
         transport_cache = Path(next(value[4:] for value in calls[1] if value.startswith("dir:")))
         self.assertEqual(transport_cache.parent, self.destination)
         self.assertFalse(transport_cache.exists())
         self.assertIn("--filter-by-os=linux/amd64", calls[2])
         self.assertIn("--only-files", calls[2])
         self.assertIn("--filter-by-os", calls[0])
+        self.assertNotIn("Copying blob fake", result.stdout + result.stderr)
         sidecar = json.loads(
             (self.destination / ".pygo-audit-image.json").read_text()
         )["image"]
@@ -245,10 +254,23 @@ class ExtractImageLayersTests(unittest.TestCase):
         sentinel = self.root / "keep.json"
         sentinel.write_text("unchanged", encoding="utf-8")
         sentinel.chmod(0o640)
+        blocked_directory = self.root / "blocked-directory"
+        blocked_directory.mkdir()
+        blocked_directory.chmod(0)
         self.environment["EXTRACT_TEST_METADATA_TARGET"] = str(sentinel)
         self.environment["EXTRACT_TEST_RESTRICTIVE_PERMISSIONS"] = "1"
         digest = self.info["layers"][0]["digest"].split(":", 1)[1]
         with tarfile.open(self.blobs / digest, "w") as archive:
+            directory = tarfile.TarInfo("etc/pki/ca-trust/extracted/pem/directory-hash")
+            directory.type = tarfile.DIRTYPE
+            directory.mode = 0o555
+            archive.addfile(directory)
+            certificate = tarfile.TarInfo(
+                "etc/pki/ca-trust/extracted/pem/directory-hash/0a775a30.0"
+            )
+            certificate.mode = 0o444
+            certificate.size = 0
+            archive.addfile(certificate, io.BytesIO())
             payload = b"unprivileged subject data"
             member = tarfile.TarInfo("privileged")
             member.mode = 0o6777
@@ -262,6 +284,10 @@ class ExtractImageLayersTests(unittest.TestCase):
             directory_link.type = tarfile.SYMTYPE
             directory_link.linkname = str(self.root)
             archive.addfile(directory_link)
+            blocked_link = tarfile.TarInfo("etc/httpd/run")
+            blocked_link.type = tarfile.SYMTYPE
+            blocked_link.linkname = str(blocked_directory)
+            archive.addfile(blocked_link)
 
         result = self.run_command()
 
@@ -277,6 +303,7 @@ class ExtractImageLayersTests(unittest.TestCase):
                          "readable after restriction")
         self.assertEqual(sentinel.read_text(), "unchanged")
         self.assertEqual(stat.S_IMODE(sentinel.stat().st_mode), 0o640)
+        self.assertEqual(stat.S_IMODE(blocked_directory.stat().st_mode), 0o000)
         self.assertEqual(stat.S_IMODE(self.root.stat().st_mode), 0o700)
         self.assertEqual(
             stat.S_IMODE((self.destination / ".pygo-audit-image.json").stat().st_mode),
@@ -389,13 +416,53 @@ class ExtractImageLayersTests(unittest.TestCase):
         self.assertIn("required command not found: skopeo", result.stderr)
         self.assertFalse(self.destination.exists())
 
+    def test_skopeo_progress_is_hidden_and_copy_errors_are_kept(self):
+        self.environment["EXTRACT_TEST_FAIL_COPY"] = "1"
+
+        result = self.run_command()
+
+        self.assertEqual(result.returncode, 1)
+        self.assertNotIn("Copying blob fake", result.stdout + result.stderr)
+        self.assertIn("skopeo image copy failed with exit status 3", result.stderr)
+        self.assertIn("registry copy failed", result.stderr)
+
     def test_layer_failure_retains_partial_output(self):
         self.environment["EXTRACT_TEST_FAIL_LAYER"] = "1"
+        digest = self.info["layers"][1]["digest"].split(":", 1)[1]
+        with tarfile.open(self.blobs / digest, "w") as archive:
+            directory = tarfile.TarInfo("run")
+            directory.type = tarfile.DIRTYPE
+            directory.mode = 0o000
+            archive.addfile(directory)
+            file = tarfile.TarInfo("run/data")
+            file.mode = 0o444
+            payload = b"partial extraction"
+            file.size = len(payload)
+            archive.addfile(file, io.BytesIO(payload))
+
         result = self.run_command()
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("tar extraction for layer", result.stderr)
         self.assertTrue((self.destination / "layers" / "layer-000" / "etc" / "layer.txt").is_file())
         self.assertTrue((self.destination / "layers" / "layer-001").is_dir())
+        self.assertEqual(
+            stat.S_IMODE((self.destination / "layers/layer-001/run").stat().st_mode),
+            0o700,
+        )
+        self.assertEqual(
+            stat.S_IMODE((self.destination / "layers/layer-001/run/data").stat().st_mode),
+            0o400,
+        )
+        self.assertEqual(
+            stat.S_IMODE((self.destination / "layers" / "layer-001").stat().st_mode),
+            0o700,
+        )
+        self.assertEqual(
+            stat.S_IMODE(
+                (self.destination / "layers" / "layer-000" / "etc").stat().st_mode
+            ),
+            0o700,
+        )
         self.assertFalse((self.destination / "layers" / "layer-002").exists())
         self.assertFalse((self.destination / "manifest.json").exists())
 

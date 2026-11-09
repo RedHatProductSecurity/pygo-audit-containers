@@ -70,6 +70,25 @@ def run_command(command: list[str], description: str) -> None:
         )
 
 
+def extract_subject(subject: Path, command: list[str], description: str) -> None:
+    extraction_error: BaseException | None = None
+    try:
+        run_command(command, description)
+    except BaseException as error:
+        extraction_error = error
+    try:
+        restrict_subject_permissions(subject)
+    except (OSError, ExtractionError) as permission_error:
+        if extraction_error is None:
+            raise
+        raise ExtractionError(
+            f"{extraction_error}\npermission normalization also failed: "
+            f"{permission_error}"
+        ) from extraction_error
+    if extraction_error is not None:
+        raise extraction_error
+
+
 def copy_image(image: str, cache: Path, platform: str) -> None:
     operating_system, architecture, variant = parse_platform(platform)
     command = [
@@ -81,7 +100,7 @@ def copy_image(image: str, cache: Path, platform: str) -> None:
     ]
     if variant:
         command.extend(("--override-variant", variant))
-    command.extend(("copy", f"docker://{image}", f"dir:{cache}"))
+    command.extend(("copy", "--quiet", f"docker://{image}", f"dir:{cache}"))
     print(f"Copying image: {image} ({platform})", flush=True)
     run_command(command, "skopeo image copy")
 
@@ -131,12 +150,14 @@ def restrict_subject_permissions(subject: Path) -> None:
         for _, directories, files, directory in os.fwalk(
             ".", dir_fd=root, follow_symlinks=False, onerror=fail
         ):
+            directory_names = set(directories)
             for name in (*directories, *files):
                 # O_PATH pins even unreadable entries without following image links.
                 descriptor = os.open(name, os.O_PATH | os.O_NOFOLLOW, dir_fd=directory)
                 try:
                     mode = os.fstat(descriptor).st_mode
                     if stat.S_ISLNK(mode):
+                        directory_names.discard(name)
                         continue
                     if not stat.S_ISDIR(mode) and not stat.S_ISREG(mode):
                         raise ExtractionError(f"unsupported subject file: {name!r}")
@@ -144,6 +165,7 @@ def restrict_subject_permissions(subject: Path) -> None:
                     os.chmod(f"/proc/self/fd/{descriptor}", permissions)
                 finally:
                     os.close(descriptor)
+            directories[:] = [name for name in directories if name in directory_names]
     finally:
         os.close(root)
 
@@ -201,7 +223,8 @@ def unpack_layer(blob: Path, layer_directory: Path, digest: str) -> None:
     validate_layer_archive(blob)
     layer_directory.mkdir()
     print(f"Extracting layer ({digest}) into {layer_directory}", flush=True)
-    run_command(
+    extract_subject(
+        layer_directory,
         [
             "tar",
             "--extract",
@@ -214,12 +237,12 @@ def unpack_layer(blob: Path, layer_directory: Path, digest: str) -> None:
         ],
         f"tar extraction for layer {digest}",
     )
-    restrict_subject_permissions(layer_directory)
 
 
 def extract_rootfs(image: str, platform: str, rootfs: Path) -> None:
     print(f"Extracting merged filesystem into {rootfs}", flush=True)
-    run_command(
+    extract_subject(
+        rootfs,
         [
             "oc",
             "image",
@@ -419,7 +442,6 @@ def extract_image(
 
         layers.chmod(0o700)
         extract_rootfs(resolved_image, platform, rootfs)
-        restrict_subject_permissions(rootfs)
         sidecar = write_image_sidecar(
             image,
             platform,

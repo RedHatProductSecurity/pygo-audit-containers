@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from contextlib import chdir, redirect_stderr, redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime
 from importlib.machinery import SourceFileLoader
 import importlib.util
@@ -32,95 +32,20 @@ def load_script(name: str):
 
 
 REDHAT = load_script("fetch-redhat-csaf")
-DATA = load_script("fetch-cve-data")
 TARGETS = load_script("gather-openshift-targets")
 PREPARE = load_script("prepare-audits")
 
 
 class VendorScriptsTests(unittest.TestCase):
-    def test_generic_fetch_only_requires_a_cve_list(self) -> None:
-        cve = "CVE-2026-53359"
-        document = {"cve_id": cve, "affects": [{"component": "example"}]}
-        with TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            source = root / "cves.txt"
-            source.write_text(f"{cve.lower()}\n{cve}\n", encoding="utf-8")
-            with (
-                chdir(root),
-                patch.object(
-                    FETCH, "urlopen", return_value=io.BytesIO(json.dumps(document).encode())
-                ) as request,
-                redirect_stdout(io.StringIO()) as output,
-            ):
-                self.assertEqual(DATA.main([str(source)]), 0)
-            request.assert_called_once()
-            self.assertEqual(
-                request.call_args.args[0].full_url,
-                f"https://osidb.prodsec.redhat.com/osidb/api/v1/flaws/{cve}",
-            )
-            self.assertIsNone(request.call_args.args[0].get_header("Authorization"))
-            destination = root / "cve-data" / f"{cve}.json"
-            original = destination.read_bytes()
-            self.assertEqual(original.decode(), json.dumps(document, indent=2) + "\n")
-            self.assertIn("CVE data documents checked: 1", output.getvalue())
-            for mode in ([], ["--offline"]):
-                with (
-                    self.subTest(mode=mode),
-                    patch.object(FETCH, "urlopen") as request,
-                    redirect_stdout(io.StringIO()) as output,
-                ):
-                    self.assertEqual(DATA.main([str(source), str(destination.parent), *mode]), 0)
-                    self.assertIn("cached", output.getvalue())
-                    request.assert_not_called()
-                    self.assertEqual(destination.read_bytes(), original)
-
-    def test_generic_fetch_accepts_an_explicit_url_template_and_stdin(self) -> None:
-        template = "https://advisories.example/{year}/{cve_lower}.json"
-        with (
-            TemporaryDirectory() as temporary,
-            patch.object(FETCH.sys, "stdin", io.StringIO("CVE-2026-53359\n")),
-            patch.object(FETCH, "urlopen", return_value=io.BytesIO(b'{"data": "saved"}')) as request,
-            redirect_stdout(io.StringIO()),
-        ):
-            self.assertEqual(DATA.main(["-", temporary, "--url-template", template]), 0)
-            self.assertEqual(
-                request.call_args.args[0].full_url,
-                "https://advisories.example/2026/cve-2026-53359.json",
-            )
-            self.assertEqual(
-                (Path(temporary) / "source.url").read_text(), template + "\n"
-            )
-
-    def test_generic_fetch_rejects_invalid_templates_before_downloads(self) -> None:
-        for template in (
-            "https://example.test/fixed.json",
-            "file:///tmp/{cve}",
-            "https://example.test/{unknown}",
-            "https://example.test/{cve.__class__}",
-            "https://example.test/{cve!r}",
-            "https://example.test/{cve:>50}",
-            "https://example.test/{cve",
-            "https://example.test/{cve}#ignored",
-            "https://example.test/ {cve}",
-        ):
-            with (
-                self.subTest(template=template),
-                TemporaryDirectory() as temporary,
-                patch.object(FETCH, "urlopen") as request,
-                redirect_stderr(io.StringIO()) as errors,
-                self.assertRaises(SystemExit) as raised,
-            ):
-                DATA.main(["-", temporary, "--url-template", template])
-            self.assertEqual(raised.exception.code, 2)
-            self.assertIn("invalid URL template", errors.getvalue())
-            request.assert_not_called()
-
-    def test_generic_cache_rejects_a_different_source_without_network_access(self) -> None:
+    def test_cve_cache_rejects_a_different_source_without_network_access(self) -> None:
         cve = "CVE-2026-53359"
         with TemporaryDirectory() as temporary:
             directory = Path(temporary)
+            source = FETCH.DownloadSource(
+                "https://example.test/{cve}", "cve-data", "CVE data"
+            )
             with patch.object(FETCH, "urlopen", return_value=io.BytesIO(b'{"data": 1}')):
-                result = FETCH.fetch_cve(cve, directory, source=DATA.SOURCE)
+                result = FETCH.fetch_cve(cve, directory, source=source)
             original = result.path.read_bytes()
             other = FETCH.DownloadSource("https://other.example/{cve}", "cve-data", "CVE data")
             for mode in ({}, {"refresh": True}, {"offline": True}):
@@ -173,6 +98,35 @@ class VendorScriptsTests(unittest.TestCase):
             self.assertIn("extract-image-layers", command.call_args.args[0][1])
             self.assertIn(str(root / "run" / "alpha"), command.call_args.args[0])
             self.assertNotIn("--image-name", command.call_args.args[0])
+
+    def test_preparation_reports_captured_errors_after_all_targets_finish(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            inventory = root / "inventory"
+            inventory.write_text(
+                "alpha registry.example/app:tag\nbeta registry.example/worker\n",
+                encoding="utf-8",
+            )
+            results = [
+                subprocess.CompletedProcess([], 2, stderr="tar: corrupt layer\n"),
+                subprocess.CompletedProcess([], 0, stderr=""),
+            ]
+            with (
+                patch.object(PREPARE.subprocess, "run", side_effect=results) as command,
+                redirect_stdout(io.StringIO()) as output,
+                redirect_stderr(io.StringIO()) as errors,
+            ):
+                status = PREPARE.main(
+                    [str(inventory), str(root / "run"), "--workers", "1"]
+                )
+
+        self.assertEqual(status, 1)
+        self.assertEqual(command.call_count, 2)
+        self.assertTrue(all(call.kwargs["stderr"] == subprocess.PIPE for call in command.call_args_list))
+        self.assertIn("Prepared 1 of 2 container images.", output.getvalue())
+        self.assertIn("alpha (registry.example/app:tag), exit status 2", errors.getvalue())
+        self.assertIn("tar: corrupt layer", errors.getvalue())
+        self.assertNotIn("beta", errors.getvalue())
 
     def test_download_reuses_cache_and_keeps_failed_refresh_from_replacing_it(
         self,
