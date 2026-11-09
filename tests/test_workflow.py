@@ -100,7 +100,7 @@ print('{"config":{"protocol_version":"v1.0.0","scan_mode":"binary","db":"test"}}
             self.assertTrue((alpha / "reports" / "comparison.json").is_file())
             self.assertTrue((batch / "reports" / "aggregate.json").is_file())
             self.assertTrue((batch / "reports" / "aggregate.txt").is_file())
-            self.assertTrue((batch / "reports" / "aggregate.csv").is_file())
+            self.assertTrue((batch / "reports" / "pygo-audit-triage.csv").is_file())
             self.assertFalse(list(batch.glob("*.csv")))
             self.assertEqual(len(list((alpha / "history").glob("audit-*.json"))), 1)
 

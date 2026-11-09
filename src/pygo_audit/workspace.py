@@ -1,6 +1,7 @@
 """Validate scan subjects and publish one container's audit evidence."""
 
 import argparse
+from contextlib import nullcontext
 from pathlib import Path
 import sys
 
@@ -10,6 +11,11 @@ from pygo_audit.audit import load_audit
 from pygo_audit.layer_scan import discover_layer_directories
 from pygo_audit.models import AuditReport
 from pygo_audit.storage import directory_lock, ensure_private_directory
+
+
+def container_output_directory(output_root: Path, audit_root: Path) -> Path:
+    """Return the shared per-container destination used by batch report commands."""
+    return output_root / audit_root.name
 
 
 def outside_subjects(paths: list[Path], subjects: list[Path]) -> None:
@@ -42,6 +48,11 @@ def scan_subjects(settings: argparse.Namespace) -> list[Path]:
     outside_subjects(
         [
             settings.output_dir,
+            *(
+                [settings.bundle_output_dir]
+                if getattr(settings, "bundle_output_dir", None)
+                else []
+            ),
             settings.history_dir,
             settings.cache_dir,
             settings.work_dir,
@@ -56,7 +67,12 @@ def scan_workspace(
 ) -> tuple[AuditReport, Path]:
     subjects = scan_subjects(settings)
     reports_directory = settings.output_dir / "reports"
-    prepare_output(settings.output_dir, reports_directory)
+    bundle_directory = getattr(settings, "bundle_output_dir", None)
+    prepare_output(
+        settings.output_dir,
+        reports_directory,
+        bundle_directory=bundle_directory,
+    )
     for directory in (settings.history_dir, settings.cache_dir, settings.work_dir):
         ensure_private_directory(directory)
     with directory_lock(settings.output_dir):
@@ -82,13 +98,20 @@ def scan_workspace(
         else:
             destination = settings.output_dir
             label = "Audit"
-        publish_audit(
-            report,
-            destination,
-            settings.history_dir,
-            settings.work_dir,
-            destination / "reports",
-        )
+        with (
+            directory_lock(bundle_directory)
+            if bundle_directory is not None
+            and bundle_directory.resolve() != settings.output_dir.resolve()
+            else nullcontext()
+        ):
+            publish_audit(
+                report,
+                destination,
+                settings.history_dir,
+                settings.work_dir,
+                destination / "reports",
+                bundle_directory=bundle_directory,
+            )
         print(f"{label}: {destination / 'audit.json'}", file=sys.stderr)
         audit_file = destination / "audit.json"
         return load_audit(audit_file), audit_file

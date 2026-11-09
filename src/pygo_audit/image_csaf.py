@@ -805,6 +805,7 @@ def inspect_document(
         "source": path.as_uri(),
         "source_display": display,
         "title": index.title,
+        "current_release_date": index.current_release_date,
         "canonical_urls": list(index.canonical_urls),
         "presence": presence,
         "candidates": candidates,
@@ -1924,8 +1925,11 @@ def append_provenance(lines: TextLayout, result: dict[str, Any]) -> None:
         if product["sources"]:
             lines.field("Product", product["name"] or product["component"])
             lines.bullets(product["sources"])
-    for number, document in enumerate(result["documents"], 1):
-        lines.field(f"Document {number}", document["source"])
+    for document in result["documents"]:
+        lines.field(
+            "CSAF current release date",
+            document["current_release_date"] or "(not recorded)",
+        )
         if document["canonical_urls"]:
             lines.list_field("Canonical URLs", document["canonical_urls"])
     for cve, records in sorted(result["missing_documents"].items()):

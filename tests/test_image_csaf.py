@@ -1728,7 +1728,10 @@ class ImageCsafTests(unittest.TestCase):
         document = self.advisory()
         canonical_url = "https://vendor.example/csaf/cve-2026-0001.json"
         document["document"] = {
-            "tracking": {"id": "CVE-2026-0001"},
+            "tracking": {
+                "id": "CVE-2026-0001",
+                "current_release_date": "2026-10-15T00:00:00+00:00",
+            },
             "references": [
                 {"category": "self", "summary": "Advisory", "url": canonical_url}
             ],
@@ -1787,7 +1790,9 @@ class ImageCsafTests(unittest.TestCase):
         self.assertIn("PROVENANCE", outputs[3][1])
         self.assertNotIn("More information:", saved)
         provenance = saved.split("[PROVENANCE]", 1)[1]
-        self.assertIn((self.sources / "advisory.json").as_uri(), provenance)
+        self.assertIn("CSAF current release date", provenance)
+        self.assertIn("2026-10-15T00:00:00+00:00", provenance)
+        self.assertNotIn((self.sources / "advisory.json").as_uri(), provenance)
         self.assertIn("Canonical URLs:         " + canonical_url, provenance)
         self.assertTrue(saved.rstrip().endswith(canonical_url))
         wide = image_csaf.render_text(result, FULL_POLICY)

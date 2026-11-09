@@ -31,12 +31,14 @@ preserved as `history/audit-<ID>-<date>.json`.
 ./scripts/gather-openshift-targets 4.20.21 --output targets.txt
 ./scripts/prepare-audits targets.txt run --dry-run
 ./scripts/prepare-audits targets.txt run --workers 4
-./pygo-audit audit run --workers 4 --jobs 2 --timeout 180
+./pygo-audit audit run --workers 4 --jobs 2 --timeout 180 --output-dir upload
 ```
 
 Preparation consumes NAME IMAGE rows. Auditing consumes prepared child directories;
 `--targets FILE` optionally selects directory names, one per line. Batch targets
-share `run/cache/` and `run/work/`. Both workspace arguments default to cwd.
+share `run/cache/` and `run/work/`. `audit --output-dir upload` mirrors each
+container's audit JSON and report files into `upload/<container>/`, leaving the
+canonical audits and scan work in `run/`.
 
 ## Local CSAF comparison
 
@@ -48,18 +50,24 @@ share `run/cache/` and `run/work/`. Both workspace arguments default to cwd.
 # Or use the saved lists from a completed batch.
 cat run/*/reports/cves.txt |
   ./scripts/fetch-redhat-csaf --input-format cves - run/csaf
-./pygo-audit csaf run
-./pygo-audit aggregate run --csaf run/csaf
+./pygo-audit csaf run --output-dir upload
+./pygo-audit aggregate run --csaf run/csaf --output-dir upload
 ```
 
-Each container receives `reports/comparison.json` and `reports/comparison.txt`.
-Aggregation also writes `reports/aggregate.txt`, `reports/aggregate.json`, and
-`reports/aggregate.csv` in `run/`. Open the CSV for one row per container/CVE pair,
-sorted by descending highest CVSS score, then container, agreement priority, and
-CVE. Both batch commands use the single-container comparison, scoped to each
+`upload/<container>/` contains each mirrored audit and scan report plus its
+`comparison.json` and `comparison.txt`. Aggregation also writes `aggregate.txt`
+for overall statistics, `cve-aggregates.txt` for each CVE across containers,
+`container-aggregates.txt` for per-container results, `aggregate.json`, and
+`pygo-audit-triage.csv` at the root of `upload/`. Open the CSV for one row per
+container/CVE pair, sorted by descending highest CVSS score, then container,
+agreement priority, and CVE. Both batch commands use the
+single-container comparison, scoped to each
 container's own recorded CVEs;
 standalone `csaf service` checks every supplied document. Uncertain matches retain
 their qualifications.
+With `aggregate --output-dir RESULTS`, the aggregate files go to `RESULTS/` and
+each container's comparison pair is also collected under `RESULTS/<container>/`.
+The original child `reports/` outputs are refreshed as usual.
 A saved audit reflects the vulnerability knowledge at scan time; comparing newer
 advisories does not rescan binaries.
 

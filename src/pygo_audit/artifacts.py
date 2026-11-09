@@ -40,19 +40,35 @@ def history_filename(report: AuditReport) -> str:
     return f"audit-{identifier}-{date}.json"
 
 
-def prepare_output(directory: Path, reports_directory: Path | None = None) -> None:
+def prepare_output(
+    directory: Path,
+    reports_directory: Path | None = None,
+    *,
+    bundle_directory: Path | None = None,
+) -> None:
     """Validate destinations and prove writability before inspecting binaries."""
     reports_directory = reports_directory or directory
-    validate_artifact_directory(directory)
-    validate_artifact_directory(reports_directory)
-    directory.mkdir(parents=True, exist_ok=True)
-    reports_directory.mkdir(parents=True, exist_ok=True)
-    report_paths = [reports_directory / name for name in TEXT_REPORT_NAMES]
-    for path in [directory / AUDIT_NAME, *report_paths]:
+    output_directories = list(
+        dict.fromkeys(
+            path
+            for path in (directory, reports_directory, bundle_directory)
+            if path is not None
+        )
+    )
+    for output_directory in output_directories:
+        validate_artifact_directory(output_directory)
+        output_directory.mkdir(parents=True, exist_ok=True)
+    output_paths = [directory / AUDIT_NAME]
+    output_paths.extend(reports_directory / name for name in TEXT_REPORT_NAMES)
+    if bundle_directory is not None:
+        output_paths.append(bundle_directory / AUDIT_NAME)
+        output_paths.extend(bundle_directory / name for name in TEXT_REPORT_NAMES)
+    for path in output_paths:
         if path.is_symlink() or (path.exists() and not path.is_file()):
             raise ArtifactError(f"report output must be a regular file: {path}")
-    with TemporaryDirectory(prefix="write-check-", dir=directory):
-        pass
+    for output_directory in output_directories:
+        with TemporaryDirectory(prefix="write-check-", dir=output_directory):
+            pass
 
 
 def publish_audit(
@@ -61,23 +77,31 @@ def publish_audit(
     history: Path,
     work: Path,
     reports_directory: Path | None = None,
+    *,
+    bundle_directory: Path | None = None,
 ) -> None:
     """Stage every view, preserve the previous JSON, then publish JSON last.
 
     The caller holds the workspace lock. Each file replacement is atomic; the
-    canonical JSON is the publication marker. Ordinary failures restore old views.
+    canonical JSON is the publication marker. An optional bundle mirrors all
+    artifacts without moving the canonical audit. Ordinary failures roll back.
     """
     reports_directory = reports_directory or directory
-    prepare_output(directory, reports_directory)
+    prepare_output(directory, reports_directory, bundle_directory=bundle_directory)
     with TemporaryDirectory(prefix="publish-", dir=work) as temporary:
         staging = Path(temporary)
         audit_file = staging / AUDIT_NAME
         atomic_write_text(audit_file, terminated(render_json(report)))
         write_report_artifacts(load_audit(audit_file), staging)
-        destinations = [
-            *((reports_directory / name, staging / name) for name in TEXT_REPORT_NAMES),
-            (directory / AUDIT_NAME, staging / AUDIT_NAME),
-        ]
+        destinations = {
+            output_directory / name: staging / name
+            for output_directory in (reports_directory, bundle_directory)
+            if output_directory is not None
+            for name in TEXT_REPORT_NAMES
+        }
+        if bundle_directory is not None:
+            destinations[bundle_directory / AUDIT_NAME] = staging / AUDIT_NAME
+        destinations[directory / AUDIT_NAME] = staging / AUDIT_NAME
         current = directory / AUDIT_NAME
         old = current.read_text(encoding="utf-8") if current.exists() else None
         if old is not None:
@@ -102,7 +126,7 @@ def publish_audit(
         replace_payloads(
             {
                 destination: source.read_text(encoding="utf-8")
-                for destination, source in destinations
+                for destination, source in destinations.items()
             }
         )
 

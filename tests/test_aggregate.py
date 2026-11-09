@@ -16,7 +16,7 @@ from pygo_audit import aggregate, csaf, csaf_workflow, image_csaf, models
 from pygo_audit.audit import load_audit
 from pygo_audit.cli import main, resolve_settings, use_default_reports_directory
 from pygo_audit.storage import atomic_write_text
-from pygo_audit.text_layout import FULL_POLICY, RenderPolicy, Verbosity
+from pygo_audit.text_layout import RenderPolicy, Verbosity
 
 
 def make_workspace(
@@ -186,7 +186,9 @@ class AggregateTests(unittest.TestCase):
             self.assertEqual(actual["summary"]["documents_checked"], 2)
             self.assertEqual((directory / "audit.json").read_bytes(), audits[directory])
             self.assertTrue((directory / "reports/comparison.txt").is_file())
-        self.assertNotIn(cves[3], (self.root / "reports/aggregate.csv").read_text())
+        self.assertNotIn(
+            cves[3], (self.root / "reports/pygo-audit-triage.csv").read_text()
+        )
 
     def test_document_work_is_shared_but_local_conclusions_are_not(self) -> None:
         cve = "CVE-2026-0001"
@@ -306,7 +308,7 @@ class AggregateTests(unittest.TestCase):
         report = load_audit(source)
         report.metadata.image = replace(
             report.metadata.image,
-        reference="registry.example.test/team/app:v1",
+            reference="registry.example.test/team/app:v1",
             platform="linux/amd64",
             csaf_product_ids=(),
             purls=("pkg:oci/app@v1.0.0?arch=amd64",),
@@ -327,16 +329,14 @@ class AggregateTests(unittest.TestCase):
             scores=[{"cvss_v3": {"version": "3.1", "baseScore": 8.1}}],
         )
         result = self.run_batch("--jobs", "1", "-v", "--wide")
-        csv_path = self.root / "reports/aggregate.csv"
+        csv_path = self.root / "reports/pygo-audit-triage.csv"
         rows = list(csv.DictReader(io.StringIO(csv_path.read_text())))
         self.assertEqual(len(rows), 1)
         row = rows[0]
         self.assertEqual(tuple(row), aggregate.TRIAGE_COLUMNS)
         self.assertEqual(row["CONTAINER"], "'=alpha,one")
         self.assertEqual(aggregate.csv_cell(("module", "symbol")), "module; symbol")
-        self.assertEqual(
-            row["CVSS SCORE"], "7.5; 8.1"
-        )
+        self.assertEqual(row["CVSS SCORE"], "7.5; 8.1")
         self.assertEqual(row["PYGO ASSESSMENT"], "Affected")
         self.assertEqual(row["AGREEMENT"], "Mixed")
         self.assertEqual(row["EVIDENCE"], "symbol")
@@ -348,17 +348,15 @@ class AggregateTests(unittest.TestCase):
                 "https://vendor.example/second.json",
             ],
         )
-        self.assertEqual(
-            row["CONTAINER URL"], "registry.example.test/team/app:v1"
-        )
+        self.assertEqual(row["CONTAINER URL"], "registry.example.test/team/app:v1")
         text = (self.root / "reports/aggregate.txt").read_text()
         self.assertEqual(text.count("[PROVENANCE]"), 1)
-        self.assertGreater(text.index("[PROVENANCE]"), text.rindex("[LOCAL FINDINGS]"))
+        self.assertGreater(text.index("[PROVENANCE]"), text.index("CVSS SCORING"))
         for level in (Verbosity.SUMMARY, Verbosity.EXPANDED, Verbosity.DETAILED):
             preview = aggregate.render_text(result, RenderPolicy(level, wide=True))
             self.assertNotIn("[PROVENANCE]", preview)
             self.assertEqual(preview.count("More information:"), 1)
-        self.assertEqual(aggregate.render_text(result, FULL_POLICY), text)
+        self.assertEqual(aggregate.render_aggregate_report(result), text)
 
     def test_triage_cases_sort_by_cvss_then_container_then_agreement(self) -> None:
         cases = [
@@ -426,7 +424,8 @@ class AggregateTests(unittest.TestCase):
         write_document(self.csaf, "advisory.json", {cve: "known_affected"})
         self.run_batch("--jobs", "1")
         paths = [
-            *self.root.glob("reports/aggregate.*"),
+            *self.root.glob("reports/*aggregate*"),
+            self.root / "reports" / aggregate.TRIAGE_FILENAME,
             *self.root.glob("alpha/reports/comparison.*"),
         ]
         previous = {path: path.read_bytes() for path in paths}
@@ -435,7 +434,7 @@ class AggregateTests(unittest.TestCase):
             patch(
                 "pygo_audit.artifacts.atomic_write_text",
                 side_effect=partial(
-                    fail_publication, self.root / "reports/aggregate.csv"
+                    fail_publication, self.root / "reports/pygo-audit-triage.csv"
                 ),
             ),
             redirect_stdout(io.StringIO()),
@@ -451,7 +450,8 @@ class AggregateTests(unittest.TestCase):
         write_document(self.csaf, "advisory.json", {cve: "known_affected"})
         self.run_batch("--jobs", "1")
         paths = [
-            *self.root.glob("reports/aggregate.*"),
+            *self.root.glob("reports/*aggregate*"),
+            self.root / "reports" / aggregate.TRIAGE_FILENAME,
             *self.root.glob("alpha/reports/comparison.*"),
         ]
         previous = {path: path.read_bytes() for path in paths}
@@ -473,7 +473,7 @@ class AggregateTests(unittest.TestCase):
         cve = "CVE-2026-0001"
         directory = make_workspace(self.root, "alpha", (cve,))
         source = write_document(self.csaf, "advisory.json", {cve: "known_affected"})
-        collision = self.csaf / "aggregate.csv"
+        collision = self.csaf / "pygo-audit-triage.csv"
         collision.write_bytes(source.read_bytes())
         before = collision.read_bytes()
         with redirect_stderr(io.StringIO()):

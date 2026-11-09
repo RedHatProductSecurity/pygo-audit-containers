@@ -57,6 +57,7 @@ class CsafDocumentIndex:
     """One document's identity evidence, shared across container comparisons."""
 
     title: str  # Advisory title from document metadata.
+    current_release_date: str  # Version timestamp from document.tracking.
     canonical_urls: tuple[str, ...]  # HTTPS self references to this CSAF document.
     products: dict[str, ProductInfo]  # Product metadata indexed by CSAF product ID.
     publisher_namespace: str
@@ -383,6 +384,9 @@ def index_document(document: dict[str, Any]) -> CsafDocumentIndex:
         title=(raw if isinstance(raw := metadata.get("title"), str) else "")
         if isinstance(metadata, dict)
         else "",
+        current_release_date=(
+            raw if isinstance(raw := tracking.get("current_release_date"), str) else ""
+        ),
         canonical_urls=canonical_urls(
             metadata.get("references") if isinstance(metadata, dict) else None,
             (raw if isinstance(raw := tracking.get("id"), str) else ""),

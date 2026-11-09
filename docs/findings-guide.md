@@ -73,8 +73,10 @@ Document-level canonical URLs are collected from HTTPS `self` references using
 the CSAF tracking-ID filename convention. They are retained in each document's
 `canonical_urls` list in `comparison.json`. All verbosity levels use
 `<CVE>: <canonical URL>` as the heading, with multiple URLs on separate lines and
-the CVE alone when none is available. Local source-file associations remain in
-the final `-vvv` provenance section.
+the CVE alone when none is available. Document source paths remain in the
+`source` field in `comparison.json`. The final `-vvv` provenance section
+identifies each CSAF document by its `tracking.current_release_date`, with
+canonical URLs alongside it.
 Exact matches discard weaker candidates in text and JSON. Retained product
 statements stay separate so one candidate's flags cannot explain another's status.
 CVE banners, bracketed sections, and indented subsections distinguish the hierarchy.
@@ -136,7 +138,7 @@ defines the states and their qualifications. Batch comparisons include only each
 container's recorded CVEs, so another image's advisory does not create a negative
 case for this image.
 
-Open `reports/aggregate.csv` to compare containers. Each row is one container/CVE
+Open `reports/pygo-audit-triage.csv` to compare containers. Each row is one container/CVE
 pair, sorted by descending highest CVSS score, then container, agreement priority,
 and CVE. Use `AGREEMENT` to review No, Qualified no, and Mixed results, then inspect
 Undetermined cases for missing documents or unresolved identity. The per-container
@@ -174,9 +176,11 @@ Useful commands:
 ```
 
 `reports/comparison.txt` presents per-CVE candidates and linked evidence; its JSON
-retains the detailed identity data. `reports/aggregate.txt` starts with batch
-counts and triage sorted by CVSS score. Use `-v` onward for the same per-container
-details as `csaf`; provenance appears only at the bottom of `-vvv`. Counts use
+retains the detailed identity data. `reports/aggregate.txt` summarizes batch counts
+and discrepancy rates; `reports/cve-aggregates.txt` groups comparison results by
+CVE, and `reports/container-aggregates.txt` summarizes severity, vulnerable
+binaries, and CSAF product matches per container. Use `-v` onward for the same
+per-container details as `csaf`; provenance appears only at the bottom of `-vvv`. Counts use
 container/CVE pairs, with batch unique CVEs reported separately. These counts do
 not measure vulnerability-detection accuracy. The original `audit.json` remains
 the source for reviewing a binary's full scan evidence.

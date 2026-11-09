@@ -1,9 +1,10 @@
-"""Aggregate the canonical image comparisons into text, JSON, and triage CSV."""
+"""Aggregate canonical image comparisons into summary, triage, and JSON reports."""
 
 from __future__ import annotations
 
 import argparse
 from collections import Counter
+from collections.abc import Iterable
 import csv
 from dataclasses import dataclass
 import io
@@ -37,6 +38,15 @@ TRIAGE_COLUMNS = (
     "CONTAINER URL",
 )
 AGGREGATE_VIEWS = ("cves", "modules", "packages")
+TRIAGE_FILENAME = "pygo-audit-triage.csv"
+CVSS_SEVERITIES = (
+    "Critical",
+    "High",
+    "Medium",
+    "Low",
+    "None (0.0)",
+    "Unscored",
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -238,63 +248,311 @@ def container_review_key(container: dict[str, Any]) -> tuple[int, str]:
     return priority, container["container_name"]
 
 
-def render_text(result: dict[str, Any], policy: RenderPolicy = SUMMARY_POLICY) -> str:
-    lines = TextLayout.titled("CSAF BATCH COMPARISON", policy=policy)
+def cve_groups(cases: Iterable[TriageCase]) -> dict[str, list[TriageCase]]:
+    groups: dict[str, list[TriageCase]] = {}
+    for case in cases:
+        groups.setdefault(case.cve, []).append(case)
+    return groups
+
+
+def highest_cvss(cases: Iterable[TriageCase]) -> float | None:
+    return max((score for case in cases for score in case.cvss_scores), default=None)
+
+
+def cvss_severity(score: float | None) -> str:
+    if score is None:
+        return "Unscored"
+    if score == 0:
+        return "None (0.0)"
+    return next(
+        severity
+        for threshold, severity in (
+            (9, "Critical"),
+            (7, "High"),
+            (4, "Medium"),
+            (0, "Low"),
+        )
+        if score >= threshold
+    )
+
+
+def severity_counts(cases: Iterable[TriageCase]) -> Counter[str]:
+    return Counter(
+        cvss_severity(highest_cvss(group)) for group in cve_groups(cases).values()
+    )
+
+
+def discrepancy_rate(discrepancies: int, comparisons: int) -> str:
+    if not comparisons:
+        return f"{discrepancies} / 0 (N/A)"
+    rate = discrepancies / comparisons * 100
+    return f"{discrepancies} / {comparisons} ({rate:.1f}%)"
+
+
+def append_severity_counts(lines: TextLayout, cases: Iterable[TriageCase]) -> None:
+    counts = severity_counts(cases)
+    lines.columns(
+        [
+            ("CVSS SEVERITY", "UNIQUE CVEs"),
+            *((severity, counts[severity]) for severity in CVSS_SEVERITIES),
+        ]
+    )
+
+
+def append_agreement_definitions(lines: TextLayout) -> None:
+    with lines.subsection("AGREEMENT DEFINITIONS") as definitions:
+        definitions.bullets(
+            (
+                "Yes — exact product match; vendor conclusion supports the local finding.",
+                "Qualified yes — supports the finding with a tentative match, version inference, or vendor qualification.",
+                "No — exact product match; vendor conclusion verifiably contradicts the local finding.",
+                "Qualified no — possible disagreement, but no verified contradiction.",
+                "Mixed — accepted product candidates reach conflicting conclusions.",
+                "Undetermined — insufficient product-match or vendor-status evidence to decide.",
+            ),
+            wrap=True,
+        )
+
+
+def append_batch_provenance(
+    lines: TextLayout, containers: Iterable[dict[str, Any]]
+) -> None:
+    with lines.subsection("[PROVENANCE]") as provenance:
+        for container in containers:
+            with provenance.subsection(
+                f"CONTAINER: {container['container_name']}"
+            ) as context:
+                image_csaf.append_provenance(context, container)
+
+
+def append_aggregate_summary(
+    lines: TextLayout, result: dict[str, Any], cases: list[TriageCase]
+) -> None:
     summary = result["summary"]
     metrics = summary["metrics"]
     lines.fields(
         ("Containers", summary["container_count"]),
         ("Unique CVEs", summary["unique_cves"]),
-        ("Container/CVE comparisons", metrics["comparisons"]),
-        ("Discrepancies", metrics["discrepancies"]),
+        ("Vulnerability findings (container/CVE)", metrics["comparisons"]),
+        (
+            "Locally affected findings",
+            metrics["local_scan_counts"].get("affected", 0),
+        ),
+        (
+            "Discrepancy rate",
+            discrepancy_rate(metrics["discrepancies"], metrics["comparisons"]),
+        ),
     )
-    with lines.subsection("[AGREEMENT]") as agreement:
-        agreement.columns(
+    with lines.subsection("CVSS SEVERITY (UNIQUE CVEs)") as scores:
+        append_severity_counts(scores, cases)
+    with lines.subsection("AGREEMENT RESULTS") as agreements:
+        agreements.columns(
             [
-                ("AGREEMENT", "CONTAINER/CVE PAIRS"),
+                ("AGREEMENT", "CONTAINER/CVE FINDINGS"),
                 *(
                     (
                         comparison.AGREEMENT_LABELS[kind],
-                        metrics["agreement_counts"][kind],
+                        metrics["agreement_counts"].get(kind, 0),
                     )
                     for kind in comparison.AGREEMENT_ORDER
-                    if kind in metrics["agreement_counts"]
                 ),
             ]
         )
-    containers = sorted(result["containers"], key=container_review_key)
-    with lines.subsection("[CONTAINERS]") as inventory:
-        inventory.columns(
+    containers = sorted(result["containers"], key=lambda item: item["container_name"])
+    with lines.subsection("DISCREPANCIES BY CONTAINER") as discrepancies:
+        discrepancies.columns(
             [
-                ("CONTAINER", "SCAN COVERAGE", "CVEs", "DISCREPANCIES"),
+                ("CONTAINER", "DISCREPANCIES / COMPARISONS", "RATE"),
                 *(
                     (
                         container["container_name"],
-                        container["summary"]["scan_coverage"]["state"],
-                        container["summary"]["metrics"]["comparisons"],
-                        container["summary"]["metrics"]["discrepancies"],
+                        f"{container['summary']['metrics']['discrepancies']} / "
+                        f"{container['summary']['metrics']['comparisons']}",
+                        discrepancy_rate(
+                            container["summary"]["metrics"]["discrepancies"],
+                            container["summary"]["metrics"]["comparisons"],
+                        ),
                     )
-                    for container in inventory.limited("containers", containers)
+                    for container in containers
                 ),
             ]
         )
-    with lines.subsection("[CVE TRIAGE]") as triage:
-        with triage.preview("comparisons", triage_cases(result)) as cases:
-            triage.columns([TRIAGE_COLUMNS[:6], *(case.cells()[:6] for case in cases)])
-    if policy.shows(Verbosity.EXPANDED):
+    append_agreement_definitions(lines)
+    with lines.subsection("CVSS SCORING") as scoring:
+        scoring.bullets(
+            (
+                "Each CVE is counted once at its highest reported score across containers.",
+                "Critical 9.0–10.0; High 7.0–8.9; Medium 4.0–6.9; Low 0.1–3.9; None 0.0; Unscored has no reported score.",
+            ),
+            wrap=True,
+        )
+    with lines.subsection("DISCREPANCY RATE") as rate:
+        rate.append(
+            "Discrepancies count No, Qualified no, and Mixed results; the denominator "
+            "is recorded container/CVE comparisons."
+        )
+
+
+def render_aggregate_report(result: dict[str, Any]) -> str:
+    return render_text(result, FULL_POLICY, include_details=False)
+
+
+def cve_review_key(item: tuple[str, list[TriageCase]]) -> tuple[float, str]:
+    score = highest_cvss(item[1])
+    return -(score if score is not None else -1), item[0]
+
+
+def render_text(
+    result: dict[str, Any],
+    policy: RenderPolicy = SUMMARY_POLICY,
+    *,
+    include_details: bool = True,
+) -> str:
+    lines = TextLayout.titled("CSAF BATCH AGGREGATE", policy=policy)
+    cases = triage_cases(result)
+    append_aggregate_summary(lines, result, cases)
+    if include_details and policy.shows(Verbosity.EXPANDED):
+        containers = sorted(result["containers"], key=container_review_key)
         for container in lines.limited("container details", containers):
             with lines.subsection(
                 f"CONTAINER: {container['container_name']}"
             ) as detail:
                 image_csaf.append_check(detail, container)
     if policy.shows(Verbosity.FORENSIC):
-        with lines.subsection("[PROVENANCE]") as provenance:
-            for container in containers:
-                with provenance.subsection(
-                    f"CONTAINER: {container['container_name']}"
-                ) as context:
-                    image_csaf.append_provenance(context, container)
+        append_batch_provenance(lines, result["containers"])
     append_detail_footer(lines)
+    return lines.render() + "\n"
+
+
+def render_cve_aggregates(result: dict[str, Any]) -> str:
+    lines = TextLayout.titled("CVE AGGREGATES", policy=FULL_POLICY)
+    lines.append(
+        "Only recorded container/CVE comparisons are listed. An absent row does not mean Not Affected."
+    )
+    cases = triage_cases(result)
+    container_index = {
+        (container["container_name"], cve): container["conclusions"][cve]
+        for container in result["containers"]
+        for cve in container["conclusions"]
+        if normalize_cve(cve)
+    }
+    groups = cve_groups(cases)
+    for cve, group in sorted(groups.items(), key=cve_review_key):
+        score = highest_cvss(group)
+        lines.section(f"{cve} — {score:.1f}" if score is not None else cve)
+        lines.field("CVSS severity", cvss_severity(score))
+        lines.columns(
+            [
+                (
+                    "CONTAINER",
+                    "CVSS SCORE",
+                    "PYGO ASSESSMENT",
+                    "CSAF ID MATCH",
+                    "VENDOR ASSESSMENT",
+                    "AGREEMENT",
+                ),
+                *(
+                    (
+                        case.container,
+                        "; ".join(f"{score:.1f}" for score in case.cvss_scores)
+                        or "Unscored",
+                        image_csaf.LOCAL_SCAN_LABELS[case.local_scan],
+                        image_csaf.MATCH_LABELS[
+                            container_index[case.container, cve]["match"]
+                        ],
+                        case.vendor_assessment,
+                        comparison.AGREEMENT_LABELS[case.agreement],
+                    )
+                    for case in sorted(group, key=lambda value: value.container)
+                ),
+            ]
+        )
+    append_batch_provenance(lines, result["containers"])
+    return lines.render() + "\n"
+
+
+def candidate_product_ids(conclusion: dict[str, Any]) -> tuple[str, ...]:
+    candidates = conclusion.get("candidates", [])
+    strongest = image_csaf.strongest_match(
+        [candidate["match"] for candidate in candidates]
+    )
+    matches = {
+        f"{image_csaf.MATCH_LABELS[candidate['match']]}: {product_id}"
+        for candidate in candidates
+        if candidate["match"] == strongest
+        for product_id in candidate.get("product_ids", [])
+    }
+    return tuple(sorted(matches))
+
+
+def render_container_aggregates(result: dict[str, Any]) -> str:
+    lines = TextLayout.titled("CONTAINER AGGREGATES", policy=FULL_POLICY)
+    cases = triage_cases(result)
+    for container in sorted(
+        result["containers"], key=lambda item: item["container_name"]
+    ):
+        name = container["container_name"]
+        container_cases = [case for case in cases if case.container == name]
+        metrics = container["summary"]["metrics"]
+        hashes = {
+            artifact["sha256"]
+            for artifacts in container["local_findings"].values()
+            for artifact in artifacts
+        }
+        lines.section(name)
+        lines.field("Container image", container["container_url"])
+        lines.fields(
+            ("CVEs", len(container_cases)),
+            (
+                "Discrepancies",
+                discrepancy_rate(metrics["discrepancies"], metrics["comparisons"]),
+            ),
+            ("Unique vulnerable binaries", len(hashes)),
+            (
+                "Binary/CVE evidence links",
+                sum(case.binary_count for case in container_cases),
+            ),
+        )
+        with lines.subsection("CVSS SEVERITY") as scores:
+            append_severity_counts(scores, container_cases)
+        match_counts = Counter(
+            conclusion["match"]
+            for cve, conclusion in container["conclusions"].items()
+            if normalize_cve(cve)
+        )
+        with lines.subsection("CSAF PRODUCT MATCHES") as matches:
+            matches.columns(
+                [
+                    ("CSAF ID MATCH", "CVEs"),
+                    *(
+                        (image_csaf.MATCH_LABELS[kind], match_counts[kind])
+                        for kind in (
+                            "exact",
+                            "fuzzy",
+                            "ambiguous",
+                            "no_match",
+                            "no_document",
+                        )
+                    ),
+                ]
+            )
+            matches.columns(
+                [
+                    ("CVE", "CSAF ID MATCH", "CSAF PRODUCT ID CANDIDATES"),
+                    *(
+                        (
+                            case.cve,
+                            image_csaf.MATCH_LABELS[
+                                container["conclusions"][case.cve]["match"]
+                            ],
+                            candidate_product_ids(container["conclusions"][case.cve])
+                            or "(none)",
+                        )
+                        for case in container_cases
+                    ),
+                ]
+            )
+    append_batch_provenance(lines, result["containers"])
     return lines.render() + "\n"
 
 
@@ -326,12 +584,29 @@ def run(
         settings.output_dir,
         "aggregate",
         result,
-        render_text(result, FULL_POLICY),
-        csv_text=render_csv(result),
+        render_aggregate_report(result),
     )
-    csaf_workflow.publish_checks(checks, payloads)
+    json_path = settings.output_dir / "aggregate.json"
+    json_payload = payloads.pop(json_path)
+    payloads.update(
+        {
+            settings.output_dir / "cve-aggregates.txt": render_cve_aggregates(result),
+            settings.output_dir
+            / "container-aggregates.txt": render_container_aggregates(result),
+            settings.output_dir / TRIAGE_FILENAME: render_csv(result),
+        }
+    )
+    payloads[json_path] = json_payload
+    csaf_workflow.publish_checks(
+        checks, payloads, container_reports_dir=settings.output_dir
+    )
     print(render_text(result, policy), end="")
     print(
-        f"Summary and details: {settings.output_dir / 'aggregate.txt'}\nStructured results: {settings.output_dir / 'aggregate.json'}\nTriage CSV: {settings.output_dir / 'aggregate.csv'}"
+        f"Aggregate statistics: {settings.output_dir / 'aggregate.txt'}\n"
+        f"CVE results: {settings.output_dir / 'cve-aggregates.txt'}\n"
+        f"Container results: {settings.output_dir / 'container-aggregates.txt'}\n"
+        f"Structured results: {json_path}\n"
+        f"Triage CSV: {settings.output_dir / TRIAGE_FILENAME}\n"
+        f"Container comparisons: {settings.output_dir}/<container>/comparison.txt"
     )
     return 0

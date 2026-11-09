@@ -7,8 +7,8 @@ CSAF/VEX documents. It never executes subject binaries or invokes image extracti
 
 The library works with filesystems supplied by any extraction tool. Scripts own
 registry inventory, image extraction, directory preparation, and provider URL
-presets. `scripts/fetch-cve-data` downloads JSON through the shared
-`pygo_audit.cve_data` library.
+presets. `fetch-redhat-csaf` uses the shared `pygo_audit.cve_data` library for
+download and cache operations.
 
 ## Documentation
 
@@ -84,12 +84,14 @@ establish chronology or deployed-process reachability.
 ./scripts/gather-openshift-targets 4.20.21 --output targets.txt
 ./scripts/prepare-audits targets.txt run --dry-run
 ./scripts/prepare-audits targets.txt run
-./pygo-audit audit run --workers 4 --jobs 2
+./pygo-audit audit run --workers 4 --jobs 2 --output-dir upload
 ```
 
 `audit` scans immediate prepared child directories. An optional `--targets FILE`
 selects existing directory names. Repeating the command refreshes scans without
 extracting anything. The batch shares a visible `cache/` and `work/` under its root.
+`--output-dir upload` also bundles each container's audit JSON and report views
+under `upload/<container>/`; canonical audit data and scan work stay under `run/`.
 Both `AUDIT_ROOT` and `BATCH_AUDIT_ROOT` default to the current working directory.
 
 Optional `pygo-audit.json` settings use CLI option names. Explicit CLI values win
@@ -111,8 +113,8 @@ of disposable caches.
 # Combine the saved CVE lists from a completed batch.
 cat run/*/reports/cves.txt |
   ./scripts/fetch-redhat-csaf --input-format cves - run/csaf
-./pygo-audit csaf run
-./pygo-audit aggregate run --csaf run/csaf
+./pygo-audit csaf run --output-dir upload
+./pygo-audit aggregate run --csaf run/csaf --output-dir upload
 ```
 
 The `cves`, `modules`, and `packages` report views emit sorted, unique identifiers,
@@ -136,8 +138,9 @@ Yes, Qualified yes, No, Qualified no, or Undetermined; the overall CVE result ca
 also report Mixed when accepted candidates reach opposing conclusions.
 Batch `csaf` and `aggregate` use the same matching, conclusions, and detail layout,
 limited to each container's recorded CVEs. Aggregation refreshes those per-container
-reports and writes `aggregate.txt`, `aggregate.json`, and `aggregate.csv` under the
-batch `reports/` directory. The spreadsheet has one row per container/CVE pair,
+reports and writes `aggregate.txt`, `cve-aggregates.txt`, `container-aggregates.txt`,
+`aggregate.json`, and `pygo-audit-triage.csv` under the batch `reports/` directory.
+The spreadsheet has one row per container/CVE pair,
 sorted by descending highest CVSS score, then container, agreement priority, and
 CVE, with canonical advisory URLs and recorded image references. Neither command
 downloads advisories or rescans binaries.

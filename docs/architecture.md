@@ -48,8 +48,8 @@ The boundary is intentional. `pygo-audit` consumes directories, not image
 registries. The extractor produces directories, not audit conclusions. CSAF
 matching consumes serialized audit JSON and local documents. The package's
 batch and aggregate commands coordinate these generic workflows; scripts own
-vendor discovery, provider URL presets, and metadata preparation. The
-`fetch-cve-data` script calls the shared downloader with its OSIDB URL preset.
+vendor discovery, provider URL presets, and metadata preparation.
+`fetch-redhat-csaf` passes its source settings to the shared downloader.
 Scanning and comparison do not fetch documents.
 
 That is orthogonality in practice: each part has one job and exposes a small
@@ -287,12 +287,20 @@ AuditReport (one container)
 
 The JSON is the canonical intermediate representation. Text reports are views,
 not alternate databases. Aggregation preserves canonical container comparisons in
-`reports/aggregate.json`, renders their shared details in `reports/aggregate.txt`,
-and projects one container/CVE per row into `reports/aggregate.csv` for triage.
-Totals count the existing agreement, local scan, match, and vendor conclusions;
+`reports/aggregate.json` without changing its structure. The text views separate
+batch statistics (`aggregate.txt`), per-CVE comparisons (`cve-aggregates.txt`),
+and per-container statistics (`container-aggregates.txt`). The spreadsheet
+`pygo-audit-triage.csv` has one row per container/CVE. Totals count the existing
+agreement, local scan, match, and vendor conclusions;
 the aggregate does not evaluate them again. Triage rows sort by descending highest
 CVSS score, then container, agreement priority, and CVE. Missing or ambiguous
 evidence retains its qualifications. Full scan evidence remains in `audit.json`.
+An explicit aggregate output directory also contains a comparison JSON/text pair
+under a subdirectory named for each container; the usual per-container reports
+continue to be refreshed in their audit workspaces.
+Batch `audit`, `csaf`, and `aggregate` share one helper for those per-container
+bundle paths. Batch audit mirrors the canonical JSON and scan views into that
+bundle while keeping its working audit and caches in the audit workspace.
 JSON keys match the evidence dataclass fields. Computed properties such as
 runtime counts, CGO status, and dependency summaries are not duplicated in storage.
 

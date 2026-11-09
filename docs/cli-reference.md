@@ -17,7 +17,7 @@ inventory discovery, directory preparation, and provider URL presets belong to
 | --- | --- | --- |
 | `scan [AUDIT_ROOT]` | One prepared container directory; defaults to cwd | Current audit, text views, previous audit history |
 | `report [AUDIT_ROOT] [--view VIEW]` | Current workspace or an explicit audit JSON | A view of saved evidence |
-| `audit [BATCH_AUDIT_ROOT]` | Parent of prepared container directories; defaults to cwd | Per-container audits, progress and summary |
+| `audit [BATCH_AUDIT_ROOT]` | Parent of prepared container directories; defaults to cwd | Per-container audits, optional report bundle, progress and summary |
 | `aggregate [BATCH_AUDIT_ROOT] [--view VIEW]` | Parent of container audits; defaults to cwd | Shared comparisons and triage CSV, or a deduplicated identifier list |
 | `check [AUDIT_ROOT] --id ID...` | CVE, GHSA, or GO identifiers; defaults to cwd | Targeted findings |
 | `csaf [AUDIT_ROOT]` | A container or batch workspace; defaults to cwd | Saved JSON/text comparisons with local documents |
@@ -203,7 +203,7 @@ BATCH_AUDIT_ROOT/
 ```
 
 ```console
-./pygo-audit audit run --workers 4 --jobs 2
+./pygo-audit audit run --workers 4 --jobs 2 --output-dir upload
 ./pygo-audit audit run --targets selected.txt
 ```
 
@@ -212,6 +212,13 @@ Each target retains its own `audit.json`. `progress.tsv` records `name`, `status
 The recorded path is the file actually published, including a strict failed scan
 under `work/`. A failure before publication or a cancelled target has no audit
 path. Batch execution status is separate from vulnerability findings.
+
+For a portable result bundle, `audit --output-dir DIR` mirrors each target's
+`audit.json` and complete report views into `DIR/<container-name>/`, and writes
+`container-summary.txt` at `DIR/`. The canonical audit, progress file, shared
+cache, and work files remain in the batch workspace, so later aggregate commands
+still read the normal audit files. Batch `csaf` and `aggregate` use the same
+`DIR/<container-name>/` layout for comparison reports.
 
 Discovery examines immediate child directories containing `rootfs/`, workspace
 settings, or an existing `audit.json`. Numbered names and completion markers are
@@ -491,36 +498,6 @@ Scans save `cves.txt`, `modules.txt`, and `packages.txt` under `reports/`.
 `report --output-dir DIR` refreshes these lists alongside the human-readable
 reports. Exporting an existing audit requires no rescan.
 
-## Download CVE data with the helper script
-
-```console
-./scripts/fetch-cve-data cves.txt run/osidb \
-  --url-template 'https://advisories.example/flaws/{cve}'
-./pygo-audit report service --view cves |
-  ./scripts/fetch-cve-data - run/vendor-data \
-    --url-template 'https://advisories.example/{year}/{cve_lower}.json'
-```
-
-The script defaults to Red Hat's internal OSIDB endpoint. Supply
-`--url-template` to download from another HTTP(S) JSON source. `{cve}` is the
-uppercase CVE, `{cve_lower}` is its lowercase form, and `{year}` is its year.
-The complete input is validated and deduplicated before any download or cache
-write. Files are saved as pretty-printed `CVE-YYYY-NNNN.json` without converting
-their contents to another format. No format or authentication options are needed.
-
-`--jobs` defaults to eight concurrent downloads. Existing JSON is reused;
-`--refresh` downloads again, and `--offline` reads cached results without network
-access or writes. A 404 creates a separate `.missing` record that is rechecked
-only with `--refresh`. Failed refreshes retain previous documents. Network and
-retry behavior is shared with the [download helpers](scripts-reference.md#download-cve-data-from-a-url-template).
-Each destination records its URL template in `source.url`; use a separate
-destination for each source. Any failed or missing CVE gives a nonzero exit status.
-
-Downloads use the supplied template directly. They do not read workspace
-settings or run scans/comparisons. Internal provider addresses remain in explicit
-script presets, including `scripts/fetch-cve-data` for Red Hat's internal OSIDB.
-OSIDB flaw JSON stays separate from CSAF documents used by `csaf`.
-
 ## Compare local CSAF evidence
 
 ```console
@@ -552,15 +529,17 @@ work. Each container's conclusions still use its own saved binary evidence.
 `--jobs` bounds document workers. Inputs are reread on subsequent invocations.
 
 Each document entry in `comparison.json` retains a deduplicated `canonical_urls`
-list from `document.references`. Following
+list from `document.references` and the string `current_release_date` from
+`document.tracking`. Following
 [CSAF section 6.2.11](https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6211-missing-canonical-url),
 these are HTTPS `self` references whose filenames correspond to the document's
 tracking ID. The free-text reference summary does not determine selection.
 Multiple qualifying URLs are preserved; missing references produce an empty
 list. Every verbosity uses `<CVE>: <canonical URL>` as the comparison heading.
 Multiple URLs appear on separate lines within the same banner; without a URL,
-the heading is the CVE alone. The final `-vvv` provenance section also associates
-each URL with its source file. Collection does not fetch or verify remote content.
+the heading is the CVE alone. The final `-vvv` provenance section identifies each
+document by its current release date and lists its canonical URLs. Collection
+does not fetch or verify remote content.
 
 The default output separates **Local scan**, **CSAF ID Match**, **Vendor assessment**,
 and **Agreement** under each `<CVE>: <canonical URL>` banner, followed by the
@@ -814,19 +793,29 @@ directories, and restores previous reports after an ordinary write failure.
 
 Aggregation runs the shared container comparison and refreshes each child's
 `comparison.json` and forensic-wide `comparison.txt`. It also writes
-`aggregate.txt`, `aggregate.json`, and `aggregate.csv` under the batch `reports/`
-directory. `--output-dir` relocates this batch bundle; child comparison locations
-retain their own settings. The advisory collection, overrides, target selection,
-concurrency, and CVE scope follow batch `csaf` above. A missing document is reported
+`aggregate.txt`, `cve-aggregates.txt`, `container-aggregates.txt`, `aggregate.json`,
+and `pygo-audit-triage.csv` under the batch `reports/` directory. `--output-dir` relocates this batch bundle and adds a
+`<container-name>/` subdirectory with each child's `comparison.json` and
+`comparison.txt`; the original child comparison locations are refreshed too.
+The advisory collection, overrides, target selection, concurrency, and CVE scope
+follow batch `csaf` above. A missing document is reported
 as not provided, with advice to check the user's provider. No download, rescan,
 previous-comparison fallback, or alternate advisory lookup occurs.
 
-Default text shows batch counts, agreement totals, container summaries, and a CVE
-triage table. Rows sort by descending highest CVSS score, then container,
-agreement priority, and CVE. `-v`, `-vv`, and `-vvv` append container
+Default text shows aggregate statistics, CVSS severity counts, agreement counts,
+discrepancy rates, and agreement definitions. `cve-aggregates.txt` lists each CVE and the recorded
+local assessment, CSAF ID match, vendor assessment, and agreement for each
+container. `container-aggregates.txt` summarizes each container's severity counts,
+vulnerable binary count, and CSAF product matches. Severity counts use each CVE's
+highest reported score across containers. `-v`, `-vv`, and `-vvv` append container
 details using the single-container renderer at that same verbosity. Provenance
 appears once at the end of `-vvv`; `--wide` removes preview limits. Saved text is
 always forensic-wide.
+
+Severity uses the highest score reported for each CVE across containers: Critical
+9.0–10.0, High 7.0–8.9, Medium 4.0–6.9, Low 0.1–3.9, None 0.0, and Unscored
+when no score was provided. The CVE aggregate lists only recorded comparisons;
+an absent container row is not interpreted as Not Affected.
 
 The JSON has `counting_unit: "container_cve"`, batch `summary`, and `containers`.
 Each container retains the canonical comparison data, including identity under
@@ -835,7 +824,8 @@ The batch summary contains `container_count`, `unique_cves`, and `metrics`.
 Metrics count comparisons and discrepancies, with `agreement_counts`,
 `local_scan_counts`, `match_counts`, and `vendor_assessment_counts` derived from
 those same conclusions. Counter maps contain observed values only; an absent
-label means zero. There is no separate batch classification or percentage score.
+label means zero. JSON does not add a batch agreement classification or derived
+rate; the text summary calculates discrepancy rates from these counters.
 
 Each container's `audit_summary` groups inventory and reconciliation counts.
 Inventory `cve_observations` counts findings per binary/advisory/CVE, with one
@@ -845,7 +835,7 @@ several binaries or advisories do not multiply that pair. The same CVE in two
 containers contributes twice to comparisons and once to batch `unique_cves`.
 Binaries from earlier layers remain included with their runtime dispositions.
 
-`aggregate.csv` is complete regardless of text verbosity or `--wide`. It has one
+`pygo-audit-triage.csv` is complete regardless of text verbosity or `--wide`. It has one
 row per container/CVE pair, sorted by descending highest CVSS score, then
 container, agreement priority (No, Qualified no, Mixed, Undetermined, Qualified
 yes, Yes), and CVE. Rows without a score sort last. Its columns are:

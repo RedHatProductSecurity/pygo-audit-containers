@@ -16,7 +16,7 @@ from pygo_audit.result_cache import ResultCacheError
 from pygo_audit.text_layout import RenderPolicy, SUMMARY_POLICY, Verbosity
 from pygo_audit.scanner import ScanConfigurationError
 from pygo_audit.storage import atomic_read_json
-from pygo_audit.workspace import scan_workspace
+from pygo_audit.workspace import container_output_directory, scan_workspace
 
 CONFIG_NAME = "pygo-audit.json"
 # Each entry defines the value type, workspace default, and CLI help together.
@@ -355,6 +355,11 @@ def run(args: argparse.Namespace) -> int:
         and not options.audit_file.is_file()
         and not options.rootfs.is_dir()
     )
+    batch_output_dir = (
+        options.output_dir
+        if command == "audit" and "output_dir" in options.configured
+        else None
+    )
     targets = [options]
     if many:
         inherited = dict(options.configured)
@@ -366,6 +371,13 @@ def run(args: argparse.Namespace) -> int:
                 "cache_dir": options.cache_dir,
                 "work_dir": options.work_dir,
             }
+            if batch_output_dir is not None:
+                inherited.pop("output_dir", None)
+                overrides = {
+                    name: value
+                    for name, value in vars(args).items()
+                    if name != "output_dir"
+                }
         else:
             inherited = {
                 name: value
@@ -382,6 +394,12 @@ def run(args: argparse.Namespace) -> int:
             resolve_settings(root, overrides, inherited)
             for root in discover_audits(options.audit_root, options.targets)
         ]
+    if command == "audit" and batch_output_dir is not None:
+        options.batch_output_dir = batch_output_dir
+        for target in targets:
+            target.bundle_output_dir = container_output_directory(
+                batch_output_dir, target.audit_root
+            )
     if command in {"scan", "audit"}:
         for target in targets:
             target.image = resolve_image_identity(
@@ -412,7 +430,9 @@ def run(args: argparse.Namespace) -> int:
                     )
                 )
             ):
-                target.output_dir = options.output_dir / target.audit_root.name
+                target.output_dir = container_output_directory(
+                    options.output_dir, target.audit_root
+                )
             else:
                 use_default_reports_directory(target)
     if command == "csaf":
@@ -447,8 +467,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.verbose > int(Verbosity.FORENSIC):
             parser.error("-v/--verbose may be repeated at most three times")
         machine_readable = (
-            args.command == "report"
-            and report.REPORT_VIEWS[args.view].machine_readable
+            args.command == "report" and report.REPORT_VIEWS[args.view].machine_readable
         ) or (args.command == "aggregate" and args.view is not None)
         if machine_readable and (args.verbose or args.wide):
             parser.error(

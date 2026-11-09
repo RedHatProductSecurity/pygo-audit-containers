@@ -98,15 +98,14 @@ scripts/
 ├── container_metadata.py image identity fallbacks and product label collection
 ├── gather-openshift-targets
 │                        OpenShift release inventory adapter
-├── fetch-redhat-csaf     public Red Hat VEX URL preset and CSAF validation
-└── fetch-cve-data        internal OSIDB URL preset
+└── fetch-redhat-csaf     public Red Hat VEX URL preset and CSAF validation
 ```
 
 `cve_data.py` provides reusable download/cache operations; it is not a
-`pygo-audit` subcommand. `fetch-cve-data` and `fetch-redhat-csaf` supply source
-presets and call that library. The library is the product. The scripts are
-vendor and external-tool adapters. If a future analyst uses a different image
-tool, the scanner should not notice.
+`pygo-audit` subcommand. `fetch-redhat-csaf` supplies source settings and calls
+that library. The library is the product. The scripts are vendor and external-
+tool adapters. If a future analyst uses a different image tool, the scanner
+should not notice.
 
 ## Module ownership and call paths
 

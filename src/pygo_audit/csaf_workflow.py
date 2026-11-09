@@ -22,7 +22,7 @@ from pygo_audit.identity import resolve_image_identity
 from pygo_audit.report_views import normalize_cve
 from pygo_audit.storage import json_digest
 from pygo_audit.text_layout import FULL_POLICY, RenderPolicy, SUMMARY_POLICY
-from pygo_audit.workspace import outside_subjects
+from pygo_audit.workspace import container_output_directory, outside_subjects
 
 
 @dataclass(frozen=True, slots=True)
@@ -214,18 +214,33 @@ def compare_workspaces(
 
 
 def publish_checks(
-    checks: list[CompletedCheck], additional: Mapping[Path, str] | None = None
+    checks: list[CompletedCheck],
+    additional: Mapping[Path, str] | None = None,
+    *,
+    container_reports_dir: Path | None = None,
 ) -> None:
     payloads: dict[Path, str] = {}
     for check in checks:
+        text = image_csaf.render_text(check.data, FULL_POLICY)
         payloads.update(
             comparison_payloads(
                 check.workspace.output_dir,
                 "comparison",
                 check.data,
-                image_csaf.render_text(check.data, FULL_POLICY),
+                text,
             )
         )
+        if container_reports_dir is not None:
+            payloads.update(
+                comparison_payloads(
+                    container_output_directory(
+                        container_reports_dir, check.workspace.root
+                    ),
+                    "comparison",
+                    check.data,
+                    text,
+                )
+            )
     for path, content in (additional or {}).items():
         if path in payloads:
             raise csaf.CsafCheckError(f"multiple reports use the same output: {path}")

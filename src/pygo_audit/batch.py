@@ -36,14 +36,22 @@ def write_progress(root: Path, results: Mapping[str, TargetOutcome]) -> None:
 
 def run(options: argparse.Namespace, settings: list[argparse.Namespace]) -> int:
     root = options.audit_root
-    reports_directory = root / "reports"
+    reports_directory = getattr(options, "batch_output_dir", root / "reports")
     subjects = [subject for item in settings for subject in scan_subjects(item)]
     outputs = [item.output_dir.resolve() for item in settings]
     if len(set(outputs)) != len(outputs):
         raise ValueError("each target must have a distinct report output directory")
+    bundle_outputs = [
+        item.bundle_output_dir.resolve()
+        for item in settings
+        if getattr(item, "bundle_output_dir", None) is not None
+    ]
+    if len(set(bundle_outputs)) != len(bundle_outputs):
+        raise ValueError("each target must have a distinct output bundle directory")
     outside_subjects(
         [
             root,
+            reports_directory,
             options.cache_dir,
             options.work_dir,
             *(
@@ -51,6 +59,11 @@ def run(options: argparse.Namespace, settings: list[argparse.Namespace]) -> int:
                 for item in settings
                 for path in (
                     item.output_dir,
+                    *(
+                        [item.bundle_output_dir]
+                        if getattr(item, "bundle_output_dir", None) is not None
+                        else []
+                    ),
                     item.history_dir,
                     item.cache_dir,
                     item.work_dir,

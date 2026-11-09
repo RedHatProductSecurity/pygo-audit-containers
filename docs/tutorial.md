@@ -166,15 +166,16 @@ Retrieval and caching belong to the script. The single-image check examines
 every supplied document for the image and compares applicable vendor statements
 with saved local findings, keeping tentative and conflicting conclusions explicit.
 Batch `csaf` and `aggregate` use that same comparison, scoped to each container's
-own recorded CVEs. Aggregation refreshes child comparisons and writes text, JSON,
-and `reports/aggregate.csv` for spreadsheet triage. These comparisons read local
+own recorded CVEs. Aggregation refreshes child comparisons and writes separate
+aggregate statistics, CVE summaries, container summaries, JSON, and
+`reports/pygo-audit-triage.csv` for spreadsheet triage. These comparisons read local
 files and work without network access. See the
 [command reference](cli-reference.md) for file formats and directory contracts.
 
 ## Chapter 7: investigate without overclaiming
 
 Use the [findings guide](findings-guide.md) as the decision tree. Start with
-`aggregate.csv`: the highest CVSS scores appear first, with qualified labels preserved.
+`pygo-audit-triage.csv`: the highest CVSS scores appear first, with qualified labels preserved.
 Undetermined identifies missing documents or evidence that cannot support a
 comparison; it does not mean agreement. Follow the detail report for the candidate's
 identity, raw statements, qualifications, and the local binary evidence.
