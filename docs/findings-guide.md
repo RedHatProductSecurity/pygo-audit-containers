@@ -1,171 +1,53 @@
 # Findings and resolution guide
 
-Maintainer advice first: keep dependencies minimal and well-updated. Every
-extra dependency creates another version range, another piece of metadata, and
-another opportunity for two tools to describe the same code differently.
+This guide explains how to interpret pygo-audit's Go binary findings alongside CSAF/VEX statements. The key question is whether both sources reach the same practical conclusion about a CVE for the scanned subject—not whether they use the same terminology.
 
-This guide is about the important question after `govulncheck` and CSAF/VEX
-have spoken:
+## What the audit establishes
 
-> Do the two sources reach the same practical conclusion about this CVE in
-> this scanned subject?
+For each discovered ELF, pygo-audit hashes and identifies the file, reads embedded Go build metadata with the host `go version -m -json`, runs `govulncheck`, records its CVEs and affected modules, and reconciles its module inventory with build metadata. This is evidence about the supplied bytes. It does not prove that the image is running, that a vulnerable function is reachable, or that native libraries were covered.
 
-It is deliberately forgiving about language and precise about conclusions.
+CSAF/VEX is evaluated separately from Go findings. `pygo-audit csaf` checks supplied documents against the image's recorded identity, even when the Go scan found no CVEs. The Red Hat retrieval helper is `scripts/fetch-redhat-csaf`; aggregate reports compare Go-observed CVEs with vendor conclusions.
 
-## What pygo-audit is finding
+## Identity, findings, and agreement
 
-For each discovered ELF file, pygo-audit:
+The single-image comparison uses component PURL, product CPE, image digest, and architecture. An exact image digest identifies the image; an unversioned component can match by exact OCI package name within an applicable product relationship. A platform CPE alone is insufficient. Conflicting platform constraints or different fixed builds cannot establish vendor status for the scanned image. If architecture is the only mismatch and both architectures are known, a supported candidate can provide a tentative, explicitly qualified fuzzy comparison. Missing identity is not a not-affected conclusion. Relationships apply only when explicitly linked.
 
-1. hashes and identifies the file without executing it;
-2. asks the host `go version -m -json` command for embedded Go build metadata;
-3. asks `govulncheck` to inspect the binary and its module inventory;
-4. records the CVEs and affected modules returned by that analysis; and
-5. reconciles declared build metadata with the modules observed by
-   `govulncheck`.
+The default report gives each CVE a Local scan result, CSAF ID Match, Agreement, and sorted, deduplicated CSAF product-ID candidates (including rejected candidates).
 
-The result is evidence about the supplied bytes. It is not automatically a
-claim that a process can reach a vulnerable function, that the image is
-running, or that every native library has been examined.
+- **Local scan:** `Affected` when recorded findings identify vulnerable modules, packages, or symbols; `Not Affected` when a completed scan found none; `Undetermined` when missing findings coincide with incomplete coverage or operational issues. Historical-only findings remain `Affected` with a qualification. Vendor statements and advisory references without local finding records do not change this result.
+- **CSAF ID Match:** reflects how well the advisory product identity matches the scanned subject. Exact matches outrank weaker candidates; fuzzy/name/context matches remain qualified.
+- **Agreement:** compares local evidence with the applicable vendor conclusion. Candidate statements remain separate, so one product's flags cannot explain another product's status. Unsupported matches and conflicting statements within one candidate are `Undetermined`.
 
-CSAF/VEX is a separate source. The `pygo-audit csaf` command checks each supplied
-document for the image using its recorded identity, regardless of Go findings.
-The Red Hat retrieval helper lives separately in `scripts/fetch-redhat-csaf`.
-Aggregate reports continue to compare Go-observed CVEs with vendor conclusions.
+Candidate results can be `Yes`, `Qualified yes`, `No`, `Qualified no`, or `Undetermined`. The overall CVE can be `Mixed` when accepted candidates reach opposing conclusions. `No` requires a verifiable contradiction for an exact match; a symbol alone does not prove that vulnerable code remains. `Qualified no` represents disagreement that still needs qualification—for example, a vendor fix/backport claim that local version or symbol evidence cannot disprove. Absent or historical-only local evidence neither proves safety nor contradicts a statement about the final image.
 
-## Image and platform evidence
+CPE URI and 2.3 bindings are supported. A broader numeric version family may support a qualified fuzzy comparison, but is not an exact CPE match or a vendor-specific hierarchy. See the [CPE name-matching specification](https://csrc.nist.gov/Projects/Security-Content-Automation-Protocol/Specifications/cpe/name-matching) and [CSAF relationship definitions](https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#32123-relationships).
 
-The single-image check uses a component PURL, product CPE, image digest and
-architecture. It identifies an exact image digest, or an unversioned component
-with an exact OCI package name in an applicable product relationship. A platform
-CPE alone does not identify the component. Different fixed builds and conflicting
-platform constraints cannot supply the scanned image's vendor status. When both
-architectures are known and architecture is the only mismatch, an otherwise
-supported candidate can supply a tentative comparison, labeled Fuzzy match found
-with an explicit architecture qualification. Missing identification is not a
-not-affected conclusion.
+## Report detail
 
-The default report gives each CVE Local scan, CSAF ID Match, Agreement, and a
-sorted, deduplicated list of discovered CSAF product ID candidates, including
-rejected candidates. Local scan reports Affected when recorded findings identify
-vulnerable modules, packages, or symbols; Not Affected when the completed scan found none;
-and Undetermined when missing findings coincide with incomplete scanning or
-operational issues. Historical-only findings remain Affected with a qualification.
-Vendor statements do not determine this result, and advisory references without
-local finding records do not count as detected code.
+- Default output summarizes each CVE and its product candidates.
+- `-v` adds matching inputs, evidence precision, unique modules and versions, and grouped `[CSAF MATCH CANDIDATES: <local product name>]` sections. Each candidate shows its product ID, match evidence, and agreement; accepted IDs differing from the candidate ID appear under `Matched product IDs`.
+- `-vv` adds full PURLs and vendor statements, detailed checks, packages, and the `[LOCAL FINDINGS]` binary evidence table with locations, reachability explanations, and vendor matching evidence.
+- `-vvv` adds exact symbols, binary history, and provenance.
 
-`-v` adds matching inputs, evidence precision, sorted unique modules with
-versions, and `[CSAF MATCH CANDIDATES: <local product name>]` sections. Candidates
-are grouped by the image or inherited product being searched. Each candidate has
-a short component-name heading, its full CSAF product ID (including rejected
-candidates), CSAF ID Match, matching evidence, and Agreement. At `-v`, accepted
-IDs that differ from the candidate's own ID appear under `Matched product IDs`.
-Architecture/build qualifiers
-distinguish repeated names. Full candidate PURLs and vendor statements appear
-at `-vv+`. Multiple values are listed on separate lines, including inside aligned
-table cells. Candidate agreement
-uses that candidate's applicable statements; unsupported matches stay
-Undetermined. `-vv` expands the checks and explanations and adds packages and the
-sorted binary evidence table under
-`[LOCAL FINDINGS]`, including locations, reachability explanations, and detailed
-vendor matching evidence. `-vvv` expands binaries with their exact symbols and
-ends with provenance. Name/context matches remain tentative.
-Document-level canonical URLs are collected from HTTPS `self` references using
-the CSAF tracking-ID filename convention. They are retained in each document's
-`canonical_urls` list in `comparison.json`. All verbosity levels use
-`<CVE>: <canonical URL>` as the heading, with multiple URLs on separate lines and
-the CVE alone when none is available. Document source paths remain in the
-`source` field in `comparison.json`. The final `-vvv` provenance section
-identifies each CSAF document by its `tracking.current_release_date`, with
-canonical URLs alongside it.
-Exact matches discard weaker candidates in text and JSON. Retained product
-statements stay separate so one candidate's flags cannot explain another's status.
-CVE banners, bracketed sections, and indented subsections distinguish the hierarchy.
+Canonical URLs are collected from HTTPS `self` references using the CSAF tracking-ID filename convention. They appear in `comparison.json` as `canonical_urls` and in CVE headings at all verbosity levels; source paths remain in `source`. The `-vvv` provenance identifies each document by `tracking.current_release_date` and lists its canonical URLs. Multiple values are shown on separate lines.
 
-The local-findings section identifies which scanned binaries carry each CVE's
-recorded evidence. Reachability is `UNDETERMINED` unless the artifact is absent
-from the final image or consistent, exact image/product statements explicitly
-exclude the vulnerable execution path (`NO`). Presence, an affected status, or a
-symbol does not prove reachability (`YES`); the current scanner cannot establish
-that outcome. `-vv` explains the basis, including whether it relies on the vendor,
-and distinguishes current paths from historical locations. Duplicate binary
-observations merge only when their locations, content, runtime disposition, and
-layer context agree; `-vvv` adds recorded symbols and binary history. A local
-finding may coexist with a vendor `known_not_affected` statement: the report
-preserves both observations without treating binary evidence as proof of runtime
-exploitability. Missing local findings are labeled as unrecorded in this audit.
-
-The CPE helper supports URI and 2.3 bindings. The single-image matcher requires
-sufficient local attributes to satisfy the product's constraints. A broader
-numeric version family can support a qualified fuzzy comparison; it does not
-become an exact CPE match or assert a vendor-specific hierarchy. Relationships are followed only
-when explicitly linked; unrelated platform statements do not apply.
-See the [CPE name-matching specification](https://csrc.nist.gov/Projects/Security-Content-Automation-Protocol/Specifications/cpe/name-matching)
-and [CSAF relationship definitions](https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#32123-relationships).
-
-## Semantic and syntactic conclusions
-
-The two sources are orthogonal:
-
-```text
-pygo-audit                         CSAF/VEX
-───────────                         ─────────
-bytes and paths                    product/component identity
-embedded Go metadata               affected/not-affected assertion
-module and version evidence        fixed or vulnerable-code explanation
-govulncheck result                  provider semantic conclusion
-```
-
-Pygo’s output is closer to a syntactic observation of what is in the binary.
-VEX’s output is closer to a semantic model of what that product means at
-runtime. Both single-image and aggregate comparisons ask whether the descriptions
-agree, while retaining their different meanings. The single-image summary marks
-fuzzy comparisons as tentative. Each candidate reports Yes, Qualified yes, No,
-Qualified no, or Undetermined. Only the overall CVE result can report Mixed,
-when accepted candidates reach opposing comparison conclusions. Conflicting
-statements within one candidate remain Undetermined. No requires a verifiable
-contradiction for an exact match; a symbol alone does not prove the vulnerable
-implementation remains. Qualified no records disagreement whose identity or
-evidence still needs qualification, such as a vendor fix/backport claim that
-local symbols or version metadata cannot disprove.
-Absent or historical-only local evidence does not establish safety or contradict
-a statement about the final image.
+The local-findings section links each CVE to binaries with recorded evidence. Reachability is `UNDETERMINED` unless the artifact is absent from the final image or consistent, exact image/product statements explicitly exclude the vulnerable execution path (`NO`). Presence, an affected status, or a symbol does not prove reachability (`YES`); the scanner cannot establish it. Verbose output explains the basis and distinguishes current paths from historical locations. Duplicate binary observations merge only when location, content, runtime disposition, and layer context agree. A local finding can coexist with vendor `known_not_affected`; the report preserves both without claiming runtime exploitability. Missing local findings are labeled as unrecorded in this audit.
 
 ## Batch triage
 
-Batch and single-container reports use the same local findings, product matches,
-vendor assessments, and agreement rules. The [CLI reference](cli-reference.md#compare-local-csaf-evidence)
-defines the states and their qualifications. Batch comparisons include only each
-container's recorded CVEs, so another image's advisory does not create a negative
-case for this image.
+Batch and single-container reports use the same findings, identity, vendor-assessment, and agreement rules. A container is compared only against its recorded CVEs, so another image's advisory does not create a negative case.
 
-Open `reports/pygo-audit-triage.csv` to compare containers. Each row is one container/CVE
-pair, sorted by descending highest CVSS score, then container, agreement priority,
-and CVE. Use `AGREEMENT` to review No, Qualified no, and Mixed results, then inspect
-Undetermined cases for missing documents or unresolved identity. The per-container
-`reports/comparison.txt` includes candidate and binary evidence; `audit.json` has
-the original scan details. Qualified disagreement remains different from a verified
-contradiction. A vendor fix/backport can coexist with an old embedded version or
-surviving symbol name.
+Open `reports/pygo-audit-triage.csv` to review container/CVE pairs, sorted by descending highest CVSS score, then container, agreement priority, and CVE. Start with `No`, `Qualified no`, and `Mixed` under `AGREEMENT`, then review `Undetermined` cases for missing documents or unresolved identity. Per-container `reports/comparison.txt` contains candidate and binary evidence; `audit.json` retains the scan details. Qualified disagreement is not a verified contradiction, and vendor fix/backport claims can coexist with old embedded versions or surviving symbol names.
 
-## A useful review sequence
+`reports/aggregate.txt` summarizes batch counts and discrepancy rates; `reports/cve-aggregates.txt` groups results by CVE; `reports/container-aggregates.txt` summarizes severity, vulnerable binaries, and product matches per container. Counts are container/CVE pairs, with unique batch CVEs reported separately; they do not measure detection accuracy. The original `audit.json` is the source for full binary evidence.
 
-When a CVE needs attention:
+## Review a CVE
 
-1. Confirm the image digest, platform, component, and binary path refer to the
-   same subject.
-2. Check whether pygo had complete coverage or an operational failure.
-3. Read the pygo module path, found version, fixed version, and finding
-   evidence in `reports/vulnerability-findings.txt`. Use
-   `reports/binary-findings.txt` for the binary grouping and
-   `reports/module-reconciliation.txt` for build and dependency comparisons.
-4. Read the complete VEX status and flags, not only the headline status.
-5. Check whether the provider is discussing Go code, a native library, or a
-   product-level condition outside the binary scan.
-6. Re-run with current Go/vulnerability databases if the evidence is stale.
-7. Keep the disagreement in the report if it remains; do not rewrite it into
-   agreement for aesthetic reasons.
-
-Useful commands:
+1. Confirm the image digest, platform, component, and binary path refer to the same subject.
+2. Check scan coverage and operational diagnostics.
+3. Review module path, found/fixed versions, and evidence in `reports/vulnerability-findings.txt`; use `reports/binary-findings.txt` for binary grouping and `reports/module-reconciliation.txt` for build/dependency comparisons.
+4. Read the complete VEX status and flags. Determine whether the provider discusses Go code, native code, or a product-level condition outside the scan.
+5. Refresh Go and vulnerability databases if evidence may be stale. Preserve unresolved disagreements in the report.
 
 ```console
 ./pygo-audit report audit/audit.json --view vulnerability-findings
@@ -175,59 +57,12 @@ Useful commands:
 ./pygo-audit csaf audit --csaf local-csaf/
 ```
 
-`reports/comparison.txt` presents per-CVE candidates and linked evidence; its JSON
-retains the detailed identity data. `reports/aggregate.txt` summarizes batch counts
-and discrepancy rates; `reports/cve-aggregates.txt` groups comparison results by
-CVE, and `reports/container-aggregates.txt` summarizes severity, vulnerable
-binaries, and CSAF product matches per container. Use `-v` onward for the same
-per-container details as `csaf`; provenance appears only at the bottom of `-vvv`. Counts use
-container/CVE pairs, with batch unique CVEs reported separately. These counts do
-not measure vulnerability-detection accuracy. The original `audit.json` remains
-the source for reviewing a binary's full scan evidence.
+## Evidence limits
 
-## Reachability and unspecified evidence
+`govulncheck` uses binary symbol information to narrow findings when possible and falls back to module-level precision otherwise. Its stable output does not promise a direct `.symtab`-available flag. Pygo reports the evidence actually emitted—module, package, or symbol—and uses `unspecified` when Go tools provide no reachability conclusion. A symbol finding means govulncheck observed a relevant symbol; a clean scan does not prove symbol information was available.
 
-`govulncheck` uses binary symbol information to narrow findings when it can,
-and falls back to module-level precision when it cannot extract symbols. Its
-stable command/JSON output does not promise a direct `.symtab`-available
-boolean. Pygo therefore reports the evidence govulncheck actually emits —
-module, package, or symbol — and uses `unspecified` when the Go tools do not
-state a reachability conclusion.
+CGO is recorded per binary build. From `-vv`, the CSAF package table lists `BINARY CGO` as Enabled, Disabled, or Unknown for binaries carrying that package's findings. Missing or inconsistent settings are Unknown; multiple binaries may yield multiple settings, which does not attribute CGO use to the package. Individual settings also appear in binary evidence and forensic blocks.
 
-That is intentionally less exciting than a homemade ELF heuristic. A symbol
-finding is evidence that govulncheck observed a relevant symbol; a clean scan
-does not prove that symbol information was present, and no report should imply
-otherwise. The same vulnerability data is still fetched and evaluated.
+`govulncheck` focuses on Go modules and call-graph reasoning. CGO may introduce native code through dynamic libraries, static archives, system headers, generated bindings, or vendored C/C++. Supplement CGO-heavy audits with an appropriate native/distribution scanner and an SBOM; check linking, runtime library paths, and the image package database. No Go CVE found does not mean no native vulnerability exists.
 
-## CGO and native-library limits
-
-CGO is recorded per binary build. The CSAF package table includes `BINARY CGO`
-from `-vv` onward, listing Enabled, Disabled, or Unknown for the binaries carrying
-that package's findings. Missing or inconsistent build settings remain Unknown.
-A package present in several builds can list several settings; this does not
-attribute cgo usage to the package itself. Individual binary settings appear in
-the binary evidence table and forensic blocks.
-
-`govulncheck` is strongest for Go modules and Go call-graph reasoning. CGO can
-bring native code into the program through dynamic libraries, static archives,
-system headers, generated bindings, or vendored C/C++ sources. A Go-focused
-finding can therefore be accurate about the Go portion while saying little
-about a vulnerable OpenSSL, libc, zlib, or vendor library used at runtime.
-
-For CGO-heavy binaries, supplement this audit with the relevant distribution
-or native-library scanner and an SBOM that records shared-library provenance.
-Check static versus dynamic linking, the actual runtime library search path,
-and the image’s package database. Do not infer “no Go CVE found” to mean “no
-native vulnerability exists.”
-
-## Secondary filesystem context
-
-If layer directories were supplied, `runtime_disposition` says whether the
-observed bytes are present in the final `rootfs/`, explained as deleted or
-replaced, or left unaccounted for. This is useful context for deciding whether
-a finding applies to the final filesystem, but it does not change what a CVE
-means and it does not replace the semantic comparison above.
-
-The Go-tool evidence and layer disposition are context fields. They should help
-a reviewer understand confidence and scope, not become shortcuts that erase an
-otherwise important mismatch.
+If layer directories are supplied, `runtime_disposition` indicates whether observed bytes are present in the final `rootfs/`, deleted or replaced, or unaccounted for. Treat this as context for scope and confidence—not as a substitute for the semantic comparison or a reason to erase a mismatch.
